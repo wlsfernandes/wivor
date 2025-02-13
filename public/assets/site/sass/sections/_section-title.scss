@@ -1,0 +1,115 @@
+/*------------------------------------------------
+    ## Section title
+------------------------------------------------*/
+.section-title {
+    margin-bottom: 50px;
+    position: relative;
+    .sub-title {
+        display: inline-block;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        letter-spacing: 1px;
+        position: relative;
+        color: var(--main-color-one);
+        &.line-after {
+            padding-top: 0;
+            padding-bottom: 0;
+            &:after {
+                content: '';
+                position: absolute;
+                background: #fff;
+                right: -55px;
+                top: 8px;
+                height: 2px;
+                width: 40px;
+            }
+        }
+        &.line-double {
+            padding-left: 55px;
+            margin-left: -55px;
+            padding-top: 0;
+            padding-bottom: 0;
+            &:before {
+                content: '';
+                position: absolute;
+                background: #fff;
+                left: 0;
+                top: 8px;
+                height: 2px;
+                width: 40px;
+            }
+            &:after {
+                content: '';
+                position: absolute;
+                background: #fff;
+                right: -55px;
+                top: 8px;
+                height: 2px;
+                width: 40px;
+            }
+        }
+    }
+    .title {
+        margin-bottom: 0;
+        margin-top: 0;
+        text-transform: capitalize;
+        span {
+            color: var(--main-color-one);
+        }
+    }
+    .content {
+        margin-top: 17px;
+        margin-bottom: 0;
+    }
+    .small-title {
+        margin-top: 18px;
+        font-weight: 600;
+        color: var(--heading-color);
+    }
+    .phone {
+        font-weight: 400;
+        margin-top: 30px;
+        img {
+            margin-right: 6px;
+        }
+    }
+    .single-list-wrap {
+        margin-top: 21px;
+    }
+    .btn {
+        margin-top: 30px;
+    }
+    &.style-white {
+        .sub-title {
+            color: var(--main-color-one);
+            &.left-line {
+                &:before {
+                    background: #fff;
+                }
+            }
+            &.right-line {
+                &:after {
+                    background: #fff;
+                }
+            }
+            &.double-line {
+                &:before {
+                    background: #fff;
+                }
+                &:after {
+                    background: #fff;
+                }
+            }
+        }
+        .title {
+            color: #fff;
+        }
+        .content {
+            color: #fff;
+        }
+        .small-title {
+            color: #fff;
+        }
+    }
+}
