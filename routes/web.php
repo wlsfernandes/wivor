@@ -24,6 +24,29 @@ use Aws\S3\S3Client;
 |
 */
 
+
+
+Route::get('/s3-test', function () {
+    try {
+        // Upload a test file to S3
+        $testFileName = 'test-file.txt';
+        Storage::disk('s3')->put($testFileName, 'This is a test file.');
+
+        // Generate the file URL
+        $url = Storage::disk('s3')->url($testFileName);
+
+        return response()->json([
+            'message' => 'S3 is accessible!',
+            'file_url' => $url,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'S3 access failed!',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+});
+
 Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
 
 Route::get('/lang/{lang}', function ($lang) {
@@ -40,6 +63,7 @@ Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('test
 
 
 
+
 Auth::routes();
 
 Route::middleware(['auth', 'institution.scope'])->group(function () {
@@ -52,6 +76,8 @@ Route::middleware(['auth', 'institution.scope'])->group(function () {
         Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
         Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
         Route::get('/posts/{id}/edit', [PostController::class, 'edit'])->name('posts.edit');
+        Route::get('/posts/{id}/teaser', [PostController::class, 'teaser'])->name('posts.teaser');
+        Route::put('posts/{id}/upload-jpg', [PostController::class, 'uploadJPG'])->name('posts.uploadJPG');
         Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
         //User

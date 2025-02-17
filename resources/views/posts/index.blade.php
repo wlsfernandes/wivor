@@ -61,11 +61,8 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Type</th>
                                 <th>Title En</th>
                                 <th class="text-center">Upload JPG</th>
-                                <th class="text-center">English PDF</th>
-                                <th class="text-center">Spanish PDF</th>
                                 <th class="text-center">Publish</th>
                                 <th class="text-center">Preview</th>
                                 <th>Actions</th>
@@ -75,18 +72,9 @@
                             @foreach ($posts as $post)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>
-                                        @if ($post->postType && $post->postType->name == 'blog')
-                                            <div class="badge bg-pill bg-primary-subtle text-primary font-size-12">Blog</div>
-                                        @elseif ($post->postType && $post->postType->name == 'event')
-                                            <div class="badge bg-pill bg-warning-subtle text-warning font-size-12">Event</div>
-                                        @else ($post->postType && $post->postType->name == 'simple page')
-                                            <div class="badge bg-pill bg-info-subtle text-info font-size-12">Simple Page</div>
-                                        @endif
-                                    </td>
                                     <td><i>{{ substr($post->title_en ?? '', 0, 25) }}...</i></td>
                                     <td class="text-center">
-                                        <a href="{{ url('/post/' . $post->id . '/teaser') }}" class="px-3 text-primary">
+                                        <a href="{{ url('/posts/' . $post->id . '/teaser') }}" class="px-3 text-primary">
                                             @if($post->image_url)
                                                 <i class="text-primary uil-image-upload font-size-20"></i>
                                             @else
@@ -94,26 +82,8 @@
                                             @endif
                                         </a>
                                     </td>
-                                    <td class="text-center">
-                                        <a href="{{  route('post.file', ['id' => $post->id, 'language' => 'en']) }}"
-                                            class="px-3 text-primary">
-                                            @if($post->file_url)
-                                                <i class="text-primary uil-file font-size-20"></i>
-                                            @else
-                                                <i class="text-muted uil-file font-size-20"></i>
-                                            @endif
-                                        </a>
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('post.file', ['id' => $post->id, 'language' => 'es']) }} "
-                                            class="px-3 text-primary">
-                                            @if($post->file_url_es)
-                                                <i class="text-primary uil-file font-size-20"></i>
-                                            @else
-                                                <i class="text-muted uil-file font-size-20"></i>
-                                            @endif
-                                        </a>
-                                    </td>
+
+
                                     <td class="text-center">
 
                                         @if($post->published)
@@ -129,7 +99,7 @@
                                             </a>
 
                                             <form id="publish-form-{{ $post->id }}"
-                                                action="{{ url('/post/' . $post->id . '/publish') }}" method="POST"
+                                                action="{{ url('/posts/' . $post->id . '/publish') }}" method="POST"
                                                 style="display: none;">
                                                 @method('POST')
                                                 @csrf

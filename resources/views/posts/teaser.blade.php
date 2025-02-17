@@ -49,7 +49,7 @@
                         Upload JPEG Blog Display File AETH website
                     </h4>
 
-                    <form method="POST" action="{{ route('post.uploadJPG', $post->id) }}" accept-charset="UTF-8"
+                    <form method="POST" action="{{ route('posts.uploadJPG', $post->id) }}" accept-charset="UTF-8"
                         enctype="multipart/form-data" style="display:inline">
                         @csrf
                         @method('PUT')
@@ -67,7 +67,7 @@
 
                         <div class="d-flex flex-wrap gap-3">
                             <button type="submit" class="btn btn-secondary waves-effect">
-                                <a href="{{ url('/post') }}" class="btn btn-secondary waves-effect">
+                                <a href="{{ url('/posts') }}" class="btn btn-secondary waves-effect">
                                     <i class="bx bx-arrow-back"></i> Go Back
                                 </a>
                             </button>

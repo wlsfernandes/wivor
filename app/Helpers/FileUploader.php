@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class FileUploader
 {
-    public static function uploadImageToS3Storage($file, $directory = 'img/')
+    public static function uploadImageToS3Storage($file, $directory = 'photos/')
     {
         // Generate a unique file name
         $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
