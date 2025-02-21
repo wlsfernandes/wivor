@@ -38,24 +38,30 @@
 
                 <li>
                     <a href="{{url('index')}}">
-                        <i class="uil-home-alt"></i><span class="badge rounded-pill bg-primary float-end">01</span>
+                        <i class="fa fa-tachometer-alt"></i><span
+                            class="badge rounded-pill bg-primary float-end">01</span>
                         <span>@lang('translation.Dashboard')</span>
                     </a>
                 </li>
                 @can('access-admin')
                     <li>
                         <a href="{{url('users')}}" class="waves-effect">
-                            <i class="uil-user-circle"></i>
+                            <i class="fa fa-user"></i>
                             <span>System Users</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{url('posts')}}" class="waves-effect">
-                            <i class="uil-award"></i>
+                            <i class="fa fa-calendar"></i>
                             <span>Events</span>
                         </a>
                     </li>
-
+                    <li>
+                        <a href="{{url('list-photographers')}}" class="waves-effect">
+                            <i class="fa fa-camera"></i>
+                            <span>Photographers</span>
+                        </a>
+                    </li>
 
 
                 @endcan

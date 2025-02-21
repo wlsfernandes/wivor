@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    Blog
+    Users
 @endsection
 @section('css')
     <!-- DataTables -->
@@ -10,7 +10,7 @@
 @section('content')
     @component('common-components.breadcrumb')
     @slot('pagetitle')
-    Blog
+    Users
     @endslot
     @slot('title')
     @endslot

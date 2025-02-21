@@ -85,10 +85,10 @@ class RegisterController extends Controller
             //    $user->roles()->attach($role->id);
             $user->roles()->attach(2);  // Student
 
-            Student::create([
-                'user_id' => $user->id,
-                'institution_id' => 1,
-            ]);
+            /*   Student::create([
+                   'user_id' => $user->id,
+                   'institution_id' => 1,
+               ]); */
             DB::commit();
             return $user;
         } catch (Exception $e) {

@@ -4,7 +4,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Wivor</title>
-    <link rel="icon" href="assets/images/logo/Wivor_favicon.png" type="image/x-icon">
+    <link rel="icon" href="assets/images/logo/wivor_favicon.png" type="image/x-icon">
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
         rel="stylesheet">
@@ -165,7 +165,10 @@
 
                                         </ul>
                                     </li>
-
+                                    <li>
+                                        <a href="/photographers"><i class="bi bi-camera"></i>
+                                            @lang('header.photographers')</a>
+                                    </li>
 
                                     <li>
                                         <a href="/register"><i class="bi bi-person"></i>

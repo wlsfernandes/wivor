@@ -9,6 +9,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PhotographerController;
 use Illuminate\Support\Facades\Storage;
 use Aws\S3\S3Client;
 
@@ -25,28 +26,6 @@ use Aws\S3\S3Client;
 */
 
 
-
-Route::get('/s3-test', function () {
-    try {
-        // Upload a test file to S3
-        $testFileName = 'test-file.txt';
-        Storage::disk('s3')->put($testFileName, 'This is a test file.');
-
-        // Generate the file URL
-        $url = Storage::disk('s3')->url($testFileName);
-
-        return response()->json([
-            'message' => 'S3 is accessible!',
-            'file_url' => $url,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'S3 access failed!',
-            'error' => $e->getMessage(),
-        ], 500);
-    }
-});
-
 Route::get('/', [HomeController::class, 'welcome'])->name('welcome');
 
 Route::get('/lang/{lang}', function ($lang) {
@@ -58,8 +37,11 @@ Route::get('/post/{slug}', [PostController::class, 'show'])->name('post.show');
 
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
+Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/contact', [HomeController::class, 'contactUs'])->name('contact_us');
 Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('testimonials');
+Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
+Route::post('/registerPhotographer', [PhotographerController::class, 'registerPhotographer'])->name('registerPhotographer');
 
 
 
@@ -89,6 +71,8 @@ Route::middleware(['auth', 'institution.scope'])->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
+
+        Route::get('/list-photographers', [PhotographerController::class, 'list'])->name('photographers.list');
 
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     });

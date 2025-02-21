@@ -1,5 +1,6 @@
 <?php
 return [
+    'photographers' => 'Photographers',
     'about_us' => 'About Us',
     'our_team' => 'Our Team',
     'open_positions' => 'Open Positions',

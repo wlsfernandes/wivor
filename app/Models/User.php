@@ -33,4 +33,10 @@ class User extends Authenticatable
     {
         return $this->roles->pluck('name')->contains($role);
     }
+
+    public function photographer()
+    {
+        return $this->hasOne(Photographer::class);
+    }
+
 }

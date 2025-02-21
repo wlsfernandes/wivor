@@ -21,7 +21,8 @@ class HomeController extends Controller
             'lang',
             'aboutUs',
             'ourTeam',
-            'showPost'
+            'showPost',
+            'photographers'
         ]);
     }
 

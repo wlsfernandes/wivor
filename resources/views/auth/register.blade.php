@@ -23,7 +23,7 @@
 
                             <div class="text-center mt-2">
                                 <h5 class="text-primary">Register Account</h5>
-                                <p class="text-muted">Get your free Minible account now.</p>
+                                <p class="text-muted">Get your free WiVor account now.</p>
                             </div>
                             <div class="p-2 mt-4">
                                 <form method="POST" action="{{ route('register') }}">
@@ -90,32 +90,32 @@
                                     </div>
 
                                     <!--    <div class="mt-4 text-center">
-                                                                <div class="signin-other-title">
-                                                                    <h5 class="font-size-14 mb-3 title">Sign up using</h5>
-                                                                </div>
+                                                                    <div class="signin-other-title">
+                                                                        <h5 class="font-size-14 mb-3 title">Sign up using</h5>
+                                                                    </div>
 
 
-                                                                <ul class="list-inline">
-                                                                    <li class="list-inline-item">
-                                                                        <a href="javascript:void()"
-                                                                            class="social-list-item bg-primary text-white border-primary">
-                                                                            <i class="mdi mdi-facebook"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="list-inline-item">
-                                                                        <a href="javascript:void()"
-                                                                            class="social-list-item bg-info text-white border-info">
-                                                                            <i class="mdi mdi-twitter"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="list-inline-item">
-                                                                        <a href="javascript:void()"
-                                                                            class="social-list-item bg-danger text-white border-danger">
-                                                                            <i class="mdi mdi-google"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>-->
+                                                                    <ul class="list-inline">
+                                                                        <li class="list-inline-item">
+                                                                            <a href="javascript:void()"
+                                                                                class="social-list-item bg-primary text-white border-primary">
+                                                                                <i class="mdi mdi-facebook"></i>
+                                                                            </a>
+                                                                        </li>
+                                                                        <li class="list-inline-item">
+                                                                            <a href="javascript:void()"
+                                                                                class="social-list-item bg-info text-white border-info">
+                                                                                <i class="mdi mdi-twitter"></i>
+                                                                            </a>
+                                                                        </li>
+                                                                        <li class="list-inline-item">
+                                                                            <a href="javascript:void()"
+                                                                                class="social-list-item bg-danger text-white border-danger">
+                                                                                <i class="mdi mdi-google"></i>
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>-->
 
                                     <div class="mt-4 text-center">
                                         <p class="text-muted mb-0">Already have an account ? <a href="{{ url('login') }}"
