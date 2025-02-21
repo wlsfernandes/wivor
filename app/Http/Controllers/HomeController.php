@@ -73,4 +73,9 @@ class HomeController extends Controller
     {
         return view('form-repeater');
     }
+
+    public function aboutUs()
+    {
+        return view('about-us');
+    }
 }

@@ -45,108 +45,15 @@
             <div class="inner-box">
                 <h2>WiVor</h2>
                 <h3>@lang('photographers.photo_plataform')</h3>
-                <a href="{{ route('register') }}" class="theme-btn-one"><span>@lang('photographers.start_here')</span></a>
+                <a href="#register_section" class="theme-btn-one"><span>@lang('photographers.start_here')</span></a>
             </div>
         </div>
     </section>
 
-    <section class="cause-section sec-pad">
-        <div class="auto-container">
-            <div class="row clearfix">
-                <div class="col-lg-3 col-md-6 col-sm-12 cause-block"
-                    style="min-height: 300px;display: flex;flex-direction: column;justify-content: space-between;">
-                    <div class="cause-block-one wow fadeInUp animated" data-wow-delay="300ms" data-wow-duration="1500ms">
-                        <div class="inner-box">
-                            <div class="image-box">
-                                <figure class="video">
-                                    <a href="#">
-                                        <img src="assets/images/gallery/wivor_photo2.jpg" alt="Gallery Image" width="100%"
-                                            height="auto">
-                                    </a>
-                                </figure>
-                                <div class="category"><a href="#" target="blank">@lang('photographers.freedom')</a></div>
-                            </div>
-                            <div class="lower-content">
-                                <div class="text">
-                                    <p>@lang('photographers.create')</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-12 cause-block"
-                    style="min-height: 300px;display: flex;flex-direction: column;justify-content: space-between;">
-                    <div class="cause-block-one wow fadeInUp animated" data-wow-delay="300ms" data-wow-duration="1500ms">
-                        <div class="inner-box">
-                            <div class="image-box">
-                                <figure class="video">
-                                    <a href="#">
-                                        <img src="assets/images/gallery/wivor_photo3.jpg" alt="Gallery Image" width="100%"
-                                            height="auto">
-                                    </a>
-                                </figure>
-                                <div class="category"><a href="#"
-                                        target="blank">@lang('photographers.financial_independece')</a></div>
-                            </div>
-                            <div class="lower-content">
-                                <div class="text">
-                                    <p>@lang('photographers.paid')</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    @include('partials.cards')
 
 
-                <div class="col-lg-3 col-md-6 col-sm-12 cause-block"
-                    style="min-height: 300px;display: flex;flex-direction: column;justify-content: space-between;">
-                    <div class="cause-block-one wow fadeInUp animated" data-wow-delay="00ms" data-wow-duration="1500ms">
-                        <div class="inner-box">
-                            <div class="image-box">
-                                <figure class="video">
-                                    <a href="#">
-                                        <img src="assets/images/gallery/wivor_photo4.jpg" alt="Gallery Image" width="100%"
-                                            height="auto">
-                                    </a>
-                                </figure>
-                                <div class="category"><a href="#">@lang('photographers.autonomy')</a></div>
-                            </div>
-                            <div class="lower-content">
-                                <div class="text">
-                                    <p>@lang('photographers.own_events')</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New fourth block -->
-                <div class="col-lg-3 col-md-6 col-sm-12 cause-block"
-                    style="min-height: 300px;display: flex;flex-direction: column;justify-content: space-between;">
-                    <div class="cause-block-one wow fadeInUp animated" data-wow-delay="900ms" data-wow-duration="1500ms">
-                        <div class="inner-box">
-                            <div class="image-box">
-                                <figure class="video">
-                                    <a href="#">
-                                        <img src="assets/images/gallery/wivor_photo1.jpg" alt="Gallery Image" width="100%"
-                                            height="auto">
-                                    </a>
-                                </figure>
-
-                                <div class="category"><a href="#">@lang('photographers.costs')</a></div>
-                            </div>
-                            <div class="lower-content">
-                                <div class="text">
-                                    <p>@lang('photographers.no_fees')</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="contact-section sec-pad">
+    <section id="register_section" class="contact-section sec-pad">
         <div class="auto-container">
             <div class="sec-title centred mb_55">
                 <span class="sub-title calendar">@lang('messages.register_now')</span>
@@ -226,55 +133,5 @@
 
         @include('partials.contact')
 
-        <!-- clients-section -->
-        <section class="clients-section" style="background:#f7f5f1">
-            <div class="sec-title centred mb_55">
-                <span class="sub-title calendar">@lang('messages.important_partners')</span>
-            </div>
-            <div class="auto-container">
-                <div class="five-item-carousel owl-carousel owl-theme owl-nav-none owl-dots-none">
-                    <figure class="clients-logo"><a href="https://candler.emory.edu/" target="blank"><img
-                                src="assets/images/clients/clients-2.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo"><a href="https://www.garrett.edu/" target="blank"><img
-                                src="assets/images/clients/clients-3.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo"><a href="https://cbf.net/" target="blank"><img
-                                src="assets/images/clients/clients-4.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo"><a href="https://lillyendowment.org/" target="blank"><img
-                                src="assets/images/clients/clients-5.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo"><a href="https://www.ats.edu/" target="blank"><img
-                                src="assets/images/clients/ats-logo.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a href="https://hti.ptsem.edu/" target="blank"><img
-                                src="assets/images/clients/client-6.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a href="https://hispanicscholarsprogram.org/"
-                            target="blank"><img src="assets/images/clients/clients-7.svg" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a href="https://www.intrust.org/" target="blank"><img
-                                src="assets/images/clients/clients-8.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a href="https://www.inter.edu/en/"
-                            target="blank"><img src="assets/images/clients/clients-9.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a href="https://www.wabash.edu/" target="blank"><img
-                                src="assets/images/clients/clients-10.png" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a href="https://tertuhablemos.com/"
-                            target="blank"><img src="assets/images/clients/clients-11.webp"></a>
-                    </figure>
-                    <figure class="clients-logo" style="width:150px;"><a
-                            href="https://www.worldvision.org/country/latin-america-caribbean" target="blank"><img
-                                src="assets/images/clients/clients-12.svg" alt=""></a>
-                    </figure>
-                    <figure class="clients-logo"><a href="https://se-pr.edu/" target="blank"><img
-                                src="assets/images/clients/clients-13.png" alt=""></a>
-                    </figure>
-                </div>
-            </div>
-        </section>
-        <!-- clients-section end -->
+
 @endsection

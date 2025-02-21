@@ -2,16 +2,16 @@
     <div class="auto-container">
         <div class="sec-title centred mb_55">
             <span class="sub-title calendar">@lang('header.contact_us')</span>
-            <!--  <h2>Events</h2> -->
         </div>
         <!-- iframe div -->
 
-        <!--   <div class="iframe-container" style="margin-bottom: 30px;">
+        <div class="iframe-container" style="margin-bottom: 30px;">
             <iframe
-                src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=PO%20Box%20677848%20Orlando%20FL%2032867&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
-                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=3245%20Kittiwake%20Cir%20Peachtree%20Corners%20GA%2030092&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
+                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
 
-        </div> -->
 
         <div class="row clearfix">
             <div class="col-lg-4 col-md-12 col-sm-12 content-column">
@@ -21,14 +21,14 @@
                     <ul class="social-links clearfix">
                         <li><a href="https://www.facebook.com/groups/662799037578468" target="blank"><i
                                     class="fab fa-facebook-f"></i></a></li>
-                        <li><a href="https://www.instagram.com/aeth_org/" target="blank"><i
+                        <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><i
                                     class="fab fa-instagram"></i></a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-8 col-md-12 col-sm-12 form-column">
                 <div class="form-inner">
-                    <form method="post" action="#" id="contact-form">
+                    <form method="post" action="{{ route('contact.send') }}" id="contact-form">
                         @csrf
                         <div class="row clearfix">
                             <div class="col-lg-6 col-md-6 col-sm-12 form-group">

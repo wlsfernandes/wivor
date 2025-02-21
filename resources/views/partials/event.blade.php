@@ -1,7 +1,7 @@
 <section class="event-section bg-color-1" style="background-color:#f5f1fb">
     <div class="auto-container">
         <div class="sec-title mb_55 centred">
-            <span class="sub-title">@lang('messages.our_blog')</span>
+            <span class="sub-title">@lang('messages.events')</span>
         </div>
         <div class="single-item-carousel owl-carousel owl-theme owl-dots-none nav-style-one">
             @foreach($events as $event)

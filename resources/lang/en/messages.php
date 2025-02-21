@@ -1,7 +1,7 @@
 <?php
 
 return [
-
+    'events' => 'Events',
     'address' => 'Address...',
     'state' => 'State...',
     'zipcode' => 'Zipcode...',
@@ -23,6 +23,23 @@ return [
     'your_phone' => 'Your Phone...',
     'your_message' => 'Your Message',
     'send_message' => 'Send a Message',
-    'important_partners' => 'Important Parnerships'
+    'important_partners' => 'Important Parnerships',
+    'who_we_are' => 'Who We Are',
+    'who_we_are_p1' => 'WiVor is an innovative web-based platform designed to connect photographers with individuals practicing sports and exercises. We provide photographers with a space to showcase and sell images of people engaged in various sports and fitness activities. Built on a foundation of passion for sports, creativity, and accessibility, our platform enables photographers to offer high-quality photos to the very individuals they feature—those practicing sports and fitness. WiVor supports photographers while giving buyers direct access to personal, memorable photos of their exercise moments.',
+    'what_we_do' => 'What We Do',
+    'what_we_do_p1' => 'WiVor empowers photographers to capture real, inspiring moments of people practicing sports and fitness activities through a simple and intuitive online marketplace. Photographers upload images of individuals exercising, whether in the gym, at an event, or in outdoor settings. These images are then made available for purchase, allowing individuals to own and cherish high-quality, professional images of their own fitness journey.',
+    'what_we_do_p2' => 'One of the key advantages of WiVor is how easily we connect photographers with individuals practicing sports or exercises—without the need for pre-arranged photo sessions. This seamless connection allows photographers to capture authentic, spontaneous moments, while individuals can effortlessly browse and purchase their own images directly from the platform. WiVor handles all the logistics, so photographers can focus on their craft, and individuals can access their personal photos in a hassle-free way.',
+    'what_we_do_p3' => 'Our mission is to become the leading platform for fitness and sports photography in the United States, offering an innovative space for both photographers and fitness enthusiasts to connect and thrive.',
+    'our_vision' => 'Our Vision',
+    'our_mission' => 'Our Vision',
+    'our_vision_p1' => 'To capture unique moments of achievement and passion for sports, providing an intuitive and accessible digital platform where people can find and purchase photos of their indoor and outdoor activities.',
+    'our_mission_p1' => 'To be the leading platform for sports photography in the United States, connecting photographers and athletes in an innovative way, valuing every achievement and encouraging an active lifestyle.',
+    'core_values' => 'WiVor Core Values',
+    'values' => 'Values',
+    'values_p1' => '<b>Passion for Sports:</b> We appreciate every moment of effort and perseverance from athletes.',
+    'values_p2' => '<b>Innovation:</b> We continuously improve the experience for users and photographers through technology.',
+    'values_p3' => 'Accessibility: We make it easy to access high-quality photos of special sports moments.',
+    'values_p4' => '<b>Recognition of Photography:</b> We support and create new opportunities for photographers.',
+    'values_p5' => '<b>User Experience:</b> We prioritize an intuitive and efficient platform for both clients and professionals.',
 
 ];
