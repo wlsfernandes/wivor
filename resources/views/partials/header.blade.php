@@ -189,8 +189,9 @@
                         </li>
 
                         <a href="/login" class="btn btn-primary" style="
-        background: linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
-        border-color: #ff3d00;
+         border-color: #ff3d00;
+            background: linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
+            background: -webkit-linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
         color: #fff;
         padding: 10px 20px;
         border-radius: 8px;

@@ -1,126 +1,100 @@
-@extends('layouts.master-without-nav')
-@section('title')
-    @lang('translation.Login')
-@endsection
+@extends('layouts.app')
+
+@section('title', '#somosAETH | Portal')
+
+@section('meta-description', 'This is a brief description of the home page.')
+
+@section('meta-keywords', 'Wivor')
+
 @section('content')
-    <div class="account-pages my-5 pt-sm-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="text-center">
-                        <a href="{{ url('index') }}" class="mb-5 d-block auth-logo">
-                            <img src="{{ asset('/assets/images/logo/wivor.png') }}" alt="" height="70"
-                                class="logo logo-dark">
-                            <img src="{{ asset('/assets/images/logo/wivor.png') }}" alt="" height="70"
-                                class="logo logo-light">
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row align-items-center justify-content-center">
-                <div class="col-md-8 col-lg-6 col-xl-5">
-                    <div class="card">
+    <style>
+        .gradient-custom-2 {
+            border-color: #ff3d00;
+            background: linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
+            background: -webkit-linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
+        }
 
-                        <div class="card-body p-4">
-                            <div class="text-center mt-2">
-                                <h5 class="text-primary">Welcome Back !</h5>
-                                <p class="text-muted">Sign in to continue to Amid learning.</p>
-                            </div>
-                            <div class="p-2 mt-4">
-                                <form method="POST" action="{{ route('login') }}">
-                                    @csrf
 
-                                    <div class="mb-3">
-                                        <label class="form-label" for="email">Email</label>
-                                        <input type="text" class="form-control @error('email') is-invalid @enderror"
-                                            name="email" value="{{ old('email', '') }}" id="email"
-                                            placeholder="Enter Email address">
-                                        @error('email')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
-                                    </div>
+        @media (min-width: 769px) {
+            .gradient-custom-2 {
+                border-top-right-radius: .3rem;
+                border-bottom-right-radius: .3rem;
+            }
+        }
+    </style>
 
-                                    <div class="mb-3">
-                                        <div class="float-end">
-                                            @if (Route::has('password.request'))
-                                                <a href="{{ route('password.request') }}" class="text-muted">Forgot
-                                                    password?</a>
-                                            @endif
+    <section class="h-100 gradient-form" style="background-color: #eee;">
+        <div class="container py-5 h-100" style="padding:0px;">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-xl-10">
+                    <div class="card rounded-3 text-black">
+                        <div class="row g-0">
+                            <div class="col-lg-6">
+                                <div class="card-body p-md-5 mx-md-4">
+                                    @if (session('success'))
+                                        <div class="alert alert-success">
+                                            {{ session('success') }}
                                         </div>
-                                        <label class="form-label" for="userpassword">Password</label>
-                                        <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                            value="12345678" name="password" id="userpassword" placeholder="Enter password">
-                                        @error('password')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                    @endif
+
+                                    @if ($errors->any())
+                                        <div class="alert alert-danger">
+                                            {!! $errors->first() !!}
+                                        </div>
+                                    @endif
+                                    <div class="text-center">
+                                        <img src="{{ asset('assets/images/logo/wivor.png') }}" alt="logo">
                                     </div>
 
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="auth-remember-check"
-                                            name="remember" {{ old('remember') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="auth-remember-check">Remember me</label>
-                                    </div>
 
-                                    <div class="mt-3 text-end">
-                                        <button class="btn btn-primary w-sm waves-effect waves-light" type="submit">Log
-                                            In</button>
-                                    </div>
+                                    <form method="POST" action="{{ route('login') }}">
+                                        @csrf
 
-                                    <!--   <div class="mt-4 text-center">
-                                            <div class="signin-other-title">
-                                                <h5 class="font-size-14 mb-3 title">Sign in with</h5>
-                                            </div>
+                                        <p style="margin-top:30px">Login</p>
+
+                                        <div data-mdb-input-init class="form-outline mb-4">
+                                            <input type="email" id="form2Example11" class="form-control" name="email"
+                                                placeholder="Phone number or email address" required />
+                                            <label class="form-label" for="form2Example11">Username</label>
+                                        </div>
+
+                                        <div data-mdb-input-init class="form-outline mb-4">
+                                            <input type="password" id="form2Example22" class="form-control" name="password"
+                                                required />
+                                            <label class="form-label" for="form2Example22">Password</label>
+                                        </div>
 
 
-                                            <ul class="list-inline">
-                                                <li class="list-inline-item">
-                                                    <a href="javascript:void()"
-                                                        class="social-list-item bg-primary text-white border-primary">
-                                                        <i class="mdi mdi-facebook"></i>
-                                                    </a>
-                                                </li>
-                                                <li class="list-inline-item">
-                                                    <a href="javascript:void()"
-                                                        class="social-list-item bg-info text-white border-info">
-                                                        <i class="mdi mdi-twitter"></i>
-                                                    </a>
-                                                </li>
-                                                <li class="list-inline-item">
-                                                    <a href="javascript:void()"
-                                                        class="social-list-item bg-danger text-white border-danger">
-                                                        <i class="mdi mdi-google"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>-->
 
-                                    <div class="mt-4 text-center">
-                                        <p class="mb-0">Don't have an account ? <a href="{{ route('register') }}"
-                                                class="fw-medium text-primary"> Signup now </a> </p>
-                                    </div>
-                                </form>
+                                        <div class="text-center pt-1 mb-5 pb-1">
+                                            <button data-mdb-button-init data-mdb-ripple-init
+                                                class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3" type="submit"
+                                                style="  border-color: #ff3d00;
+                background: linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
+                background: -webkit-linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);">Log in</button>
+                                            <a class="text-muted" href="{{ route('password.request') }}">Forgot
+                                                password?</a>
+                                        </div>
+
+                                    </form>
+
+                                </div>
                             </div>
-
+                            <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
+                                <div class="text-white px-3 py-4 p-md-5 mx-md-4">
+                                    <h4 class="mb-4" style="color:#fff">WiVor</h4>
+                                    <p class="small mb-0" style="color:#1a1a1a">Lorem ipsum dolor sit amet, consectetur
+                                        adipisicing elit, sed do
+                                        eiusmod
+                                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                                        nostrud
+                                        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="mt-5 text-center">
-                        <p>©
-                            <script>
-                                document.write(new Date().getFullYear())
-
-                            </script> created <i class="mdi mdi-heart text-danger"></i> by devpromaster
-                        </p>
-                    </div>
-
                 </div>
             </div>
-            <!-- end row -->
         </div>
-        <!-- end container -->
-    </div>
+    </section>
 @endsection
