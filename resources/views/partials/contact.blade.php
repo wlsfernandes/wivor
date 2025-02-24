@@ -3,7 +3,7 @@
         <div class="sec-title centred mb_55">
             <span class="sub-title calendar">@lang('header.contact_us')</span>
         </div>
-        <!-- iframe div -->
+        <!-- iframe div
 
         <div class="iframe-container" style="margin-bottom: 30px;">
             <iframe
@@ -11,7 +11,7 @@
                 width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
             </iframe>
         </div>
-
+-->
 
         <div class="row clearfix">
             <div class="col-lg-4 col-md-12 col-sm-12 content-column">
