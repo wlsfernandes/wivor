@@ -11,6 +11,7 @@ use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PhotographerController;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Aws\S3\S3Client;
 
@@ -42,7 +43,10 @@ Route::get('/photographers', [PhotographerController::class, 'photographers'])->
 Route::get('/contact', [HomeController::class, 'contactUs'])->name('contact_us');
 Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('testimonials');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
+Route::get('/photobook', [PhotographerController::class, 'photobook'])->name('photobook');
+Route::get('/signup', [HomeController::class, 'signUp'])->name('signUp');
 Route::post('/registerPhotographer', [PhotographerController::class, 'registerPhotographer'])->name('registerPhotographer');
+Route::post('/registerUser', [PhotographerController::class, 'registerUser'])->name('registerUser');
 Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
 
 
@@ -50,7 +54,7 @@ Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('conta
 
 Auth::routes();
 
-Route::middleware(['auth', 'institution.scope'])->group(function () {
+Route::middleware('auth')->group(function () {
 
 
     Route::middleware('can:access-admin')->group(function () {

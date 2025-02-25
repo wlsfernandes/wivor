@@ -1,5 +1,6 @@
 <?php
 return [
+    'download_photos' => 'descargar fotos',
     'about_us' => 'Sobre Nós',
     'our_team' => 'Nossa Equipe',
     'open_positions' => 'Vagas Abertas',

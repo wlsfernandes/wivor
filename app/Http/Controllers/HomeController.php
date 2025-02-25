@@ -22,7 +22,8 @@ class HomeController extends Controller
             'aboutUs',
             'ourTeam',
             'showPost',
-            'photographers'
+            'photographers',
+            'signUp'
         ]);
     }
 
@@ -77,5 +78,10 @@ class HomeController extends Controller
     public function aboutUs()
     {
         return view('about-us');
+    }
+
+    public function signUp()
+    {
+        return view('signup');
     }
 }

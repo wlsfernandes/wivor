@@ -1,5 +1,12 @@
 <?php
 return [
+    'policy' => 'PRIVACY POLICY',
+    'by_click' => 'By clicking on Register you accept WiVor`s Terms of Use and confirm you read the Privacy Policy.', 
+    'authorization'=>'I authorize WiVor to send emailś, include by automated means, for informational and/or marketing purposes. I understand that the authorization for send marketing messages is not a codition for usinh WiVors services. I al so understand that you can cancel the communications in the received email`s footer',
+    'sign_up' => 'I want to Sign Up!',
+    'sign_up_p1'=> 'by creating an account with our store, you will be able to move trought the checkout process faster, store multiple shipping address, view and track your orders in your account and more',
+    'fast' => 'It fast easy and secure',
+    'download_photos' => 'Download Photos',
     'photographers' => 'Photographers',
     'about_us' => 'About Us',
     'our_team' => 'Our Team',

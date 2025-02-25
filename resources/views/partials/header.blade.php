@@ -171,8 +171,8 @@
                                     </li>
 
                                     <li>
-                                        <a href="/register"><i class="bi bi-person"></i>
-                                            @lang('header.register')</a>
+                                        <a href="/photobook"><i class="bi bi-download"></i>
+                                            @lang('header.download_photos')</a>
                                     </li>
 
                                 </ul>
