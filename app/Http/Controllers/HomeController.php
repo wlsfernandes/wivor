@@ -23,7 +23,9 @@ class HomeController extends Controller
             'ourTeam',
             'showPost',
             'photographers',
-            'signUp'
+            'signUp',
+            'ourTeam',
+            'junior'
         ]);
     }
 
@@ -83,5 +85,15 @@ class HomeController extends Controller
     public function signUp()
     {
         return view('signup');
+    }
+
+    public function ourTeam()
+    {
+        return view('our-team');
+    }
+
+    public function junior()
+    {
+        return view('wilson-fernandes-junior');
     }
 }
