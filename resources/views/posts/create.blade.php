@@ -55,8 +55,8 @@
                         </div>
                     @endif
 
-                    <form action="{{ url('/post') }}" method="post">
-                        @csrf
+                    <form method="POST" action="{{ route('post.store') }}">
+                    @csrf
                         <div class="mb-3 row">
                             <label for="post_type" class="col-md-2 col-form-label">Post Type:</label>
                             <div class="col-md-10">

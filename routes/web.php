@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -51,7 +52,18 @@ Route::get('/signup', [HomeController::class, 'signUp'])->name('signUp');
 Route::post('/registerPhotographer', [PhotographerController::class, 'registerPhotographer'])->name('registerPhotographer');
 Route::post('/registerUser', [UserController::class, 'registerUser'])->name('registerUser');
 Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
-
+Route::get('/post', [PostController::class, 'index'])->name('post');
+Route::post('/post', [PostController::class, 'store'])->name('post.store');
+Route::get('post/{id}/teaser', [PostController::class, 'teaser'])->name('post.teaser');
+Route::get('post/{id}/link', [PostController::class, 'link'])->name('post.link');
+Route::post('post/{id}/publish', [PostController::class, 'publish'])->name('post.publish');
+Route::get('post/{id}/file/{language}', [PostController::class, 'file'])->name('post.file');
+Route::put('/post/{id}/upload-jpg', [PostController::class, 'uploadJPG'])->name('post.uploadJPG');
+Route::put('post/{id}/upload-file', [PostController::class, 'uploadFile'])->name('post.uploadFile');
+// Customer home
+Route::middleware(['auth'])->group(function () {
+    Route::get('/customers/home', [CustomerController::class, 'index'])->name('index');
+});
 
 
 

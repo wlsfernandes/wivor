@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
+
 
 class LoginController extends Controller
 {
@@ -21,12 +23,26 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-    /**
+   /**
      * Where to redirect users after login.
      *
-     * @var string
+     * @return string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected function redirectTo()
+    {
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            return '/index';
+        } elseif ($user->hasRole('photographer')) {
+            return '/photographers/home';
+        } elseif ($user->hasRole('customer')) {
+            return '/customers/home';
+        }
+
+        // Fallback
+        return '/home';
+    }
 
     /**
      * Create a new controller instance.

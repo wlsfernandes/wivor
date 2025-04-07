@@ -33,7 +33,7 @@ class PostController extends Controller
         $post = Post::where('slug', $slug)->where('published', true)->firstOrFail();
 
         // Return the view with the post data
-        return view('pages.post_show', compact('post'));
+        return view('posts.post-show', compact('post'));
     }
 
 
