@@ -39,4 +39,9 @@ class User extends Authenticatable
         return $this->hasOne(Photographer::class);
     }
 
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
+    }
+
 }

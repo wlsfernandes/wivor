@@ -39,6 +39,8 @@ Route::get('/post/{slug}', [PostController::class, 'show'])->name('post.show');
 
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
+Route::get('/photobook', [HomeController::class, 'photobook'])->name('photobook');
+
 Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name('junior');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/contact', [HomeController::class, 'contactUs'])->name('contact_us');
@@ -47,7 +49,7 @@ Route::get('/photographers', [PhotographerController::class, 'photographers'])->
 Route::get('/photobook', [PhotographerController::class, 'photobook'])->name('photobook');
 Route::get('/signup', [HomeController::class, 'signUp'])->name('signUp');
 Route::post('/registerPhotographer', [PhotographerController::class, 'registerPhotographer'])->name('registerPhotographer');
-Route::post('/registerUser', [PhotographerController::class, 'registerUser'])->name('registerUser');
+Route::post('/registerUser', [UserController::class, 'registerUser'])->name('registerUser');
 Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
 
 

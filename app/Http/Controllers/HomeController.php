@@ -96,4 +96,9 @@ class HomeController extends Controller
     {
         return view('wilson-fernandes-junior');
     }
+
+    public function photobook()
+    {
+        return view('photobook');
+    }
 }
