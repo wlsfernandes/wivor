@@ -34,6 +34,18 @@ class PhotographerController extends Controller
         }
     }
 
+    public function home(): View
+    {
+        try {
+            //$photographers = Photographer::all();
+            return view('photographers.home');
+        } catch (Exception $e) {
+            Log::error('Error fetching photographers: ' . $e->getMessage());
+            session()->now('error', 'An error occurred while fetching photographers.');
+            return redirect()->back();
+        }
+    }
+
     protected function registerPhotographer(Request $request)
     {
 

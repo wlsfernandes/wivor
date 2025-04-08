@@ -60,16 +60,13 @@ Route::post('post/{id}/publish', [PostController::class, 'publish'])->name('post
 Route::get('post/{id}/file/{language}', [PostController::class, 'file'])->name('post.file');
 Route::put('/post/{id}/upload-jpg', [PostController::class, 'uploadJPG'])->name('post.uploadJPG');
 Route::put('post/{id}/upload-file', [PostController::class, 'uploadFile'])->name('post.uploadFile');
-// Customer home
-Route::middleware(['auth'])->group(function () {
-    Route::get('/customers/home', [CustomerController::class, 'index'])->name('index');
-});
 
 
 
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
+
 
 
     Route::middleware('can:access-admin')->group(function () {
@@ -97,6 +94,21 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     });
+
+    // Photographer-only routes
+    Route::middleware('can:access-photographer')->group(function () {
+        Route::get('/photographers/home', [PhotographerController::class, 'home'])->name('home');
+        // Add other photographer-specific routes here
+    });
+
+
+    // Customer home
+    Route::middleware('can:access-customer')->group(function () {
+        Route::get('/customer/home', [CustomerController::class, 'index'])->name('index');
+        // Add other customer-specific routes here
+    });
+
+
 
 
     // Paypall

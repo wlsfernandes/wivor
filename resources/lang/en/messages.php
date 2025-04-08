@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'home' => 'home',
+    'logout' => 'logout',
+    'all_events' => 'All Events',
+    'my_events' => 'My Events',
     'events' => 'Events',
     'address' => 'Address...',
     'state' => 'State...',

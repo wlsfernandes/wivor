@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Wivor</title>
     <link rel="icon" href="assets/images/logo/wivor_favicon.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
         rel="stylesheet">
@@ -30,7 +32,6 @@
     <link href="{{ asset('assets/css/elpath.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/responsive.css') }}" rel="stylesheet">
-
 
 </head>
 
@@ -103,8 +104,9 @@
                     <div class="top-right">
                         <ul class="info">
                             <li>
-                                <a href="mailto:info@Wivor.com" style="font-size: 12px">
-                                    info@Wivor.com</a>
+                            <a href="mailto:info@WiVor.com" style="font-size: 12px;  color: #fff;">
+    info@wivor.com
+</a>
                         </ul>
                     </div>
                 </div>
@@ -190,8 +192,8 @@
 
                         <a href="/login" class="btn btn-primary" style="
          border-color: #ff3d00;
-            background: linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
-            background: -webkit-linear-gradient(to right, #ff6700, #ff3d00, #1a1a1a);
+            background: linear-gradient(to right, #ff6700, #ff3d00);
+            background: -webkit-linear-gradient(to right, #ff6700, #ff3d00);
         color: #fff;
         padding: 10px 20px;
         border-radius: 8px;

@@ -1,9 +1,13 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Wivor</title>
-    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="{{ assert('assets/images/logo/wivor_favicon.png') }}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-..."
+        crossorigin="anonymous"></script>
+
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
         rel="stylesheet">
@@ -30,9 +34,6 @@
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/responsive.css') }}" rel="stylesheet">
 
-    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" rel="stylesheet">
-
 </head>
 
 <!-- START BODY -->
@@ -44,9 +45,7 @@
         <div id="search-popup" class="search-popup">
             <div class="popup-inner">
                 <div class="upper-box clearfix">
-                    <figure class="logo-box pull-left"><a href="index.php"><img
-                                src="{{ asset('assets/images/aeth-logo.png') }}" alt="Wivor Logo">
-                        </a>
+                    <figure class="logo-box pull-left"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt=""></a>
                     </figure>
                     <div class="close-search pull-right"><span class="far fa-times"></span></div>
                 </div>
@@ -68,9 +67,8 @@
         </div>
 
         <header class="main-header header-style-two">
-            <!-- header-top #04125C,#1941BA,#92bdf9  - #4a235a, #4e5b93, #f5f5f5 -->
-            <div class="header-top"
-                style="background: linear-gradient(to right,#6A5ACD,  #E0E0E0); border-color: #555A54; color: #fff;">
+            <!-- header-top -->
+            <div class="header-top">
                 <div class="top-inner">
                     <div class="top-left">
                         <div class="social-links">
@@ -106,18 +104,35 @@
                     </div>
                     <div class="top-right">
                         <ul class="info">
-
+                            <li>
+                                <a href="mailto:info@WiVor.com" style="font-size: 12px;  color: #fff;">
+                                    info@wivor.com
+                                </a>
                         </ul>
                     </div>
-
                 </div>
             </div>
             <!-- header-lower -->
+            @if (session()->has('success'))
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle"></i> <!-- Success icon -->
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    @if (is_array(session('error')))
+                        {{ implode(', ', session('error')) }}
+                    @else
+                        {{ session('error') }}
+                    @endif
+                </div>
+            @endif
+
             <div class="header-lower">
                 <div class="outer-box">
                     <div class="logo-box">
-                        <figure class="logo"> <a href="{{ url('/') }}"><img
-                                    src="{{ asset('assets/images/aeth-logo.png') }}" alt="Wivor Logo">
+                        <figure class="logo"> <a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor.png') }}"></a>
                         </figure>
                     </div>
                     <div class="menu-area clearfix">
@@ -129,51 +144,67 @@
                         </div>
                         <nav class="main-menu navbar-expand-md navbar-light">
                             <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
-                                <ul class="navigation clearfix" style="display: flex; list-style: none; padding: 0;">
-                                    <li class="cart-box"
-                                        style="display: flex; align-items: center; margin-right: 15px;">
-                                        <a href="{{ route('dashboard') }}"
-                                            style="font-size: 14px; display: flex; align-items: center;">
-                                            <i class="bi bi-speedometer2" style="font-size: 25px;"></i> Dashboard
-                                        </a>
+                                <ul class="navigation clearfix">
+                                    <li class="current">
+                                        <a href="{{url('/')}}">Home</a>
                                     </li>
-                                    <li class="cart-box"
-                                        style="display: flex; align-items: center; margin-right: 15px;">
-                                        <a href="#" style="font-size: 14px; display: flex; align-items: center;">
-                                            <i class="bi bi-person" style="font-size: 25px;"></i> Profile
-                                        </a>
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-title"
+                                            style="pointer-events: none;">@lang('header.about_us')</a>
+                                        <ul>
+                                            <li><a href="{{ route('about_us') }}">@lang('header.about_us')</a></li>
+                                            <li><a href="{{ route('our_team') }}">@lang('header.our_team')</a></li>
+                                            <li><a href="{{ route('testimonials') }}">@lang('messages.testimonials')</a>
+                                            </li>
+                                            <li><a href="{{ route('contact_us') }}">@lang('header.contact_us')</a></li>
+                                        </ul>
                                     </li>
-                                    <li class="cart-box"
-                                        style="display: flex; align-items: center; margin-right: 15px;">
-                                        <a href="{{ route('bookstore') }}"
-                                            style="font-size: 14px; display: flex; align-items: center;">
-                                            <i class="bi bi-basket3" style="font-size: 25px;"></i> Bookstore
-                                        </a>
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-title"
+                                            style="pointer-events: none;">@lang('header.faq')</a>
+                                        <ul>
+                                            <li><a href="#">@lang('header.faq')</a></li>
+
+                                        </ul>
                                     </li>
-                                    <li class="cart-box"
-                                        style="display: flex; align-items: center; margin-right: 15px;">
-                                        <a href="{{ route('certification') }}"
-                                            style="font-size: 14px; display: flex; align-items: center;">
-                                            <i class="bi bi-award" style="font-size: 25px;"></i> Wivor Certification
-                                        </a>
+                                    <li>
+                                        <a href="/photographers"><i class="bi bi-camera"></i>
+                                            @lang('header.photographers')</a>
                                     </li>
-                                    <li class="cart-box" style="display: flex; align-items: center;">
-                                        <form action="{{ route('logout') }}" method="POST"
-                                            style="display: flex; align-items: center; margin: 0;">
+
+
+                                    <li>
+                                        <a href="/photobook"><i class="bi bi-download"></i>
+                                            @lang('header.download_photos')</a>
+                                    </li>
+                                    <li>
+                                        <a href="#"
+                                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                            class="dropdown-item">
+                                            <i class="bi bi-box-arrow-left me-2" style="font-size: 18px;"></i>
+                                            @lang('messages.logout')
+                                        </a>
+
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                            style="display: none;">
                                             @csrf
-                                            <button type="submit"
-                                                style="background: none; border: none; padding: 0; font-size: 14px; display: flex; align-items: center;">
-                                                <i class="bi bi-box-arrow-left me-2" style="font-size: 25px;"></i>
-                                                Logout
-                                            </button>
                                         </form>
                                     </li>
+
+
                                 </ul>
                             </div>
                         </nav>
 
                     </div>
                     <ul class="nav-right">
+                        <li class="search-box-outer search-toggler">
+                            <i class="icon-1"></i>
+                        </li>
+                        <li class="cart-box">
+                            <a href="#"><i class="icon-23"></i></a>
+                        </li>
+
                     </ul>
                 </div>
             </div>
@@ -183,7 +214,7 @@
                 <div class="outer-container">
                     <div class="outer-box">
                         <div class="logo-box">
-                            <figure class="logo"><a href="index.php"><img src="assets/images/aeth-logo.png" alt=""></a>
+                            <figure class="logo"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt=""></a>
                             </figure>
                         </div>
                         <div class="menu-area clearfix">
@@ -209,7 +240,7 @@
             <div class="close-btn"><i class="fas fa-times"></i></div>
 
             <nav class="menu-box">
-                <div class="nav-logo"><a href="index.php"><img src="assets/images/aeth-logo.png" alt="" title=""></a>
+                <div class="nav-logo"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt="" title=""></a>
                 </div>
                 <div class="menu-outer">
                     <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
@@ -231,4 +262,4 @@
                     </ul>
                 </div>
             </nav>
-        </div><!-- End Mobile Menu -->
+        </div>

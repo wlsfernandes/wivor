@@ -30,12 +30,12 @@ class AuthServiceProvider extends ServiceProvider
             return $user->roles->contains('name', 'admin');
         });
         // student access
-        Gate::define('access-student', function ($user) {
-            return $user->roles->contains('name', 'student');
+        Gate::define('access-photographer', function ($user) {
+            return $user->roles->contains('name', 'photographer');
         });
         // teacher access
-        Gate::define('access-teacher', callback: function ($user) {
-            return $user->roles->contains('name', 'teacher');
+        Gate::define('access-customer', callback: function ($user) {
+            return $user->roles->contains('name', 'customer');
         });
 
 
