@@ -168,6 +168,10 @@
                                         </ul>
                                     </li>
                                     <li>
+                                        <a href="{{route('events.listEvents')}}"><i class="bi bi-calendar"></i>
+                                            @lang('header.events')</a>
+                                    </li>
+                                    <li>
                                         <a href="/photographers"><i class="bi bi-camera"></i>
                                             @lang('header.photographers')</a>
                                     </li>

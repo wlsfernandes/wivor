@@ -51,7 +51,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{url('posts')}}" class="waves-effect">
+                        <a href="{{url('events')}}" class="waves-effect">
                             <i class="fa fa-calendar"></i>
                             <span>Events</span>
                         </a>

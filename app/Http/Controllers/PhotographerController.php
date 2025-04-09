@@ -11,12 +11,23 @@ use App\Mail\TemporaryPasswordMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use App\Models\Event;
 use Illuminate\View\View;
 use App\Models\Photographer;
 use Exception;
 
 class PhotographerController extends Controller
 {
+
+
+    public function allEvents()
+    {
+        $events = Event::where('published', true)
+            ->orderBy('published_at', 'desc')
+            ->paginate(12);
+
+        return view('photographers.all-events', compact('events'));
+    }
 
     public function photographers(Request $request)
     {

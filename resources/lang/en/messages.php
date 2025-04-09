@@ -6,6 +6,8 @@ return [
     'all_events' => 'All Events',
     'my_events' => 'My Events',
     'events' => 'Events',
+    'read_more' => 'Read More',
+    'testimonials' => 'Testimonials',
     'address' => 'Address...',
     'state' => 'State...',
     'zipcode' => 'Zipcode...',

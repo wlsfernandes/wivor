@@ -48,7 +48,7 @@
 
                     <div>
 
-                        <a href="{{ url('posts/create') }}">
+                        <a href="{{ route('events.create') }}">
                             <button type="button" class="btn btn-success waves-effect waves-light mb-3"><i
                                     class="fas fa-plus"></i> Add New</button> </a>
                     </div>
@@ -69,13 +69,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($posts as $post)
+                            @foreach ($events as $event)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td><i>{{ substr($post->title_en ?? '', 0, 25) }}...</i></td>
+                                    <td><i>{{ substr($event->title ?? '', 0, 25) }}...</i></td>
                                     <td class="text-center">
-                                        <a href="{{ url('/posts/' . $post->id . '/teaser') }}" class="px-3 text-primary">
-                                            @if($post->image_url)
+                                        <a href="{{ url('/events/' . $event->id . '/teaser') }}" class="px-3 text-primary">
+                                            @if($event->image_url)
                                                 <i class="text-primary uil-image-upload font-size-20"></i>
                                             @else
                                                 <i class="text-muted uil-image-upload font-size-20"></i>
@@ -86,38 +86,32 @@
 
                                     <td class="text-center">
 
-                                        @if($post->published)
+                                        @if($event->published)
                                             <a href="javascript:void(0);" class="px-3 text-primary"
-                                                onclick="event.preventDefault(); if(confirm('Confirm publish?')) { document.getElementById('publish-form-{{ $post->id }}').submit(); }">
-                                                @if ($post->postType && $post->postType->name == 'blog')
+                                                onclick="event.preventDefault(); if(confirm('Confirm publish?')) { document.getElementById('publish-form-{{ $event->id }}').submit(); }">
+                                                @if ($event->postType && $event->postType->name == 'blog')
                                                     <i class="text-primary uil-blogger-alt font-size-20"></i>
-                                                @elseif($post->postType && $post->postType->name == 'event')
+                                                @elseif($event->postType && $event->postType->name == 'event')
                                                     <i class="text-warning far fa-calendar font-size-18"></i>
-                                                @else($post->postType && $post->postType->name == 'simple page')
+                                                @else($event->postType && $event->postType->name == 'simple page')
                                                     <i class="text-info dripicons-browser font-size-18"></i>
                                                 @endif
                                             </a>
 
-                                            <form id="publish-form-{{ $post->id }}"
-                                                action="{{ url('/posts/' . $post->id . '/publish') }}" method="POST"
+                                            <form id="publish-form-{{ $event->id }}"
+                                                action="{{ url('/events/' . $event->id . '/publish') }}" method="POST"
                                                 style="display: none;">
                                                 @method('POST')
                                                 @csrf
                                             </form>
                                         @else
                                             <a href="javascript:void(0);" class="px-3 text-primary"
-                                                onclick="event.preventDefault(); if(confirm('Confirm publish?')) { document.getElementById('publish-form-{{ $post->id }}').submit(); }">
-                                                @if ($post->postType && $post->postType->name == 'blog')
-                                                    <i class="text-muted uil-blogger-alt font-size-20"></i>
-                                                @elseif($post->postType && $post->postType->name == 'event')
+                                                onclick="event.preventDefault(); if(confirm('Confirm publish?')) { document.getElementById('publish-form-{{ $event->id }}').submit(); }">
                                                     <i class="text-muted far fa-calendar font-size-18"></i>
-                                                @else($post->postType && $post->postType->name == 'simple page')
-                                                    <i class="text-muted dripicons-browser font-size-18"></i>
-                                                @endif
                                             </a>
 
-                                            <form id="publish-form-{{ $post->id }}"
-                                                action="{{ url('/post/' . $post->id . '/publish') }}" method="POST"
+                                            <form id="publish-form-{{ $event->id }}"
+                                                action="{{ url('/events/' . $event->id . '/publish') }}" method="POST"
                                                 style="display: none;">
                                                 @method('POST')
                                                 @csrf
@@ -126,8 +120,8 @@
                                         </a>
                                     </td>
                                     <td class="text-center">
-                                        @if($post->published)
-                                            <a href="{{ config('app.link_website') . '/posts/' . $post->slug }}"
+                                        @if($event->published)
+                                            <a href="{{ config('app.link_website') . '/events/' . $event->slug }}"
                                                 class="px-3 text-primary" target="blank">
                                                 <i class="text-primary fas fa-eye font-size-15"></i> </a>
                                         @else
@@ -135,15 +129,15 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ url('/post/' . $post->id . '/edit') }}" class="px-3 text-primary"><i
+                                        <a href="{{ url('/events/' . $event->id . '/edit') }}" class="px-3 text-primary"><i
                                                 class="uil uil-pen font-size-18"></i></a>
 
                                         <a href="javascript:void(0);" class="px-3 text-danger"
-                                            onclick="event.preventDefault(); if(confirm('Confirm delete?')) { document.getElementById('delete-form-{{ $post->id }}').submit(); }">
+                                            onclick="event.preventDefault(); if(confirm('Confirm delete?')) { document.getElementById('delete-form-{{ $event->id }}').submit(); }">
                                             <i class="uil uil-trash-alt font-size-18"></i>
                                         </a>
 
-                                        <form id="delete-form-{{ $post->id }}" action="{{ url('/post/' . $post->id) }}"
+                                        <form id="delete-form-{{ $event->id }}" action="{{ url('/events/' . $event->id) }}"
                                             method="POST" style="display: none;">
                                             @method('DELETE')
                                             @csrf

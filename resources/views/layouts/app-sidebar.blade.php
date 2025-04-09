@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,14 +44,15 @@
                 <a href="{{ route('home') }}" class="d-block mb-2 {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="bi bi-house-door-fill me-1"></i> @lang('messages.home')
                 </a>
-                
+
                 <div class="dropdown mb-2">
-                    <a class="dropdown-toggle d-block {{ request()->routeIs('events.*') ? 'active' : '' }}" href="#" id="eventsMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="dropdown-toggle d-block {{ request()->routeIs('events.*') ? 'active' : '' }}" href="#"
+                        id="eventsMenu" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-calendar-event me-1"></i> @lang('messages.events')
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="eventsMenu">
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{route('allEvents')}}">
                                 @lang('messages.all_events')
                             </a>
                         </li>
@@ -59,9 +61,20 @@
                                 @lang('messages.my_events')
                             </a>
                         </li>
+                        {{-- ✅ New Submenu Items --}}
+                        <li>
+                            <a class="dropdown-item ps-4" href="#">
+                                <i class="bi bi-plus-circle me-1"></i> Create Event 
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item ps-4" href="#">
+                                <i class="bi bi-card-list me-1"></i> List My Events
+                            </a>
+                        </li>
                     </ul>
                 </div>
-               
+
             </div>
 
             <!-- Main Content -->

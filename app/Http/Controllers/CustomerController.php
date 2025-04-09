@@ -1,20 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Post;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
     public function index()
     {
-        $posts = Post::where('published', true)
-            ->whereHas('postType', function ($query) {
-                $query->where('name', 'Event');
-            })
+        $events = Event::where('published', true)
             ->orderBy('published_at', 'desc')
             ->paginate(3);
 
-        return view('customers.home', compact('posts'));
+        return view('customers.home', compact('events'));
     }
 }

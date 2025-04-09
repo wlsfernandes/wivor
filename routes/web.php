@@ -5,7 +5,7 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PostController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PaymentController;
@@ -36,12 +36,26 @@ Route::get('/lang/{lang}', function ($lang) {
     return redirect()->back();
 })->name('lang.switch');
 
-Route::get('/post/{slug}', [PostController::class, 'show'])->name('post.show');
+
+/**********************  public pages  *********************************************************/ 
+Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/list-events', [EventController::class, 'listEvents'])->name('events.listEvents');
+Route::post('/events', [EventController::class, 'store'])->name('events.store');
+Route::get('/events/{id}/publish', [EventController::class, 'publish'])->name('events.publish');
+Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
+Route::get('/events/{id}/teaser', [EventController::class, 'teaser'])->name('events.teaser');
+Route::put('/events/{id}/upload-jpg', [EventController::class, 'uploadJPG'])->name('events.uploadJPG');
+Route::put('/events/{id}', [EventController::class, 'update'])->name('events.update');
+Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('events.destroy');
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+Route::get('/events/{slug}', [EventController::class, 'show'])->name('event.show');
+
+
 
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
 Route::get('/photobook', [HomeController::class, 'photobook'])->name('photobook');
-
 Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name('junior');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/contact', [HomeController::class, 'contactUs'])->name('contact_us');
@@ -52,34 +66,15 @@ Route::get('/signup', [HomeController::class, 'signUp'])->name('signUp');
 Route::post('/registerPhotographer', [PhotographerController::class, 'registerPhotographer'])->name('registerPhotographer');
 Route::post('/registerUser', [UserController::class, 'registerUser'])->name('registerUser');
 Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
-Route::get('/post', [PostController::class, 'index'])->name('post');
-Route::post('/post', [PostController::class, 'store'])->name('post.store');
-Route::get('post/{id}/teaser', [PostController::class, 'teaser'])->name('post.teaser');
-Route::get('post/{id}/link', [PostController::class, 'link'])->name('post.link');
-Route::post('post/{id}/publish', [PostController::class, 'publish'])->name('post.publish');
-Route::get('post/{id}/file/{language}', [PostController::class, 'file'])->name('post.file');
-Route::put('/post/{id}/upload-jpg', [PostController::class, 'uploadJPG'])->name('post.uploadJPG');
-Route::put('post/{id}/upload-file', [PostController::class, 'uploadFile'])->name('post.uploadFile');
-
-
 
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
 
 
-
     Route::middleware('can:access-admin')->group(function () {
-        //Posts
-        Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-        Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
-        Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-        Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
-        Route::get('/posts/{id}/edit', [PostController::class, 'edit'])->name('posts.edit');
-        Route::get('/posts/{id}/teaser', [PostController::class, 'teaser'])->name('posts.teaser');
-        Route::put('posts/{id}/upload-jpg', [PostController::class, 'uploadJPG'])->name('posts.uploadJPG');
-        Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
-        Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');
+        
+      
         //User
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -98,13 +93,14 @@ Route::middleware('auth')->group(function () {
     // Photographer-only routes
     Route::middleware('can:access-photographer')->group(function () {
         Route::get('/photographers/home', [PhotographerController::class, 'home'])->name('home');
-        // Add other photographer-specific routes here
+        Route::get('/photographers/all-events', [PhotographerController::class, 'allEvents'])->name('allEvents');
+        Route::get('/photographers/my-events', [PhotographerController::class, 'myEvents'])->name('myEvents');
     });
 
 
     // Customer home
     Route::middleware('can:access-customer')->group(function () {
-        Route::get('/customer/home', [CustomerController::class, 'index'])->name('index');
+        Route::get('/customer/home', [CustomerController::class, 'index'])->name('customer.index');
         // Add other customer-specific routes here
     });
 

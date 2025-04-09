@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
-use App\Models\Post;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -43,13 +43,9 @@ class HomeController extends Controller
     }
     public function welcome()
     {
-        $events = Post::where('published', true)
-            ->whereHas('postType', function ($query) {
-                $query->where('name', 'event');
-            })
+        $events = Event::where('published', true)
             ->orderBy('published_at', 'desc')
             ->get();
-
         return view('site.welcome', compact('events'));
     }
     /*
