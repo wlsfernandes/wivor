@@ -41,7 +41,7 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 bg-light vh-100 sidebar p-3">
-                <a href="{{ route('home') }}" class="d-block mb-2 {{ request()->routeIs('home') ? 'active' : '' }}">
+                <a href="{{ route('photographer.dashboard') }}" class="d-block mb-2 {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="bi bi-house-door-fill me-1"></i> @lang('messages.home')
                 </a>
 
@@ -52,23 +52,23 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="eventsMenu">
                         <li>
-                            <a class="dropdown-item" href="{{route('allEvents')}}">
+                            <a class="dropdown-item" href="{{route('photographer.allEvents')}}">
                                 @lang('messages.all_events')
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="">
                                 @lang('messages.my_events')
                             </a>
                         </li>
                         {{-- ✅ New Submenu Items --}}
                         <li>
-                            <a class="dropdown-item ps-4" href="#">
+                            <a class="dropdown-item ps-4" href="{{route('photographer.newEvent')}}">
                                 <i class="bi bi-plus-circle me-1"></i> Create Event 
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item ps-4" href="#">
+                            <a class="dropdown-item ps-4" href="{{route('photographer.myEvents')}}">
                                 <i class="bi bi-card-list me-1"></i> List My Events
                             </a>
                         </li>

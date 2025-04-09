@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'title'=>'Title of Event',
+    'choose_image'=>'Choose the Image of your Event',
+    'content'=>'Describe the Event',
+    'summary'=>'Describe an Event Summary',
+    'create_event'=>'Create Event',
     'home' => 'home',
     'logout' => 'logout',
     'all_events' => 'All Events',

@@ -127,7 +127,15 @@
                     @endif
                 </div>
             @endif
-
+            @if ($errors->any())
+            <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li><i class="fas fa-exclamation-triangle"></i> {{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
             <div class="header-lower">
                 <div class="outer-box">
                     <div class="logo-box">

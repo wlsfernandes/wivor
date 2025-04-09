@@ -45,7 +45,8 @@
         <div id="search-popup" class="search-popup">
             <div class="popup-inner">
                 <div class="upper-box clearfix">
-                    <figure class="logo-box pull-left"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt=""></a>
+                    <figure class="logo-box pull-left"><a href=""><img
+                                src="{{ assert('assets/images/logo/wivor.png') }}" alt=""></a>
                     </figure>
                     <div class="close-search pull-right"><span class="far fa-times"></span></div>
                 </div>
@@ -128,11 +129,37 @@
                     @endif
                 </div>
             @endif
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li><i class="fas fa-exclamation-triangle"></i> {{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <!-- header-lower -->
+            @if (session()->has('success'))
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle"></i> <!-- Success icon -->
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    @if (is_array(session('error')))
+                        {{ implode(', ', session('error')) }}
+                    @else
+                        {{ session('error') }}
+                    @endif
+                </div>
+            @endif
 
             <div class="header-lower">
                 <div class="outer-box">
                     <div class="logo-box">
-                        <figure class="logo"> <a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor.png') }}"></a>
+                        <figure class="logo"> <a href="{{ url('/') }}"><img
+                                    src="{{ asset('assets/images/logo/wivor.png') }}"></a>
                         </figure>
                     </div>
                     <div class="menu-area clearfix">
@@ -214,7 +241,8 @@
                 <div class="outer-container">
                     <div class="outer-box">
                         <div class="logo-box">
-                            <figure class="logo"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt=""></a>
+                            <figure class="logo"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}"
+                                        alt=""></a>
                             </figure>
                         </div>
                         <div class="menu-area clearfix">
@@ -240,7 +268,8 @@
             <div class="close-btn"><i class="fas fa-times"></i></div>
 
             <nav class="menu-box">
-                <div class="nav-logo"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt="" title=""></a>
+                <div class="nav-logo"><a href=""><img src="{{ assert('assets/images/logo/wivor.png') }}" alt=""
+                            title=""></a>
                 </div>
                 <div class="menu-outer">
                     <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->

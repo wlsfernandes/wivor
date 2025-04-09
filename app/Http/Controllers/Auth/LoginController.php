@@ -35,9 +35,9 @@ class LoginController extends Controller
         if ($user->hasRole('admin')) {
             return '/index';
         } elseif ($user->hasRole('photographer')) {
-            return '/photographers/home';
+            return '/photographers/dashboard';
         } elseif ($user->hasRole('customer')) {
-            return '/customers/home';
+            return '/customers/dashboard';
         }
 
         // Fallback

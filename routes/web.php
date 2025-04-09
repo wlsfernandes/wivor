@@ -92,15 +92,17 @@ Route::middleware('auth')->group(function () {
 
     // Photographer-only routes
     Route::middleware('can:access-photographer')->group(function () {
-        Route::get('/photographers/home', [PhotographerController::class, 'home'])->name('home');
-        Route::get('/photographers/all-events', [PhotographerController::class, 'allEvents'])->name('allEvents');
-        Route::get('/photographers/my-events', [PhotographerController::class, 'myEvents'])->name('myEvents');
+        Route::get('/photographers/dashboard', [PhotographerController::class, 'dashboard'])->name('photographer.dashboard');
+        Route::get('/photographers/all-events', [PhotographerController::class, 'allEvents'])->name('photographer.allEvents');
+        Route::get('/photographers/my-events', [PhotographerController::class, 'myEvents'])->name('photographer.myEvents');
+        Route::get('/photographers/new-event', [PhotographerController::class, 'newEvent'])->name('photographer.newEvent');
+        Route::post('/photographers/event/create', [EventController::class, 'eventCreatedByPhotographer'])->name('eventCreatedByPhotographer');
     });
 
 
     // Customer home
     Route::middleware('can:access-customer')->group(function () {
-        Route::get('/customer/home', [CustomerController::class, 'index'])->name('customer.index');
+        Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])->name('customer.dashboard');
         // Add other customer-specific routes here
     });
 

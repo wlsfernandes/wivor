@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TemporaryPasswordMail;
@@ -29,6 +30,19 @@ class PhotographerController extends Controller
         return view('photographers.all-events', compact('events'));
     }
 
+    public function myEvents()
+    {
+        $photographer = Photographer::where('user_id', Auth::id())->firstOrFail();
+        $events = $photographer->events()->latest()
+            ->paginate(10);
+        $layout = 'layouts.app-sidebar';
+        return view('events.list-events', compact('events', 'layout'));
+    }
+
+    public function newEvent()
+    {
+        return view('photographers.new-event');
+    }
     public function photographers(Request $request)
     {
         return view('photographers.page');
@@ -45,11 +59,11 @@ class PhotographerController extends Controller
         }
     }
 
-    public function home(): View
+    public function dashboard(): View
     {
         try {
             //$photographers = Photographer::all();
-            return view('photographers.home');
+            return view('photographers.dashboard');
         } catch (Exception $e) {
             Log::error('Error fetching photographers: ' . $e->getMessage());
             session()->now('error', 'An error occurred while fetching photographers.');
@@ -138,7 +152,7 @@ class PhotographerController extends Controller
     }
 
 
-   
+
 
 
 }
