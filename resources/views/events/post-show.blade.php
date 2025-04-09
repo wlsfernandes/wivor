@@ -30,8 +30,10 @@
                     </div>
 
                     {{-- Image --}}
-                    <img class="card-img-top" style="max-height:600px" src="{{ $event->image_url }}"
-                        alt="{{ $event->title }}">
+                    <img src="{{ $event->image_url }}" alt="{{ $event->title }}" class="card-img-top mx-auto d-block"
+                        style="max-height: 400px; max-width: 100%; object-fit: contain; object-position: center;">
+
+
 
                     {{-- Content --}}
 
