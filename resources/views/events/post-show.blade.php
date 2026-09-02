@@ -1,83 +1,44 @@
 @extends('layouts.app')
 
-@section('title')
-    {{ $event->title }}
-@endsection
-
-@section('meta-description')
-    {{ $event->summary ?? '' }}
-@endsection
+@section('title', $seoTitle)
+@section('meta-description', $seoDescription)
+@section('canonical', $canonicalUrl)
+@section('og-image', $event->cover_url)
 
 @section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-12 box-shadow">
+    <main class="container py-5">
+        <article>
+            <img src="{{ $event->cover_url }}" alt="Cover for {{ $event->title }}" class="img-fluid rounded w-100 mb-4" style="max-height: 520px; object-fit: cover;">
 
-                    {{-- Title & Date --}}
-                    <div class="row">
-                        <div class="col-12 text-center">
-                            <h1 style="color:#4a235a">
-                                {{ $event->title }}
-                            </h1>
-                        </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-9">
+                    <span class="text-uppercase small fw-semibold text-primary">{{ $event->sport_label }}</span>
+                    <h1 class="mt-2">{{ $event->title }}</h1>
+                    <p class="lead text-muted">{{ $event->date_label }} · {{ $event->location_label }}</p>
+                    @if ($event->venue_name)
+                        <p class="text-muted">{{ $event->venue_name }}</p>
+                    @endif
 
-                        <div class="col-12">
-                            <div class="d-flex justify-content-end pe-3">
-                                <small class="text-muted">{{ $event->date_of_publication }}</small>
-                            </div>
-                        </div>
+                    <div class="alert alert-info my-4" role="status">
+                        <h2 class="h5">{{ $event->public_availability_label }}</h2>
+                        <p class="mb-0">{{ $availabilityMessage }}</p>
                     </div>
 
-                    {{-- Image --}}
-                    <img src="{{ $event->image_url }}" alt="{{ $event->title }}" class="card-img-top mx-auto d-block"
-                        style="max-height: 400px; max-width: 100%; object-fit: contain; object-position: center;">
+                    @if ($event->content)
+                        <section class="my-5" aria-labelledby="event-description">
+                            <h2 id="event-description" class="h4">About this event</h2>
+                            <p class="text-muted">{{ $event->content }}</p>
+                        </section>
+                    @endif
 
-
-
-                    {{-- Content --}}
-
-                    <div class="card-body">
-                        <h3 style="color:#4a235a"><i>
-                                {{ $event->content ?? '' }}
-                            </i></h3>
-
-                        <p class="card-text flex-grow-1 text-muted" style="margin-top:24px;">
-                            <small style="color: #6c757d;">
-                                {{ $event->summary }}
-                            </small>
-                        </p>
-
-
-                        {{-- External Link Button --}}
-                        @if($event->external_link)
-                            <div class="d-flex justify-content-center mt-5">
-                                <a href="{{ $event->external_link }}" target="_blank" class="btn btn-danger btn-md">
-                                    {{ $event->external_link_button ?? 'Click here to access' }}
-                                </a>
-                            </div>
-                        @endif
-
-                        {{-- Download Buttons --}}
-                        @if($event->file_url)
-                            <div class="d-flex justify-content-center mt-4">
-                                <a href="{{ $event->file_url }}" target="_blank" class="btn btn-sm btn-gradient">
-                                    {{ $event->button_text_en ?? 'Download English here' }}
-                                </a>
-                            </div>
-                        @endif
-
-                        @if($event->file_url_es)
-                            <div class="d-flex justify-content-center mt-4">
-                                <a href="{{ $event->file_url_es }}" target="_blank" class="btn btn-sm btn-gradient">
-                                    {{ $event->button_text_es ?? 'Descargar Español aquí' }}
-                                </a>
-                            </div>
-                        @endif
-
-                    </div> <!-- end card-body -->
-                </div> <!-- end card -->
+                    <section class="card border-0 bg-light my-5" aria-labelledby="event-photos">
+                        <div class="card-body text-center py-5">
+                            <h2 id="event-photos" class="h4">Event photos</h2>
+                            <p class="text-muted mb-0">Photo browsing will be available in the next WivorPhotos release.</p>
+                        </div>
+                    </section>
+                </div>
             </div>
-        </div>
-    </div>
+        </article>
+    </main>
 @endsection

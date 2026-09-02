@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -32,6 +34,16 @@ class User extends Authenticatable
     public function hasRole($role)
     {
         return $this->roles->pluck('name')->contains($role);
+    }
+
+    /** Determine whether this user may enter the photographer workspace. */
+    public function canAccessPhotographerArea(): bool
+    {
+        return $this->hasRole('photographer')
+            && $this->hasVerifiedEmail()
+            && $this->photographer()
+                ->where('status', Photographer::STATUS_APPROVED)
+                ->exists();
     }
 
     public function photographer()

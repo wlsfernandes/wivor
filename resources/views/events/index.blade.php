@@ -1,163 +1,108 @@
-@extends('layouts.master')
-@section('title')
-    Blog
-@endsection
-@section('css')
-    <!-- DataTables -->
-    <link href="{{ asset('/assets/libs/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
-@endsection
+@extends($layout)
+
+@section('title', 'Manage Events')
 
 @section('content')
-    @component('common-components.breadcrumb')
-    @slot('pagetitle')
-    Blog
-    @endslot
-    @slot('title')
-    @endslot
-    @endcomponent
+    <div class="container-fluid py-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-1">Manage events</h1>
+                <p class="text-muted mb-0">Create, publish, and archive your sports events.</p>
+            </div>
+            <a class="btn btn-primary" href="{{ route('events.create') }}">
+                <i class="fas fa-plus" aria-hidden="true"></i> Create event
+            </a>
+        </div>
 
+        @if (session('success'))
+            <div class="alert alert-success" role="status">{{ session('success') }}</div>
+        @endif
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="my-0 text-primary"> <i class="text-warning far fa-calendar font-size-18"></i><b> Events </b>
-                    </h5>
+        <form class="card card-body mb-4" method="GET" action="{{ route('events.index') }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label" for="search">Search</label>
+                    <input class="form-control" id="search" name="search" type="search" value="{{ $filters['search'] ?? '' }}" placeholder="Event, city, or sport">
                 </div>
-                <div class="card-body">
-                    @if (session()->has('success'))
-                        <div class="alert alert-success" role="alert">
-                            <i class="fas fa-check-circle"></i> <!-- Success icon -->
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    @if (request()->has('error'))
-                        <div class="alert alert-danger">
-                            {{ request()->query('error') }}
-                        </div>
-                    @endif
-                    @if ($errors->any())
-                        <div class="alert alert-danger" role="alert">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li><i class="bx bx-error"></i> {{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <div>
-
-                        <a href="{{ route('events.create') }}">
-                            <button type="button" class="btn btn-success waves-effect waves-light mb-3"><i
-                                    class="fas fa-plus"></i> Add New</button> </a>
-                    </div>
-
-                    <h4 class="card-title">Blog - Posts</h4>
-
-                    <table id="datatable-buttons" class="table table-striped table-bordered dt-responsive nowrap"
-                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Title En</th>
-                                <th class="text-center">Upload JPG</th>
-                                <th class="text-center">Publish</th>
-                                <th class="text-center">Preview</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($events as $event)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td><i>{{ substr($event->title ?? '', 0, 25) }}...</i></td>
-                                    <td class="text-center">
-                                        <a href="{{ url('/events/' . $event->id . '/teaser') }}" class="px-3 text-primary">
-                                            @if($event->image_url)
-                                                <i class="text-primary uil-image-upload font-size-20"></i>
-                                            @else
-                                                <i class="text-muted uil-image-upload font-size-20"></i>
-                                            @endif
-                                        </a>
-                                    </td>
-
-
-                                    <td class="text-center">
-
-                                        @if($event->published)
-                                            <a href="javascript:void(0);" class="px-3 text-primary"
-                                                onclick="event.preventDefault(); if(confirm('Confirm publish?')) { document.getElementById('publish-form-{{ $event->id }}').submit(); }">
-                                                @if ($event->postType && $event->postType->name == 'blog')
-                                                    <i class="text-primary uil-blogger-alt font-size-20"></i>
-                                                @elseif($event->postType && $event->postType->name == 'event')
-                                                    <i class="text-warning far fa-calendar font-size-18"></i>
-                                                @else($event->postType && $event->postType->name == 'simple page')
-                                                    <i class="text-info dripicons-browser font-size-18"></i>
-                                                @endif
-                                            </a>
-
-                                            <form id="publish-form-{{ $event->id }}"
-                                                action="{{ url('/events/' . $event->id . '/publish') }}" method="POST"
-                                                style="display: none;">
-                                                @method('POST')
-                                                @csrf
-                                            </form>
-                                        @else
-                                            <a href="javascript:void(0);" class="px-3 text-primary"
-                                                onclick="event.preventDefault(); if(confirm('Confirm publish?')) { document.getElementById('publish-form-{{ $event->id }}').submit(); }">
-                                                    <i class="text-muted far fa-calendar font-size-18"></i>
-                                            </a>
-
-                                            <form id="publish-form-{{ $event->id }}"
-                                                action="{{ url('/events/' . $event->id . '/publish') }}" method="POST"
-                                                style="display: none;">
-                                                @method('POST')
-                                                @csrf
-                                            </form>
-                                        @endif
-                                        </a>
-                                    </td>
-                                    <td class="text-center">
-                                        @if($event->published)
-                                            <a href="{{ config('app.link_website') . '/events/' . $event->slug }}"
-                                                class="px-3 text-primary" target="blank">
-                                                <i class="text-primary fas fa-eye font-size-15"></i> </a>
-                                        @else
-                                            <i class="text-muted fas fa-eye-slash font-size-15"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ url('/events/' . $event->id . '/edit') }}" class="px-3 text-primary"><i
-                                                class="uil uil-pen font-size-18"></i></a>
-
-                                        <a href="javascript:void(0);" class="px-3 text-danger"
-                                            onclick="event.preventDefault(); if(confirm('Confirm delete?')) { document.getElementById('delete-form-{{ $event->id }}').submit(); }">
-                                            <i class="uil uil-trash-alt font-size-18"></i>
-                                        </a>
-
-                                        <form id="delete-form-{{ $event->id }}" action="{{ url('/events/' . $event->id) }}"
-                                            method="POST" style="display: none;">
-                                            @method('DELETE')
-                                            @csrf
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-
-                    </table>
-
+                <div class="col-md-3">
+                    <label class="form-label" for="status">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All statuses</option>
+                        @foreach ($statusFilters as $value => $label)
+                            <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="event_date">Event date</label>
+                    <input class="form-control" id="event_date" name="event_date" type="date" value="{{ $filters['event_date'] ?? '' }}">
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-outline-primary" type="submit">Filter events</button>
                 </div>
             </div>
-        </div> <!-- end col -->
-    </div> <!-- end row -->
-@endsection
-@section('script')
-    <script src="{{ asset('/assets/libs/datatables/datatables.min.js') }}"></script>
-    <script src="{{ asset('/assets/libs/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('/assets/libs/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('/assets/js/pages/datatables.init.js') }}"></script>
+        </form>
 
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Event</th>
+                            <th scope="col">Sport</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Photos live</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($events as $event)
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ $event->cover_url }}" alt="" class="rounded"
+                                            style="width: 72px; height: 52px; object-fit: cover;">
+                                        <span class="fw-semibold">{{ $event->title }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ $event->sport_label }}</td>
+                                <td>{{ $event->date_label }}</td>
+                                <td>{{ $event->location_label }}</td>
+                                <td>{{ $event->photos_live_label }}</td>
+                                <td><span class="badge bg-secondary">{{ $event->status_label }}</span></td>
+                                <td>
+                                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                                        @if ($event->is_published)
+                                            <a class="btn btn-sm btn-outline-primary" href="{{ route('events.show', ['event' => $event->slug]) }}" target="_blank" rel="noopener noreferrer">View public page</a>
+                                        @endif
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('events.edit', ['event' => $event->id]) }}">Edit</a>
+                                        @if (! $event->is_archived)
+                                            <form method="POST" action="{{ route('events.publish', ['event' => $event->id]) }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button class="btn btn-sm btn-outline-success" type="submit">
+                                                    {{ $event->publish_action_label }}
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('events.destroy', ['event' => $event->id]) }}" onsubmit="return confirm('Archive this event?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Archive</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="7" class="text-center text-muted py-5">No events match the current filters.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-4">{{ $events->links() }}</div>
+    </div>
 @endsection

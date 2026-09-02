@@ -15,6 +15,8 @@ return [
 
     'default' => env('FILESYSTEM_DRIVER', 'local'),
 
+    'event_covers' => env('EVENT_COVER_DISK', 's3'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks

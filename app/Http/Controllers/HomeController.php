@@ -43,7 +43,7 @@ class HomeController extends Controller
     }
     public function welcome()
     {
-        $events = Event::where('published', true)
+        $events = Event::published()
             ->orderBy('published_at', 'desc')
             ->get();
         return view('site.welcome', compact('events'));

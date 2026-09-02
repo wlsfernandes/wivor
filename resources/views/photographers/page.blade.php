@@ -1,124 +1,108 @@
 @extends('layouts.app')
 
-@section('title', 'Wivor | Home')
+@section('title', 'Apply as a Photographer | WivorPhotos')
 
-@section('meta-description', 'Discover comprehensive Hispanic theological education and Latino ministry training programs. Explore Bible institute certifications, leadership development, and theological resources for Hispanic pastors and church leaders. Empower your ministry with tailored courses and Spanish-language resources.')
+@section('meta-description', 'Apply to cover sports events and sell your photography through WivorPhotos.')
 
-@section('meta-keywords', 'somosWivor,Hispanic theological education, Latino ministry training, Bible institute certification, Hispanic church leadership, theological resources for Hispanics, Hispanic ministry programs, Latino religious education, Hispanic theology courses, Spanish theological resources, Hispanic pastoral training, leadership development, Latino church leaders resources, certification for Hispanic Bible institutes,Preaching, Compelling, Teologia, Teologica, Educacion, Education, Servicio, Comunidad, Hispano, Latino, Predicacion, Transformacion, America Latina, Caribe, Educadores, Scholars, Autores, Historiadores, Teologia Integral, Teologia Sistematica, Migración, Justicia Social, Adiestramiento, Formacion, Antioquia, Reflexión, Recursos, Libros, Storytelling, Colaboracion, En Conjunto')
-
-
-<!-- Content here -->
-<style>
-    input[type="password"] {
-        border: 1px solid #ced4da;
-        padding: 10px;
-        width: 100%;
-        background: #F7F5F1;
-        position: relative;
-        display: block;
-        width: 100%;
-        height: 60px;
-        background: #F7F5F1;
-        border-radius: 5px;
-        border: 1px solid #F7F5F1;
-        font-size: 16px;
-        font-family: 'Poppins', sans-serif;
-        color: #6E6E6E;
-        padding: 10px 30px;
-        transition: all 500ms ease;
-    }
-
-    /* Optional: Add focus effect for better UI */
-    input[type="password"]:focus {
-        border-color: 1px solid #F7F5F1;
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-</style>
 @section('content')
-
-    <!-- cta-section -->
     <section class="cta-section home-3 centred">
         <div class="bg-layer parallax-bg" data-parallax='{"y": 100}'
-            style="background-image: url(assets/images/gallery/wivor-photographer.png);"></div>
+            style="background-image: url({{ asset('assets/images/gallery/wivor-photographer.png') }});"></div>
         <div class="auto-container">
             <div class="inner-box">
-                <h2>WiVor</h2>
-                <h3>@lang('photographers.photo_plataform')</h3>
-                <a href="#register_section" class="theme-btn-one"><span>@lang('photographers.start_here')</span></a>
+                <h1>Photograph sports with WivorPhotos</h1>
+                <p>Apply to cover events and sell the moments you capture.</p>
+                <a href="#register_section" class="theme-btn-one"><span>Start your application</span></a>
             </div>
         </div>
     </section>
 
     @include('partials.cards')
 
-
     <section id="register_section" class="contact-section sec-pad">
         <div class="auto-container">
             <div class="sec-title centred mb_55">
-                <span class="sub-title calendar">@lang('messages.register_now')</span>
+                <span class="sub-title calendar">Photographer application</span>
+                <h2>Create your account</h2>
+                <p>You will verify your email before our team reviews your application.</p>
             </div>
-            <div class="row clearfix">
-                <div class="col-lg-12 col-md-12 col-sm-12 form-column">
+
+            <div class="row justify-content-center">
+                <div class="col-lg-10 form-column">
                     <div class="form-inner">
-                        <form method="post" action="{{ route('registerPhotographer') }}" id="register-form"
-                            autocomplete="off">
+                        <form method="POST" action="{{ route('registerPhotographer') }}" autocomplete="on">
                             @csrf
                             <div class="row clearfix">
-                                <!-- Name, Last Name, Phone -->
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="first_name" class="form-control"
-                                        placeholder="@lang('messages.your_name')" required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="first_name">First name</label>
+                                    <input id="first_name" type="text" name="first_name" value="{{ old('first_name') }}" class="form-control @error('first_name') is-invalid @enderror" autocomplete="given-name" required>
+                                    @error('first_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="last_name" class="form-control"
-                                        placeholder="@lang('messages.last_name')" required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="last_name">Last name</label>
+                                    <input id="last_name" type="text" name="last_name" value="{{ old('last_name') }}" class="form-control @error('last_name') is-invalid @enderror" autocomplete="family-name" required>
+                                    @error('last_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="phone" class="form-control"
-                                        placeholder="@lang('messages.your_phone')" required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="email">Email</label>
+                                    <input id="email" type="email" name="email" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" autocomplete="email" required>
+                                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-5 col-md-5 col-sm-12 form-group">
-                                    <input type="text" name="address" class="form-control"
-                                        placeholder="@lang('messages.address')" required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="phone">Phone</label>
+                                    <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" class="form-control @error('phone') is-invalid @enderror" autocomplete="tel" required>
+                                    @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-3 col-md-3 col-sm-12 form-group">
-                                    <input type="text" name="city" class="form-control" placeholder="@lang('messages.city')"
-                                        required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="city">City</label>
+                                    <input id="city" type="text" name="city" value="{{ old('city') }}" class="form-control @error('city') is-invalid @enderror" autocomplete="address-level2" required>
+                                    @error('city')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-2 col-md-2 col-sm-12 form-group">
-                                    <input type="text" name="state" class="form-control"
-                                        placeholder="@lang('messages.state')" required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="state">State abbreviation</label>
+                                    <input id="state" type="text" name="state" value="{{ old('state') }}" maxlength="2" class="form-control text-uppercase @error('state') is-invalid @enderror" autocomplete="address-level1" required>
+                                    @error('state')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-2 col-md-2 col-sm-12 form-group">
-                                    <input type="text" name="zipcode" class="form-control"
-                                        placeholder="@lang('messages.zipcode')" required autocomplete="off">
+                                <div class="col-12 form-group">
+                                    <label for="profile_url">Portfolio or Instagram URL</label>
+                                    <input id="profile_url" type="url" name="profile_url" value="{{ old('profile_url') }}" class="form-control @error('profile_url') is-invalid @enderror" placeholder="https://" required>
+                                    @error('profile_url')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-
-                                <!-- Camera Model, Portfolio URL, Username -->
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="camera_model" class="form-control"
-                                        placeholder="@lang('messages.camera_model')" required autocomplete="off">
+                                <div class="col-12 form-group">
+                                    <label for="camera_model">Camera model or equipment</label>
+                                    <input id="camera_model" type="text" name="camera_model" value="{{ old('camera_model') }}" class="form-control @error('camera_model') is-invalid @enderror" required>
+                                    @error('camera_model')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="profile_url" class="form-control"
-                                        placeholder="@lang('messages.profile_url')" required autocomplete="off">
+                                <div class="col-12 form-group">
+                                    <label for="about">Short professional introduction</label>
+                                    <textarea id="about" name="about" rows="5" class="form-control @error('about') is-invalid @enderror" required>{{ old('about') }}</textarea>
+                                    @error('about')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="email" name="email" class="form-control"
-                                        placeholder="@lang('messages.your_email')" required autocomplete="off">
+                                <div class="col-md-6 form-group">
+                                    <label for="password">Password</label>
+                                    <input id="password" type="password" name="password" class="form-control @error('password') is-invalid @enderror" autocomplete="new-password" required>
+                                    <small class="form-text text-muted">Use at least 8 characters.</small>
+                                    @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <!-- About You -->
-                                <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                                    <textarea name="about" class="form-control"
-                                        placeholder="@lang('messages.about_you')"></textarea>
+                                <div class="col-md-6 form-group">
+                                    <label for="password_confirmation">Confirm password</label>
+                                    <input id="password_confirmation" type="password" name="password_confirmation" class="form-control" autocomplete="new-password" required>
                                 </div>
-
-                                <!-- Centered Submit Button -->
-                                <div class="col-lg-12 col-md-12 col-sm-12 form-group text-center">
-                                    <button class="theme-btn-one btn btn-primary" type="submit" name="submit-form">
-                                        <i class="bi bi-person-plus-fill"></i> <span>@lang('messages.register_now')</span>
-                                    </button>
+                                <div class="col-12 form-group">
+                                    <div class="form-check mb-3">
+                                        <input id="is_adult" class="form-check-input @error('is_adult') is-invalid @enderror" type="checkbox" name="is_adult" value="1" @checked(old('is_adult')) required>
+                                        <label class="form-check-label" for="is_adult">I confirm that I am at least 18 years old.</label>
+                                        @error('is_adult')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="form-check">
+                                        <input id="accepts_terms" class="form-check-input @error('accepts_terms') is-invalid @enderror" type="checkbox" name="accepts_terms" value="1" @checked(old('accepts_terms')) required>
+                                        <label class="form-check-label" for="accepts_terms">I accept the WivorPhotos photographer terms.</label>
+                                        @error('accepts_terms')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+                                <div class="col-12 form-group text-center">
+                                    <button class="theme-btn-one" type="submit"><span>Submit application</span></button>
+                                    <p class="mt-3 mb-0">We do not collect banking details or identity documents in this form.</p>
                                 </div>
                             </div>
                         </form>
@@ -129,9 +113,6 @@
     </section>
 
     <section class="contact-section sec-pad">
-
-
         @include('partials.contact')
-
-
+    </section>
 @endsection

@@ -57,7 +57,7 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="">
+                            <a class="dropdown-item" href="{{ route('photographer.myEvents') }}">
                                 @lang('messages.my_events')
                             </a>
                         </li>

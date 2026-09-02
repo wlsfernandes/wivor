@@ -12,6 +12,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
+use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
+use App\Http\Controllers\Frontend\PhotographerRegistrationController;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Aws\S3\S3Client;
@@ -37,19 +39,20 @@ Route::get('/lang/{lang}', function ($lang) {
 })->name('lang.switch');
 
 
-/**********************  public pages  *********************************************************/ 
-Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
-Route::get('/events', [EventController::class, 'index'])->name('events.index');
+/********************** Event pages ************************************************************/
 Route::get('/list-events', [EventController::class, 'listEvents'])->name('events.listEvents');
-Route::post('/events', [EventController::class, 'store'])->name('events.store');
-Route::get('/events/{id}/publish', [EventController::class, 'publish'])->name('events.publish');
-Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
-Route::get('/events/{id}/teaser', [EventController::class, 'teaser'])->name('events.teaser');
-Route::put('/events/{id}/upload-jpg', [EventController::class, 'uploadJPG'])->name('events.uploadJPG');
-Route::put('/events/{id}', [EventController::class, 'update'])->name('events.update');
-Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('events.destroy');
-Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
-Route::get('/events/{slug}', [EventController::class, 'show'])->name('event.show');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/events', [EventController::class, 'index'])->name('events.index');
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::patch('/events/{event}/publish', [EventController::class, 'publish'])->name('events.publish');
+    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+});
+
+Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 
 
 
@@ -63,11 +66,11 @@ Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('test
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/photobook', [PhotographerController::class, 'photobook'])->name('photobook');
 Route::get('/signup', [HomeController::class, 'signUp'])->name('signUp');
-Route::post('/registerPhotographer', [PhotographerController::class, 'registerPhotographer'])->name('registerPhotographer');
+Route::post('/registerPhotographer', [PhotographerRegistrationController::class, 'store'])->name('registerPhotographer');
 Route::post('/registerUser', [UserController::class, 'registerUser'])->name('registerUser');
 Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
 
-Auth::routes();
+Auth::routes(['register' => false, 'verify' => true]);
 
 Route::middleware('auth')->group(function () {
 
@@ -85,18 +88,27 @@ Route::middleware('auth')->group(function () {
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
 
-        Route::get('/list-photographers', [PhotographerController::class, 'list'])->name('photographers.list');
+        Route::get('/list-photographers', [AdminPhotographerController::class, 'index'])->name('photographers.list');
+        Route::get('/list-photographers/{photographer}', [AdminPhotographerController::class, 'show'])->name('admin.photographers.show');
+        Route::patch('/list-photographers/{photographer}/approve', [AdminPhotographerController::class, 'approve'])->name('admin.photographers.approve');
+        Route::patch('/list-photographers/{photographer}/decline', [AdminPhotographerController::class, 'decline'])->name('admin.photographers.decline');
+        Route::patch('/list-photographers/{photographer}/suspend', [AdminPhotographerController::class, 'suspend'])->name('admin.photographers.suspend');
+        Route::patch('/list-photographers/{photographer}/restore', [AdminPhotographerController::class, 'restore'])->name('admin.photographers.restore');
 
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     });
 
-    // Photographer-only routes
-    Route::middleware('can:access-photographer')->group(function () {
+    Route::middleware('can:photographer-account')->group(function () {
+        Route::get('/photographers/application-status', [PhotographerController::class, 'applicationStatus'])->name('photographer.application-status');
+    });
+
+    // Approved and email-verified photographer routes
+    Route::middleware(['verified', 'can:access-photographer'])->group(function () {
         Route::get('/photographers/dashboard', [PhotographerController::class, 'dashboard'])->name('photographer.dashboard');
         Route::get('/photographers/all-events', [PhotographerController::class, 'allEvents'])->name('photographer.allEvents');
         Route::get('/photographers/my-events', [PhotographerController::class, 'myEvents'])->name('photographer.myEvents');
         Route::get('/photographers/new-event', [PhotographerController::class, 'newEvent'])->name('photographer.newEvent');
-        Route::post('/photographers/event/create', [EventController::class, 'eventCreatedByPhotographer'])->name('eventCreatedByPhotographer');
+        Route::post('/photographers/event/create', [EventController::class, 'store'])->name('eventCreatedByPhotographer');
     });
 
 
@@ -135,4 +147,3 @@ Route::middleware('auth')->group(function () {
 //Route::get('/', [App\Http\Controllers\HomeController::class, 'root']);
 
 // Authenticated routes
-

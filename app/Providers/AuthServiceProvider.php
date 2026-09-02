@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Event;
+use App\Policies\EventPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -13,7 +15,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        Event::class => EventPolicy::class,
     ];
 
     /**
@@ -30,8 +32,11 @@ class AuthServiceProvider extends ServiceProvider
             return $user->roles->contains('name', 'admin');
         });
         // student access
+        Gate::define('photographer-account', function ($user) {
+            return $user->hasRole('photographer') && $user->photographer !== null;
+        });
         Gate::define('access-photographer', function ($user) {
-            return $user->roles->contains('name', 'photographer');
+            return $user->canAccessPhotographerArea();
         });
         // teacher access
         Gate::define('access-customer', callback: function ($user) {

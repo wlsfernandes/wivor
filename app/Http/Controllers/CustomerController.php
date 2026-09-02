@@ -8,7 +8,7 @@ class CustomerController extends Controller
 {
     public function dashboard()
     {
-        $events = Event::where('published', true)
+        $events = Event::published()
             ->orderBy('published_at', 'desc')
             ->paginate(3);
 

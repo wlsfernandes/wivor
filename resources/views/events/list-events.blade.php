@@ -1,75 +1,89 @@
 @extends($layout)
 
-@section('title', '#somosAETH | Events')
-
-@section('meta-description', 'This is a brief description of the blog page.')
-
-@section('meta-keywords', 'blog, posts, news')
+@section('title', 'Find Your Event Photos | WivorPhotos')
+@section('meta-description', 'Find professional sports event photos by event name, location, sport, or date.')
 
 @section('content')
-    <div class="container my-5">
-        <div class="sec-title mb_55 centred">
-            <a href="#"> <span class="sub-title"><b>WiVor @lang('messages.events')</b></span>
-            </a>
-        </div>
+    <main class="container py-5">
+        <header class="text-center mb-5">
+            <h1>Find Your Event Photos</h1>
+            <p class="text-muted">Search upcoming and published sports events across the United States.</p>
+        </header>
+
+        <form class="card card-body mb-5" method="GET" action="{{ route('events.listEvents') }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label class="form-label" for="search">Event, city, or sport</label>
+                    <input class="form-control" id="search" name="search" type="search" value="{{ $filters['search'] ?? '' }}" placeholder="Search events">
+                </div>
+                <div class="col-sm-6 col-lg-2">
+                    <label class="form-label" for="state">State</label>
+                    <select class="form-select" id="state" name="state">
+                        <option value="">All states</option>
+                        @foreach ($filterOptions['states'] as $state)
+                            <option value="{{ $state }}" @selected(($filters['state'] ?? '') === $state)>{{ $state }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-sm-6 col-lg-2">
+                    <label class="form-label" for="city">City</label>
+                    <select class="form-select" id="city" name="city">
+                        <option value="">All cities</option>
+                        @foreach ($filterOptions['cities'] as $city)
+                            <option value="{{ $city }}" @selected(($filters['city'] ?? '') === $city)>{{ $city }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-sm-6 col-lg-2">
+                    <label class="form-label" for="sport">Sport</label>
+                    <select class="form-select" id="sport" name="sport">
+                        <option value="">All sports</option>
+                        @foreach ($filterOptions['sports'] as $sport)
+                            <option value="{{ $sport }}" @selected(($filters['sport'] ?? '') === $sport)>{{ $sport }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-sm-6 col-lg-2 d-grid">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <label class="form-label" for="date_from">From date</label>
+                    <input class="form-control" id="date_from" name="date_from" type="date" value="{{ $filters['date_from'] ?? '' }}">
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <label class="form-label" for="date_to">To date</label>
+                    <input class="form-control" id="date_to" name="date_to" type="date" value="{{ $filters['date_to'] ?? '' }}">
+                </div>
+            </div>
+        </form>
 
         <div class="row g-4">
-            @foreach($events as $event)
-                <div class="col-md-6 col-lg-4" style="margin-bottom:48px;">
-                    <div class="card h-100 shadow-sm border-0">
-                        <a href="{{ route('events.show', $event->slug) }}">
-                            <img src="{{ $event->image_url }}"
-                                srcset="{{ $event->image_url }} 1x, {{ $event->image_url_2x ?? $event->image_url }} 2x"
-                                class="card-img-top" alt="{{ $event->title_en }}"
-                                style="height: 400px; object-fit: cover;object-position: left top;">
+            @forelse ($events as $event)
+                <div class="col-md-6 col-lg-4">
+                    <article class="card h-100 shadow-sm border-0">
+                        <a href="{{ route('events.show', ['event' => $event->slug]) }}">
+                            <img src="{{ $event->cover_url }}" class="card-img-top" alt="Cover for {{ $event->title }}" style="height: 240px; object-fit: cover;">
                         </a>
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">
-                              
-                                    {{ $event->title }}
-                             
-                            </h5>
-                            <p class="card-text text-muted small flex-grow-1">
-                                <i>{{ $event->summary }}</i>
-                            </p>
-
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <a href="{{ route('events.show', $event->slug) }}" class="btn btn-sm btn-gradient">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> @lang('messages.read_more')
-                                </a>
-                                <small class="text-muted">{{ $event->date_of_publication }}</small>
-                            </div>
+                            <span class="text-uppercase small fw-semibold text-primary">{{ $event->sport_label }}</span>
+                            <h2 class="h5 mt-2"><a class="text-decoration-none" href="{{ route('events.show', ['event' => $event->slug]) }}">{{ $event->title }}</a></h2>
+                            <p class="text-muted mb-2">{{ $event->date_label }}</p>
+                            <p class="text-muted mb-3">{{ $event->location_label }}</p>
+                            <p class="fw-semibold mt-auto mb-0">{{ $event->public_availability_label }}</p>
                         </div>
+                    </article>
+                </div>
+            @empty
+                <div class="col-12">
+                    <div class="alert alert-light border text-center py-5">
+                        <h2 class="h5">No events match your search</h2>
+                        <p class="text-muted mb-3">Try removing a filter or searching for a different event, city, or sport.</p>
+                        <a class="btn btn-outline-primary" href="{{ route('events.listEvents') }}">Clear filters</a>
                     </div>
                 </div>
-            @endforeach
+            @endforelse
         </div>
 
-        {{-- ✅ Custom Pagination --}}
-        <div class="pagination-wrapper centred mt-5">
-            <ul class="pagination clearfix">
-                @if ($events->onFirstPage())
-                    <li><a href="#" aria-disabled="true"><i class="icon-56"></i></a></li>
-                @else
-                    <li><a href="{{ $events->previousPageUrl() }}"><i class="icon-56"></i></a></li>
-                @endif
-
-                @foreach ($events->getUrlRange(1, $events->lastPage()) as $page => $url)
-                    <li>
-                        <a href="{{ $url }}" class="{{ $events->currentPage() === $page ? 'current' : '' }}">
-                            {{ $page }}
-                        </a>
-                    </li>
-                @endforeach
-
-                @if ($events->hasMorePages())
-                    <li><a href="{{ $events->nextPageUrl() }}"><i class="icon-55"></i></a></li>
-                @else
-                    <li><a href="#" aria-disabled="true"><i class="icon-55"></i></a></li>
-                @endif
-            </ul>
-        </div>
-    </div>
-
-   
+        <div class="mt-5">{{ $events->links() }}</div>
+    </main>
 @endsection

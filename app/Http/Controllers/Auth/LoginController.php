@@ -35,7 +35,13 @@ class LoginController extends Controller
         if ($user->hasRole('admin')) {
             return '/index';
         } elseif ($user->hasRole('photographer')) {
-            return '/photographers/dashboard';
+            if (! $user->hasVerifiedEmail()) {
+                return '/email/verify';
+            }
+
+            return $user->canAccessPhotographerArea()
+                ? '/photographers/dashboard'
+                : '/photographers/application-status';
         } elseif ($user->hasRole('customer')) {
             return '/customers/dashboard';
         }
