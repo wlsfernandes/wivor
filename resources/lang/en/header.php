@@ -50,7 +50,7 @@ return [
     'state' => 'State',
     'zipcode' => 'zipcode',
     'name_on_card' => 'Name on Card',
-    'aeth_values' => 'Wivor Values and Principles',
+    'Wivor_values' => 'Wivor Values and Principles',
     'values_p1' => 'They are the fundamental believe that drive our actions and our way of doing things',
     'education_p1' => 'Educating to Impact, Inspiring to Serve',
     'bookstore_enjoy' => 'Enjoy exclusive access to resources created to inspire you and help you grow as an influencer in your community.',
