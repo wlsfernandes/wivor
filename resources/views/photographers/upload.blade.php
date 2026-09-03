@@ -127,7 +127,7 @@
                             @endif
 
                             @if (in_array($photo->status, ['ready', 'published']))
-                                <details class="mt-3">
+                                <details class="mt-3" open>
                                     <summary class="small fw-semibold">SEO and people</summary>
                                     <form method="POST" action="{{ route('photographer.uploads.metadata', [$event, $photo]) }}" class="mt-3">
                                         @csrf
