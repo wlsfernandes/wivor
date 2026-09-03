@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class PhotographerSalesPanelTest extends TestCase
@@ -66,6 +67,51 @@ class PhotographerSalesPanelTest extends TestCase
             ->assertOk()
             ->assertSee('WVR-PAYOUT01')
             ->assertDontSee('WVR-PEND0002');
+    }
+
+    public function test_dashboard_shows_only_this_photographers_share_of_a_shared_order(): void
+    {
+        [$user, $photographer] = $this->approvedPhotographer();
+        [, $otherPhotographer] = $this->approvedPhotographer();
+        $event = $this->publishedEvent(1000);
+
+        $order = $this->paidOrder($event, $photographer, 'WVR-SHARED01', 800);
+        OrderItem::create([
+            'order_id' => $order->id,
+            'photo_id' => $this->photoFor($event, $otherPhotographer)->id,
+            'photographer_id' => $otherPhotographer->id,
+            'photo_uuid' => (string) Str::uuid(),
+            'original_key' => 'photos/other-'.uniqid().'.jpg',
+            'unit_price_cents' => 1000,
+            'commission_cents' => 200,
+            'photographer_allocation_cents' => 800,
+        ]);
+        $order->update(['photo_count' => 2, 'subtotal_cents' => 2000, 'total_cents' => 2000]);
+
+        // Both this photographer's own item ($10.00 gross / $8.00 net) and the sale summary must
+        // reflect only their share of the order, never the other photographer's item in the same order.
+        $this->actingAs($user)->get(route('photographer.dashboard'))
+            ->assertOk()
+            ->assertSee('WVR-SHARED01')
+            ->assertSee('$10.00')
+            ->assertSee('$8.00')
+            ->assertDontSee('$20.00')
+            ->assertDontSee('$16.00');
+    }
+
+    public function test_paid_out_filter_only_matches_items_with_a_completed_transfer(): void
+    {
+        [$user, $photographer] = $this->approvedPhotographer();
+        $event = $this->publishedEvent(1000);
+        $paidOrder = $this->paidOrder($event, $photographer, 'WVR-TRANSFER1', 800);
+        $paidOrder->items()->update(['stripe_transfer_id' => 'tr_test_123']);
+        $this->paidOrder($event, $photographer, 'WVR-NOTRANSFER', 800);
+
+        $this->actingAs($user)
+            ->get(route('photographer.dashboard', ['payout_status' => 'paid']))
+            ->assertOk()
+            ->assertSee('WVR-TRANSFER1')
+            ->assertDontSee('WVR-NOTRANSFER');
     }
 
     /** @return array{User, Photographer} */
@@ -141,14 +187,11 @@ class PhotographerSalesPanelTest extends TestCase
         $order = Order::create([
             'order_number' => $orderNumber,
             'event_id' => $event->id,
-            'photographer_id' => $photographer->id,
             'currency' => 'usd',
             'photo_count' => 1,
             'unit_price_cents' => $event->price_cents,
             'subtotal_cents' => $event->price_cents,
             'commission_percentage' => 20,
-            'commission_cents' => $event->price_cents - $allocationCents,
-            'photographer_allocation_cents' => $allocationCents,
             'total_cents' => $event->price_cents,
             'payment_status' => Order::PAYMENT_PAID,
             'fulfillment_status' => Order::FULFILLMENT_READY,
@@ -162,6 +205,8 @@ class PhotographerSalesPanelTest extends TestCase
             'photo_uuid' => $photo->uuid,
             'original_key' => $photo->original_key,
             'unit_price_cents' => $event->price_cents,
+            'commission_cents' => $event->price_cents - $allocationCents,
+            'photographer_allocation_cents' => $allocationCents,
         ]);
 
         return $order;
@@ -170,17 +215,15 @@ class PhotographerSalesPanelTest extends TestCase
     private function pendingOrder(Event $event, Photographer $photographer, string $orderNumber): Order
     {
         $photo = $this->photoFor($event, $photographer);
+        $commissionCents = (int) round($event->price_cents * 0.2);
         $order = Order::create([
             'order_number' => $orderNumber,
             'event_id' => $event->id,
-            'photographer_id' => $photographer->id,
             'currency' => 'usd',
             'photo_count' => 1,
             'unit_price_cents' => $event->price_cents,
             'subtotal_cents' => $event->price_cents,
             'commission_percentage' => 20,
-            'commission_cents' => (int) round($event->price_cents * 0.2),
-            'photographer_allocation_cents' => $event->price_cents - (int) round($event->price_cents * 0.2),
             'total_cents' => $event->price_cents,
             'payment_status' => Order::PAYMENT_PENDING,
             'fulfillment_status' => Order::FULFILLMENT_PENDING,
@@ -192,6 +235,8 @@ class PhotographerSalesPanelTest extends TestCase
             'photo_uuid' => $photo->uuid,
             'original_key' => $photo->original_key,
             'unit_price_cents' => $event->price_cents,
+            'commission_cents' => $commissionCents,
+            'photographer_allocation_cents' => $event->price_cents - $commissionCents,
         ]);
 
         return $order;

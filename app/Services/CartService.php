@@ -8,15 +8,19 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 
-/** Manages the guest checkout selection: one event and one photographer per cart. */
+/** Manages the guest checkout selection: one event per cart, any approved photographer's photos. */
 class CartService
 {
     private const SESSION_KEY = 'wivor_cart';
 
-    /** Add a photo to the cart, enforcing the single event/photographer rule. */
+    /** Add a photo to the cart, enforcing the single-event rule. */
     public function add(Photo $photo): void
     {
-        if ($photo->status !== Photo::STATUS_PUBLISHED || ! $photo->event->isSellable()) {
+        $photo->loadMissing(['event', 'photographer']);
+
+        if ($photo->status !== Photo::STATUS_PUBLISHED
+            || ! $photo->event->isSellable()
+            || ! $photo->photographer?->isReadyForPayouts()) {
             throw ValidationException::withMessages([
                 'photo' => 'This photo is not currently available for purchase.',
             ]);
@@ -24,9 +28,9 @@ class CartService
 
         $current = $this->photos()->first();
 
-        if ($current && ($current->event_id !== $photo->event_id || $current->photographer_id !== $photo->photographer_id)) {
+        if ($current && $current->event_id !== $photo->event_id) {
             throw ValidationException::withMessages([
-                'photo' => 'Your current order contains photos from another photographer. Complete that purchase or clear your current selection before adding this photo.',
+                'photo' => 'You already selected photos from another event. Complete that purchase or clear your selection before choosing photos from this event.',
             ]);
         }
 
@@ -55,17 +59,16 @@ class CartService
         }
 
         $photos = Photo::query()
-            ->with('event')
+            ->with(['event', 'photographer'])
             ->whereIn('uuid', $ids->all())
             ->where('status', Photo::STATUS_PUBLISHED)
             ->get()
-            ->filter(fn (Photo $photo) => $photo->event->isSellable());
+            ->filter(fn (Photo $photo) => $photo->event->isSellable() && $photo->photographer?->isReadyForPayouts());
 
-        // The first surviving item establishes the cart's single event/photographer pair.
+        // The first surviving item establishes the cart's single event; any photographer may contribute.
         $first = $photos->first();
         if ($first) {
-            $photos = $photos->filter(fn (Photo $photo) => $photo->event_id === $first->event_id
-                && $photo->photographer_id === $first->photographer_id);
+            $photos = $photos->filter(fn (Photo $photo) => $photo->event_id === $first->event_id);
         }
 
         $validIds = $photos->pluck('uuid');

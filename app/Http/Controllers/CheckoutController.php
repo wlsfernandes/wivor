@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\Photographer;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use Illuminate\Http\RedirectResponse;
@@ -29,10 +28,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.show')->withErrors(['cart' => 'Your selection is empty.']);
         }
 
-        $photographer = Photographer::find($photos->first()->photographer_id);
-
         try {
-            $order = $this->checkout->createPendingOrder($event, $photographer, $photos);
+            $order = $this->checkout->createPendingOrder($event, $photos);
             $session = $this->checkout->createCheckoutSession($order);
         } catch (ValidationException $exception) {
             return redirect()->route('cart.show')->withErrors($exception->errors());

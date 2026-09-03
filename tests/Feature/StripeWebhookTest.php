@@ -11,6 +11,7 @@ use App\Models\Photographer;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Stripe\StripeClient;
 use Tests\TestCase;
 
 class StripeWebhookTest extends TestCase
@@ -23,6 +24,7 @@ class StripeWebhookTest extends TestCase
     {
         parent::setUp();
         config(['services.stripe.webhook_secret' => self::WEBHOOK_SECRET]);
+        $this->fakeStripe();
     }
 
     public function test_paid_checkout_session_fulfills_the_order_and_protects_the_photo(): void
@@ -48,6 +50,7 @@ class StripeWebhookTest extends TestCase
         $item = $order->items()->firstOrFail();
         $this->assertSame(OrderItem::DOWNLOAD_READY, $item->download_status);
         $this->assertNotNull($item->download_expires_at);
+        $this->assertSame('tr_test_123', $item->stripe_transfer_id);
 
         $photo->refresh();
         $this->assertSame(1, $photo->sale_count);
@@ -86,6 +89,25 @@ class StripeWebhookTest extends TestCase
         $this->postWebhook($this->checkoutCompletedPayload('cs_does_not_exist'))->assertOk();
     }
 
+    private function fakeStripe(): void
+    {
+        $this->app->instance(StripeClient::class, new class extends StripeClient
+        {
+            public $transfers;
+
+            public function __construct()
+            {
+                $this->transfers = new class
+                {
+                    public function create(array $params): object
+                    {
+                        return (object) ['id' => 'tr_test_123'];
+                    }
+                };
+            }
+        });
+    }
+
     /** @return array{Order, Photo} */
     private function pendingOrder(): array
     {
@@ -95,7 +117,11 @@ class StripeWebhookTest extends TestCase
             'first_name' => 'Alex',
             'last_name' => 'Rivera',
         ]);
-        $photographer->forceFill(['status' => Photographer::STATUS_APPROVED])->save();
+        $photographer->forceFill([
+            'status' => Photographer::STATUS_APPROVED,
+            'stripe_account_id' => 'acct_'.uniqid(),
+            'stripe_onboarding_status' => Photographer::STRIPE_COMPLETE,
+        ])->save();
 
         $event = Event::create([
             'title' => 'City Run '.uniqid(),
@@ -145,14 +171,11 @@ class StripeWebhookTest extends TestCase
 
         $order = Order::create([
             'event_id' => $event->id,
-            'photographer_id' => $photographer->id,
             'currency' => 'usd',
             'photo_count' => 1,
             'unit_price_cents' => 1000,
             'subtotal_cents' => 1000,
             'commission_percentage' => 20,
-            'commission_cents' => 200,
-            'photographer_allocation_cents' => 800,
             'total_cents' => 1000,
             'payment_status' => Order::PAYMENT_PENDING,
             'fulfillment_status' => Order::FULFILLMENT_PENDING,
@@ -165,6 +188,8 @@ class StripeWebhookTest extends TestCase
             'photo_uuid' => $photo->uuid,
             'original_key' => $photo->original_key,
             'unit_price_cents' => 1000,
+            'commission_cents' => 200,
+            'photographer_allocation_cents' => 800,
         ]);
 
         return [$order, $photo];

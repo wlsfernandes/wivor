@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Photographer;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -18,38 +17,35 @@ class CheckoutService
     {
     }
 
-    /** Revalidate the selection, freeze pricing, and create the pending order and its immutable items. */
-    public function createPendingOrder(Event $event, Photographer $photographer, Collection $photos): Order
+    /** Revalidate the selection, freeze pricing, and create the pending order and its immutable, per-photographer items. */
+    public function createPendingOrder(Event $event, Collection $photos): Order
     {
         if ($photos->isEmpty() || ! $event->isSellable()) {
             throw ValidationException::withMessages(['cart' => 'Your selection is no longer available for purchase.']);
         }
 
-        if (! $photographer->isReadyForPayouts()) {
-            throw ValidationException::withMessages(['cart' => 'This photographer is not yet ready to receive payments. Please try again later.']);
+        if ($photos->contains(fn ($photo) => ! $photo->photographer?->isReadyForPayouts())) {
+            throw ValidationException::withMessages(['cart' => 'One of the selected photographers is not yet ready to receive payments. Please remove that photo and try again.']);
         }
 
         $unitPriceCents = $event->price_cents;
         $photoCount = $photos->count();
         $subtotalCents = $unitPriceCents * $photoCount;
         $commissionPercentage = (float) config('commission.percentage');
-        $commissionCents = (int) round($subtotalCents * $commissionPercentage / 100);
-        $photographerAllocationCents = $subtotalCents - $commissionCents;
+        $itemCommissionCents = (int) round($unitPriceCents * $commissionPercentage / 100);
+        $itemAllocationCents = $unitPriceCents - $itemCommissionCents;
 
         return DB::transaction(function () use (
-            $event, $photographer, $photos, $unitPriceCents, $photoCount,
-            $subtotalCents, $commissionPercentage, $commissionCents, $photographerAllocationCents
+            $event, $photos, $unitPriceCents, $photoCount,
+            $subtotalCents, $commissionPercentage, $itemCommissionCents, $itemAllocationCents
         ): Order {
             $order = Order::create([
                 'event_id' => $event->id,
-                'photographer_id' => $photographer->id,
                 'currency' => 'usd',
                 'photo_count' => $photoCount,
                 'unit_price_cents' => $unitPriceCents,
                 'subtotal_cents' => $subtotalCents,
                 'commission_percentage' => $commissionPercentage,
-                'commission_cents' => $commissionCents,
-                'photographer_allocation_cents' => $photographerAllocationCents,
                 'total_cents' => $subtotalCents,
                 'payment_status' => Order::PAYMENT_PENDING,
                 'fulfillment_status' => Order::FULFILLMENT_PENDING,
@@ -59,10 +55,12 @@ class CheckoutService
                 OrderItem::create([
                     'order_id' => $order->id,
                     'photo_id' => $photo->id,
-                    'photographer_id' => $photographer->id,
+                    'photographer_id' => $photo->photographer_id,
                     'photo_uuid' => $photo->uuid,
                     'original_key' => $photo->original_key,
                     'unit_price_cents' => $unitPriceCents,
+                    'commission_cents' => $itemCommissionCents,
+                    'photographer_allocation_cents' => $itemAllocationCents,
                 ]);
             }
 
@@ -70,7 +68,14 @@ class CheckoutService
         });
     }
 
-    /** Create the Stripe-hosted Checkout Session using the destination-charge model. */
+    /**
+     * Create the Stripe-hosted Checkout Session for the whole order.
+     *
+     * Funds are collected into the platform account; because one order can include
+     * multiple photographers, payouts are issued as separate Transfers per photographer
+     * after the webhook confirms payment (see StripeWebhookController), not as a single
+     * destination charge here.
+     */
     public function createCheckoutSession(Order $order): object
     {
         $session = $this->stripe->checkout->sessions->create([
@@ -86,10 +91,7 @@ class CheckoutService
                 'quantity' => $order->photo_count,
             ]],
             'payment_intent_data' => [
-                'application_fee_amount' => $order->commission_cents,
-                'transfer_data' => [
-                    'destination' => $order->photographer->stripe_account_id,
-                ],
+                'transfer_group' => $order->order_number,
             ],
             'success_url' => route('checkout.success', ['order' => $order->order_number]).'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('checkout.cancel', ['order' => $order->order_number]),
@@ -104,3 +106,4 @@ class CheckoutService
         return $session;
     }
 }
+

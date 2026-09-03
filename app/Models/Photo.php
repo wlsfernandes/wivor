@@ -67,9 +67,15 @@ class Photo extends Model
     /** Return concise, non-keyword-stuffed fallback text for public pages. */
     public function getDisplayTitleAttribute(): string
     {
-        $reference = Str::upper(substr(str_replace('-', '', $this->uuid), 0, 8));
+        $reference = $this->reference_number;
 
         return $this->title ?: "{$this->event->title} {$this->event->sport_label} photo {$reference}";
+    }
+
+    /** Return a short, customer-support-friendly reference number for this photo. */
+    public function getReferenceNumberAttribute(): string
+    {
+        return Str::upper(substr(str_replace('-', '', $this->uuid), 0, 8));
     }
 
     public function getDisplayAltTextAttribute(): string

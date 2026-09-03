@@ -6,12 +6,14 @@ use App\Mail\OrderReceiptMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Photo;
+use App\Models\Photographer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\StripeClient;
 use Stripe\Webhook;
 use Throwable;
 use UnexpectedValueException;
@@ -19,6 +21,10 @@ use UnexpectedValueException;
 /** Receives verified Stripe payment notifications and fulfills paid orders exactly once. */
 class StripeWebhookController extends Controller
 {
+    public function __construct(private readonly StripeClient $stripe)
+    {
+    }
+
     /** Verify the Stripe signature and fulfill the checkout.session.completed event. */
     public function handle(Request $request): Response
     {
@@ -94,6 +100,46 @@ class StripeWebhookController extends Controller
         // Only the call that actually transitioned the order sends the receipt, so retried webhooks never resend it.
         if ($order) {
             $this->sendReceipt($order);
+            $this->transferPhotographerEarnings($order);
+        }
+    }
+
+    /**
+     * Pay each contributing photographer their allocation as a separate Stripe Transfer.
+     *
+     * One order can include multiple photographers, so funds are collected into the platform
+     * account at Checkout and split here rather than via a single destination charge.
+     */
+    private function transferPhotographerEarnings(Order $order): void
+    {
+        $itemsByPhotographer = $order->items()->whereNull('stripe_transfer_id')->get()->groupBy('photographer_id');
+        if ($itemsByPhotographer->isEmpty()) {
+            return;
+        }
+
+        $photographers = Photographer::whereIn('id', $itemsByPhotographer->keys())->get()->keyBy('id');
+
+        foreach ($itemsByPhotographer as $photographerId => $items) {
+            $photographer = $photographers->get($photographerId);
+            $amountCents = $items->sum('photographer_allocation_cents');
+
+            try {
+                $transfer = $this->stripe->transfers->create([
+                    'amount' => $amountCents,
+                    'currency' => $order->currency,
+                    'destination' => $photographer->stripe_account_id,
+                    'transfer_group' => $order->order_number,
+                ]);
+
+                OrderItem::whereIn('id', $items->pluck('id'))->update(['stripe_transfer_id' => $transfer->id]);
+            } catch (Throwable $exception) {
+                Log::error('Photographer transfer failed.', [
+                    'event' => 'stripe.webhook.transfer',
+                    'order_id' => $order->id,
+                    'photographer_id' => $photographerId,
+                    'exception' => $exception->getMessage(),
+                ]);
+            }
         }
     }
 

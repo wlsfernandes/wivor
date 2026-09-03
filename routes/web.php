@@ -14,12 +14,14 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
 use App\Http\Controllers\PhotographerUploadController;
 use App\Http\Controllers\PhotoDeliveryController;
+use App\Http\Controllers\PhotoRemovalRequestController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
+use App\Http\Controllers\Admin\PhotoRemovalRequestController as AdminPhotoRemovalRequestController;
 use App\Http\Controllers\Frontend\PhotographerRegistrationController;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -62,6 +64,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 Route::get('/events/{event:slug}/photos/{photo}', [PhotoDeliveryController::class, 'gallery'])->name('events.photos.show');
 Route::get('/events/{event:slug}/photos/{photo}/image.jpg', [PhotoDeliveryController::class, 'image'])->name('events.photos.image');
+Route::get('/events/{event:slug}/photos/{photo}/report', [PhotoRemovalRequestController::class, 'create'])->name('photos.removal-requests.create');
+Route::post('/events/{event:slug}/photos/{photo}/report', [PhotoRemovalRequestController::class, 'store'])->name('photos.removal-requests.store');
 
 /********************** Cart (guest checkout selection) ****************************************/
 Route::get('/cart', [CartController::class, 'index'])->name('cart.show');
@@ -132,6 +136,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/media/{event}/close', [AdminMediaController::class, 'closeGallery'])->name('admin.media.close');
         Route::post('/admin/media/{event}/holds', [AdminMediaController::class, 'hold'])->name('admin.media.holds.store');
         Route::delete('/admin/media/{event}/holds/{hold}', [AdminMediaController::class, 'releaseHold'])->name('admin.media.holds.release');
+
+        Route::get('/admin/removal-requests', [AdminPhotoRemovalRequestController::class, 'index'])->name('admin.removal-requests.index');
+        Route::patch('/admin/removal-requests/{removalRequest}/resolve', [AdminPhotoRemovalRequestController::class, 'resolve'])->name('admin.removal-requests.resolve');
 
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     });

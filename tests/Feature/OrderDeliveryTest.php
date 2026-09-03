@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\PhotoStorage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Stripe\StripeClient;
 use Tests\TestCase;
 
 class OrderDeliveryTest extends TestCase
@@ -27,6 +28,7 @@ class OrderDeliveryTest extends TestCase
         parent::setUp();
         config(['services.stripe.webhook_secret' => self::WEBHOOK_SECRET]);
         $this->fakeStorage();
+        $this->fakeStripe();
     }
 
     public function test_secure_order_page_shows_a_download_link_for_a_paid_entitled_item(): void
@@ -98,6 +100,25 @@ class OrderDeliveryTest extends TestCase
         });
     }
 
+    private function fakeStripe(): void
+    {
+        $this->app->instance(StripeClient::class, new class extends StripeClient
+        {
+            public $transfers;
+
+            public function __construct()
+            {
+                $this->transfers = new class
+                {
+                    public function create(array $params): object
+                    {
+                        return (object) ['id' => 'tr_test_123'];
+                    }
+                };
+            }
+        });
+    }
+
     /** @return array{Order, OrderItem, Photo} */
     private function paidOrder(): array
     {
@@ -130,7 +151,11 @@ class OrderDeliveryTest extends TestCase
             'first_name' => 'Alex',
             'last_name' => 'Rivera',
         ]);
-        $photographer->forceFill(['status' => Photographer::STATUS_APPROVED])->save();
+        $photographer->forceFill([
+            'status' => Photographer::STATUS_APPROVED,
+            'stripe_account_id' => 'acct_'.uniqid(),
+            'stripe_onboarding_status' => Photographer::STRIPE_COMPLETE,
+        ])->save();
 
         $event = Event::create([
             'title' => 'City Run '.uniqid(),
@@ -181,14 +206,11 @@ class OrderDeliveryTest extends TestCase
 
         $order = Order::create([
             'event_id' => $event->id,
-            'photographer_id' => $photographer->id,
             'currency' => 'usd',
             'photo_count' => 1,
             'unit_price_cents' => 1000,
             'subtotal_cents' => 1000,
             'commission_percentage' => 20,
-            'commission_cents' => 200,
-            'photographer_allocation_cents' => 800,
             'total_cents' => 1000,
             'payment_status' => Order::PAYMENT_PENDING,
             'fulfillment_status' => Order::FULFILLMENT_PENDING,
@@ -201,6 +223,8 @@ class OrderDeliveryTest extends TestCase
             'photo_uuid' => $photo->uuid,
             'original_key' => $photo->original_key,
             'unit_price_cents' => 1000,
+            'commission_cents' => 200,
+            'photographer_allocation_cents' => 800,
         ]);
 
         return [$order, $photo];

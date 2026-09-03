@@ -29,9 +29,21 @@ class CartTest extends TestCase
         $this->get(route('cart.show'))->assertSee('You have not selected any photos yet.');
     }
 
-    public function test_cart_rejects_a_photo_from_a_different_photographer(): void
+    public function test_cart_allows_photos_from_multiple_photographers_in_the_same_event(): void
     {
-        [$eventOne, $photoOne] = $this->publishedPhoto();
+        $event = $this->publishedEvent();
+        $photoOne = $this->publishedPhotoForEvent($event);
+        $photoTwo = $this->publishedPhotoForEvent($event);
+
+        $this->post(route('cart.items.store'), ['photo' => $photoOne->uuid])->assertRedirect();
+        $this->post(route('cart.items.store'), ['photo' => $photoTwo->uuid])->assertRedirect()->assertSessionDoesntHaveErrors();
+
+        $this->get(route('cart.show'))->assertSee('2 photo(s) selected');
+    }
+
+    public function test_cart_rejects_a_photo_from_a_different_event(): void
+    {
+        [, $photoOne] = $this->publishedPhoto();
         [, $photoTwo] = $this->publishedPhoto();
 
         $this->post(route('cart.items.store'), ['photo' => $photoOne->uuid])->assertRedirect();
@@ -39,6 +51,17 @@ class CartTest extends TestCase
             ->assertSessionHasErrors('photo');
 
         $this->get(route('cart.show'))->assertSee('1 photo(s) selected');
+    }
+
+    public function test_cart_rejects_a_photo_whose_photographer_is_not_stripe_ready(): void
+    {
+        $event = $this->publishedEvent();
+        $photo = $this->publishedPhotoForEvent($event, stripeReady: false);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid])
+            ->assertSessionHasErrors('photo');
+
+        $this->get(route('cart.show'))->assertSee('You have not selected any photos yet.');
     }
 
     public function test_cart_subtotal_reflects_the_current_event_price(): void
@@ -54,15 +77,14 @@ class CartTest extends TestCase
     /** @return array{Event, Photo} */
     private function publishedPhoto(array $eventOverrides = []): array
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $photographer = Photographer::create([
-            'user_id' => $user->id,
-            'first_name' => 'Alex',
-            'last_name' => 'Rivera',
-        ]);
-        $photographer->forceFill(['status' => Photographer::STATUS_APPROVED])->save();
+        $event = $this->publishedEvent($eventOverrides);
 
-        $event = Event::create(array_merge([
+        return [$event, $this->publishedPhotoForEvent($event)];
+    }
+
+    private function publishedEvent(array $eventOverrides = []): Event
+    {
+        return Event::create(array_merge([
             'title' => 'City Run '.uniqid(),
             'slug' => Event::generateUniqueSlug('City Run '.uniqid()),
             'sport' => 'Running',
@@ -78,6 +100,24 @@ class CartTest extends TestCase
             'state' => 'FL',
             'country_code' => 'US',
         ], $eventOverrides));
+    }
+
+    private function publishedPhotoForEvent(Event $event, bool $stripeReady = true): Photo
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $photographer = Photographer::create([
+            'user_id' => $user->id,
+            'first_name' => 'Alex',
+            'last_name' => 'Rivera',
+        ]);
+        $photographer->forceFill(['status' => Photographer::STATUS_APPROVED]);
+        if ($stripeReady) {
+            $photographer->forceFill([
+                'stripe_account_id' => 'acct_'.uniqid(),
+                'stripe_onboarding_status' => Photographer::STRIPE_COMPLETE,
+            ]);
+        }
+        $photographer->save();
 
         $assignment = EventAssignment::create([
             'event_id' => $event->id,
@@ -92,7 +132,8 @@ class CartTest extends TestCase
             'selected_count' => 1,
             'status' => 'completed',
         ]);
-        $photo = Photo::create([
+
+        return Photo::create([
             'event_id' => $event->id,
             'photographer_id' => $photographer->id,
             'assignment_id' => $assignment->id,
@@ -107,7 +148,5 @@ class CartTest extends TestCase
             'uploaded_at' => now()->subDay(),
             'published_at' => now()->subHours(12),
         ]);
-
-        return [$event, $photo];
     }
 }

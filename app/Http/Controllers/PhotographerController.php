@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Photographer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -47,59 +48,89 @@ class PhotographerController extends Controller
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'event_id' => ['nullable', 'integer'],
             'payment_status' => ['nullable', Rule::in([Order::PAYMENT_PENDING, Order::PAYMENT_PAID, Order::PAYMENT_CANCELLED])],
-            'payout_status' => ['nullable', Rule::in(['pending', 'not_applicable'])],
+            'payout_status' => ['nullable', Rule::in(['paid', 'pending', 'not_applicable'])],
         ]);
 
-        $salesQuery = $this->filteredSales($photographer, $filters);
-        $sales = (clone $salesQuery)->with('event')->latest()->paginate(20)->withQueryString();
+        $itemsQuery = $this->filteredItems($photographer, $filters);
+
+        $sales = Order::whereIn('id', (clone $itemsQuery)->select('order_id')->distinct())
+            ->with(['event', 'items' => fn ($query) => $query->where('photographer_id', $photographer->id)])
+            ->latest()->paginate(20)->withQueryString()
+            ->through(fn (Order $order) => $this->salesRow($order));
 
         return view('photographers.dashboard', [
             'photographerName' => $photographer->first_name,
             'payoutSetupComplete' => $photographer->stripe_onboarding_status === 'complete',
             'salesFilters' => $filters,
             'salesFilterEvents' => $photographer->events()->orderBy('events.title')->get(['events.id', 'events.title'])->pluck('title', 'id'),
-            'salesSummary' => $this->salesSummary($salesQuery),
+            'salesSummary' => $this->salesSummary($itemsQuery),
             'sales' => $sales,
         ]);
     }
 
-    /** Build the photographer's own orders, scoped by the submitted sales-panel filters. */
-    private function filteredSales(Photographer $photographer, array $filters): Builder
+    /** Build the photographer's own order items, scoped by the submitted sales-panel filters. */
+    private function filteredItems(Photographer $photographer, array $filters): Builder
     {
-        return Order::where('photographer_id', $photographer->id)
-            ->when($filters['date_from'] ?? null, fn (Builder $query, $date) => $query->whereDate('created_at', '>=', $date))
-            ->when($filters['date_to'] ?? null, fn (Builder $query, $date) => $query->whereDate('created_at', '<=', $date))
-            ->when($filters['event_id'] ?? null, fn (Builder $query, $eventId) => $query->where('event_id', $eventId))
-            ->when($filters['payment_status'] ?? null, fn (Builder $query, $status) => $query->where('payment_status', $status))
-            ->when(($filters['payout_status'] ?? null) === 'pending', fn (Builder $query) => $query->where('payment_status', Order::PAYMENT_PAID))
-            ->when(($filters['payout_status'] ?? null) === 'not_applicable', fn (Builder $query) => $query->where('payment_status', '!=', Order::PAYMENT_PAID));
+        return OrderItem::where('order_items.photographer_id', $photographer->id)
+            ->whereHas('order', function (Builder $query) use ($filters): void {
+                $query->when($filters['date_from'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '>=', $date))
+                    ->when($filters['date_to'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '<=', $date))
+                    ->when($filters['event_id'] ?? null, fn (Builder $q, $eventId) => $q->where('event_id', $eventId))
+                    ->when($filters['payment_status'] ?? null, fn (Builder $q, $status) => $q->where('payment_status', $status));
+            })
+            ->when(($filters['payout_status'] ?? null) === 'paid', fn (Builder $query) => $query->whereNotNull('stripe_transfer_id'))
+            ->when(($filters['payout_status'] ?? null) === 'pending', fn (Builder $query) => $query->whereNull('stripe_transfer_id')
+                ->whereHas('order', fn (Builder $q) => $q->where('payment_status', Order::PAYMENT_PAID)))
+            ->when(($filters['payout_status'] ?? null) === 'not_applicable', fn (Builder $query) => $query
+                ->whereHas('order', fn (Builder $q) => $q->where('payment_status', '!=', Order::PAYMENT_PAID)));
+    }
+
+    /** Reduce one order to only this photographer's items as display-ready values. */
+    private function salesRow(Order $order): object
+    {
+        $items = $order->items;
+        $isPaid = $order->payment_status === Order::PAYMENT_PAID;
+        $allTransferred = $isPaid && $items->isNotEmpty() && $items->every(fn (OrderItem $item) => $item->stripe_transfer_id !== null);
+
+        return (object) [
+            'order_number' => $order->order_number,
+            'event' => $order->event,
+            'sale_date_label' => $order->sale_date_label,
+            'photo_count' => $items->count(),
+            'gross_amount_label' => '$'.number_format($items->sum('unit_price_cents') / 100, 2),
+            'fees_label' => '$'.number_format($items->sum('commission_cents') / 100, 2),
+            'net_amount_label' => '$'.number_format($items->sum('photographer_allocation_cents') / 100, 2),
+            'payment_status_label' => $order->payment_status_label,
+            'payout_status_label' => ! $isPaid ? 'Not applicable' : ($allTransferred ? 'Paid out' : 'Pending payout'),
+        ];
     }
 
     /**
-     * Summarize the photographer's paid sales as display-ready dollar amounts.
+     * Summarize the photographer's own paid items as display-ready dollar amounts.
      *
-     * Refunds and payout tracking are not yet implemented (no refund workflow and no
-     * ingested Stripe Connect payout events), so those figures are fixed at $0.00 and
-     * the full net amount is reported as pending payout.
+     * Refunds are not implemented for this MVP (no refund workflow), so that figure is
+     * fixed at $0.00. Processing fees are charged to WivorPhotos' commission, not the
+     * photographer, and are not attributed per photographer here.
      */
-    private function salesSummary(Builder $salesQuery): array
+    private function salesSummary(Builder $itemsQuery): array
     {
-        $totals = (clone $salesQuery)->where('payment_status', Order::PAYMENT_PAID)
-            ->selectRaw('
-                COALESCE(SUM(subtotal_cents), 0) as gross_cents,
+        $paidItems = (clone $itemsQuery)->whereHas('order', fn (Builder $q) => $q->where('payment_status', Order::PAYMENT_PAID));
+
+        $totals = (clone $paidItems)->selectRaw('
+                COALESCE(SUM(unit_price_cents), 0) as gross_cents,
                 COALESCE(SUM(commission_cents), 0) as commission_cents,
-                COALESCE(SUM(stripe_fee_cents), 0) as fee_cents,
                 COALESCE(SUM(photographer_allocation_cents), 0) as net_cents
             ')->first();
+        $paidOutCents = (clone $paidItems)->whereNotNull('stripe_transfer_id')->sum('photographer_allocation_cents');
 
         return [
             'grossSalesLabel' => '$'.number_format($totals->gross_cents / 100, 2),
             'commissionLabel' => '$'.number_format($totals->commission_cents / 100, 2),
-            'processingFeesLabel' => '$'.number_format($totals->fee_cents / 100, 2),
+            'processingFeesLabel' => '$0.00',
             'refundsLabel' => '$0.00',
             'netEarningsLabel' => '$'.number_format($totals->net_cents / 100, 2),
-            'pendingPayoutLabel' => '$'.number_format($totals->net_cents / 100, 2),
-            'paidAmountLabel' => '$0.00',
+            'pendingPayoutLabel' => '$'.number_format(($totals->net_cents - $paidOutCents) / 100, 2),
+            'paidAmountLabel' => '$'.number_format($paidOutCents / 100, 2),
         ];
     }
 

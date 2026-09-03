@@ -2,15 +2,12 @@
 
 @section('title', $seoTitle)
 @section('meta-description', $seoDescription)
-@section('meta-keywords', e(collect([
-    $photo->display_title,
-    $event->title,
-    $event->sport ? $event->sport . ' photography' : null,
-    $event->city ? $event->city . ' sports photos' : null,
-    $photographerName,
-    'sports event photo',
-    'WivorPhotos',
-])->merge($people)->filter()->unique()->implode(', ')))
+@section('meta-keywords',
+    e(
+    collect([$photo->display_title, $event->title, $event->sport ? $event->sport . ' photography' : null, $event->city ?
+    $event->city . ' sports photos' : null, $photographerName, 'sports event photo',
+    'WivorPhotos'])->merge($people)->filter()->unique()->implode(', '),
+    ))
 @section('author', $photographerName)
 @section('canonical', $canonicalUrl)
 @section('og-type', 'article')
@@ -35,13 +32,9 @@
                 </nav>
 
                 <figure class="mb-4">
-                    <img
-                        src="{{ $imageUrl }}"
-                        alt="{{ $photo->display_alt_text }}"
-                        class="img-fluid rounded w-100"
+                    <img src="{{ $imageUrl }}" alt="{{ $photo->display_alt_text }}" class="img-fluid rounded w-100"
                         @if ($photo->preview_width) width="{{ $photo->preview_width }}" @endif
-                        @if ($photo->preview_height) height="{{ $photo->preview_height }}" @endif
-                        fetchpriority="high">
+                        @if ($photo->preview_height) height="{{ $photo->preview_height }}" @endif fetchpriority="high">
                     @if ($photo->caption)
                         <figcaption class="text-muted mt-2">{{ $photo->caption }}</figcaption>
                     @endif
@@ -72,6 +65,10 @@
                                     <p class="mb-2"><a href="{{ $licenseUrl }}">Image license terms</a></p>
                                 @endif
                                 <a href="{{ route('contact_us') }}">Contact WivorPhotos about licensing</a>
+                                <p class="small text-muted mt-3 mb-1">Reference: {{ $photo->reference_number }}</p>
+                                <a class="small"
+                                    href="{{ route('photos.removal-requests.create', ['event' => $event->slug, 'photo' => $photo]) }}">Report
+                                    or Request Removal</a>
                             </div>
                         </div>
                     </aside>

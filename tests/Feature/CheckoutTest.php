@@ -9,7 +9,10 @@ use App\Models\Photo;
 use App\Models\Photographer;
 use App\Models\UploadBatch;
 use App\Models\User;
+use App\Services\CheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -21,7 +24,8 @@ class CheckoutTest extends TestCase
     {
         $this->fakeStripe();
         config(['commission.percentage' => 20]);
-        [$event, $photo, $photographer] = $this->publishedPhoto(['price_cents' => 1000], true);
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+        [$photo, $photographer] = $this->publishedPhotoForEvent($event, true);
 
         $this->post(route('cart.items.store'), ['photo' => $photo->uuid])->assertRedirect();
 
@@ -30,16 +34,17 @@ class CheckoutTest extends TestCase
 
         $order = Order::firstOrFail();
         $this->assertSame($event->id, $order->event_id);
-        $this->assertSame($photographer->id, $order->photographer_id);
         $this->assertSame(1, $order->photo_count);
         $this->assertSame(1000, $order->unit_price_cents);
         $this->assertSame(1000, $order->subtotal_cents);
-        $this->assertSame(200, $order->commission_cents);
-        $this->assertSame(800, $order->photographer_allocation_cents);
         $this->assertSame(Order::PAYMENT_PENDING, $order->payment_status);
         $this->assertSame('cs_test_123', $order->stripe_checkout_session_id);
-        $this->assertSame(1, $order->items()->count());
-        $this->assertSame($photo->uuid, $order->items()->first()->photo_uuid);
+
+        $item = $order->items()->firstOrFail();
+        $this->assertSame($photo->uuid, $item->photo_uuid);
+        $this->assertSame($photographer->id, $item->photographer_id);
+        $this->assertSame(200, $item->commission_cents);
+        $this->assertSame(800, $item->photographer_allocation_cents);
 
         // The immutable order survives even if the event price later changes.
         $event->update(['price_cents' => 5000]);
@@ -49,24 +54,43 @@ class CheckoutTest extends TestCase
         $this->get(route('cart.show'))->assertSee('You have not selected any photos yet.');
     }
 
-    public function test_checkout_is_blocked_when_the_photographer_is_not_stripe_ready(): void
+    public function test_checkout_creates_one_order_spanning_multiple_photographers(): void
     {
         $this->fakeStripe();
-        [, $photo] = $this->publishedPhoto([], false);
+        config(['commission.percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+        [$photoOne, $photographerOne] = $this->publishedPhotoForEvent($event, true);
+        [$photoTwo, $photographerTwo] = $this->publishedPhotoForEvent($event, true);
 
-        $this->post(route('cart.items.store'), ['photo' => $photo->uuid])->assertRedirect();
+        $this->post(route('cart.items.store'), ['photo' => $photoOne->uuid])->assertRedirect();
+        $this->post(route('cart.items.store'), ['photo' => $photoTwo->uuid])->assertRedirect();
+        $this->post(route('checkout.store'))->assertRedirect('https://checkout.stripe.com/test-session');
 
-        $this->post(route('checkout.store'))
-            ->assertRedirect(route('cart.show'))
-            ->assertSessionHasErrors('cart');
+        $order = Order::firstOrFail();
+        $this->assertSame(2, $order->photo_count);
+        $this->assertSame(2000, $order->subtotal_cents);
 
-        $this->assertSame(0, Order::count());
+        $photographerIds = $order->items()->pluck('photographer_id')->sort()->values()->all();
+        $this->assertSame(collect([$photographerOne->id, $photographerTwo->id])->sort()->values()->all(), $photographerIds);
+    }
+
+    public function test_pending_order_creation_rejects_a_photo_whose_photographer_is_not_stripe_ready(): void
+    {
+        $this->fakeStripe();
+        $event = $this->publishedEvent();
+        [$photo] = $this->publishedPhotoForEvent($event, false);
+        $photo->loadMissing('photographer');
+
+        $this->expectException(ValidationException::class);
+
+        app(CheckoutService::class)->createPendingOrder($event, new Collection([$photo]));
     }
 
     public function test_cancel_page_marks_a_pending_order_as_cancelled(): void
     {
         $this->fakeStripe();
-        [, $photo] = $this->publishedPhoto([], true);
+        $event = $this->publishedEvent();
+        [$photo] = $this->publishedPhotoForEvent($event, true);
 
         $this->post(route('cart.items.store'), ['photo' => $photo->uuid])->assertRedirect();
         $this->post(route('checkout.store'))->assertRedirect();
@@ -109,25 +133,9 @@ class CheckoutTest extends TestCase
         });
     }
 
-    /** @return array{Event, Photo, Photographer} */
-    private function publishedPhoto(array $eventOverrides, bool $photographerStripeReady): array
+    private function publishedEvent(array $eventOverrides = []): Event
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $photographer = Photographer::create([
-            'user_id' => $user->id,
-            'first_name' => 'Alex',
-            'last_name' => 'Rivera',
-        ]);
-        $photographer->forceFill(['status' => Photographer::STATUS_APPROVED]);
-        if ($photographerStripeReady) {
-            $photographer->forceFill([
-                'stripe_account_id' => 'acct_'.uniqid(),
-                'stripe_onboarding_status' => Photographer::STRIPE_COMPLETE,
-            ]);
-        }
-        $photographer->save();
-
-        $event = Event::create(array_merge([
+        return Event::create(array_merge([
             'title' => 'City Run '.uniqid(),
             'slug' => Event::generateUniqueSlug('City Run '.uniqid()),
             'sport' => 'Running',
@@ -143,6 +151,25 @@ class CheckoutTest extends TestCase
             'state' => 'FL',
             'country_code' => 'US',
         ], $eventOverrides));
+    }
+
+    /** @return array{Photo, Photographer} */
+    private function publishedPhotoForEvent(Event $event, bool $photographerStripeReady): array
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $photographer = Photographer::create([
+            'user_id' => $user->id,
+            'first_name' => 'Alex',
+            'last_name' => 'Rivera',
+        ]);
+        $photographer->forceFill(['status' => Photographer::STATUS_APPROVED]);
+        if ($photographerStripeReady) {
+            $photographer->forceFill([
+                'stripe_account_id' => 'acct_'.uniqid(),
+                'stripe_onboarding_status' => Photographer::STRIPE_COMPLETE,
+            ]);
+        }
+        $photographer->save();
 
         $assignment = EventAssignment::create([
             'event_id' => $event->id,
@@ -173,6 +200,6 @@ class CheckoutTest extends TestCase
             'published_at' => now()->subHours(12),
         ]);
 
-        return [$event, $photo, $photographer];
+        return [$photo, $photographer];
     }
 }
