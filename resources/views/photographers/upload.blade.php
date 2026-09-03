@@ -284,7 +284,7 @@
             const render = () => {
                 rows.innerHTML = items.map((item, index) =>
                     `<div class="border rounded p-2 mb-2" data-index="${index}"><div class="d-flex gap-2 align-items-center"><span class="text-truncate flex-grow-1">${escapeHtml(item.file.name)}</span><span class="small status">${escapeHtml(item.label)}</span>${item.status === 'queued' ? `<button type="button" class="btn btn-sm btn-link text-danger remove-file" data-index="${index}">Remove</button>` : ''}</div><div class="progress mt-1" style="height:5px"><div class="progress-bar ${item.status === 'failed' ? 'bg-danger' : ''}" style="width:${item.progress}%"></div></div>${item.error ? `<div class="small text-danger mt-1">${escapeHtml(item.error)}</div>` : ''}</div>`
-                    ).join('');
+                ).join('');
                 uploadButton.disabled = !uploadOpen || !items.some(item => item.status === 'queued');
                 refreshOverall();
             };
@@ -297,11 +297,11 @@
                 const invalid = files.find(file => !/\.jpe?g$/i.test(file.name) || (file.type && file.type !==
                     'image/jpeg'));
                 if (invalid) return showError(
-                `${invalid.name}: Unsupported format. Upload a JPG or JPEG file.`);
+                    `${invalid.name}: Unsupported format. Upload a JPG or JPEG file.`);
                 const oversized = files.find(file => file.size > Number(root.dataset.maxBytes));
                 if (oversized) return showError(
                     `${oversized.name}: File is larger than 40 MB. Export a smaller JPEG and try again.`
-                    );
+                );
                 items = files.map(file => ({
                     file,
                     status: 'queued',
@@ -343,14 +343,17 @@
                 });
                 const body = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(body.message || Object.values(body.errors || {})[0]?.[
-                    0] || 'Request failed. Please try again.');
+                    0
+                ] || 'Request failed. Please try again.');
                 return body;
             };
             const putFile = (item, upload) => new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open('PUT', upload.url);
-                Object.entries(upload.headers || {}).forEach(([key, value]) => xhr.setRequestHeader(key,
-                    value));
+                Object.entries(upload.headers || {}).forEach(([key, value]) => {
+                    if (key.toLowerCase() === 'host') return;
+                    xhr.setRequestHeader(key, value);
+                });
                 if (!Object.keys(upload.headers || {}).some(key => key.toLowerCase() === 'content-type'))
                     xhr.setRequestHeader('Content-Type', 'image/jpeg');
                 xhr.upload.onprogress = event => {
@@ -403,7 +406,7 @@
                         item.label = server.status.charAt(0).toUpperCase() + server.status.slice(1);
                         item.error = server.reason;
                         processing ||= ['queued', 'uploading', 'processing'].includes(server
-                        .status);
+                            .status);
                     });
                     render();
                     if (!processing) return;
@@ -431,7 +434,7 @@
                     });
                     const queued = items.filter(i => i.status === 'queued');
                     await Promise.all(queued.map((item, index) => uploadOne(item, batch.photos[
-                    index])));
+                        index])));
                     await pollUntilSettled();
                     window.location.reload();
                 } catch (error) {
