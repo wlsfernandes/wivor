@@ -57,31 +57,6 @@ class PhotoSeoTest extends TestCase
         $this->assertSame('jpeg preview', $response->streamedContent());
     }
 
-    public function test_photographer_can_save_people_only_after_confirming_publication_authority(): void
-    {
-        [$user, , $event, $photo] = $this->photoFixture(['people' => null, 'people_publication_confirmed_at' => null]);
-        $url = route('photographer.uploads.metadata', [$event, $photo]);
-
-        $this->actingAs($user)->patch($url, [
-            'title' => 'Finish-line celebration',
-            'alt_text' => 'Jordan celebrates after crossing the finish line.',
-            'people' => 'Jordan Silva',
-        ])->assertSessionHasErrors('people_publication_confirmed');
-
-        $this->actingAs($user)->patch($url, [
-            'title' => 'Finish-line celebration',
-            'alt_text' => 'Jordan celebrates after crossing the finish line.',
-            'caption' => 'A joyful finish at the City Run.',
-            'people' => "Jordan Silva\nJordan Silva, Casey Lima",
-            'people_publication_confirmed' => '1',
-        ])->assertRedirect();
-
-        $photo->refresh();
-        $this->assertSame(['Jordan Silva', 'Casey Lima'], $photo->people);
-        $this->assertNotNull($photo->people_publication_confirmed_at);
-        $this->assertSame('Finish-line celebration', $photo->title);
-    }
-
     public function test_unpublished_and_expired_photos_are_not_public(): void
     {
         [, , $event, $photo] = $this->photoFixture(['status' => Photo::STATUS_READY]);

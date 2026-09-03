@@ -115,49 +115,6 @@ class PhotographerUploadController extends Controller
         return response()->json($this->uploadPayload($photo));
     }
 
-    /** Store human-authored metadata used on the public photo landing page. */
-    public function updateMetadata(Request $request, Event $event, Photo $photo): RedirectResponse
-    {
-        $this->access->assignment($request->user(), $event);
-        $this->assertOwned($request, $event, $photo);
-        abort_unless(in_array($photo->status, [Photo::STATUS_READY, Photo::STATUS_PUBLISHED], true), 409);
-
-        $validated = $request->validate([
-            'title' => ['nullable', 'string', 'max:80'],
-            'alt_text' => ['nullable', 'string', 'max:250'],
-            'caption' => ['nullable', 'string', 'max:1000'],
-            'copyright_notice' => ['nullable', 'string', 'max:255'],
-            'people' => ['nullable', 'string', 'max:2000'],
-            'people_publication_confirmed' => ['nullable', 'accepted'],
-        ]);
-
-        $people = collect(preg_split('/[\r\n,]+/', $validated['people'] ?? '') ?: [])
-            ->map(fn (string $name): string => trim(strip_tags($name)))
-            ->filter()
-            ->unique(fn (string $name): string => mb_strtolower($name))
-            ->take(20)
-            ->values();
-
-        if ($people->isNotEmpty() && ! $request->boolean('people_publication_confirmed')) {
-            throw ValidationException::withMessages([
-                'people_publication_confirmed' => 'Confirm authorization before publishing identifiable people.',
-            ]);
-        }
-
-        $photo->update([
-            'title' => filled($validated['title'] ?? null) ? trim(strip_tags($validated['title'])) : null,
-            'alt_text' => filled($validated['alt_text'] ?? null) ? trim(strip_tags($validated['alt_text'])) : null,
-            'caption' => filled($validated['caption'] ?? null) ? trim(strip_tags($validated['caption'])) : null,
-            'copyright_notice' => filled($validated['copyright_notice'] ?? null) ? trim(strip_tags($validated['copyright_notice'])) : null,
-            'people' => $people->isEmpty() ? null : $people->all(),
-            'people_publication_confirmed_at' => $people->isEmpty()
-                ? null
-                : ($photo->people_publication_confirmed_at ?? now()),
-        ]);
-
-        return back()->with('success', 'Photo SEO details saved.');
-    }
-
     public function complete(Request $request, Event $event, Photo $photo): JsonResponse
     {
         $this->access->assignment($request->user(), $event, true);

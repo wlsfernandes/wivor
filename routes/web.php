@@ -163,7 +163,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/status', [PhotographerUploadController::class, 'statuses'])->name('status');
             Route::post('/photos/{photo}/complete', [PhotographerUploadController::class, 'complete'])->name('complete');
             Route::post('/photos/{photo}/retry-url', [PhotographerUploadController::class, 'retryUrl'])->name('retry-url');
-            Route::patch('/photos/{photo}/metadata', [PhotographerUploadController::class, 'updateMetadata'])->name('metadata');
             Route::get('/photos/{photo}/preview', [PhotoDeliveryController::class, 'photographerPreview'])->name('preview');
             Route::delete('/photos/{photo}', [PhotographerUploadController::class, 'destroy'])->name('destroy');
             Route::post('/publish', [PhotographerUploadController::class, 'publish'])->name('publish');
