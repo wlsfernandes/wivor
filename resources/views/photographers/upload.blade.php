@@ -121,6 +121,16 @@
             </div>
         </div>
 
+        @unless ($payoutSetupReady)
+            <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span>Complete Payout Setup to publish and sell these photos.</span>
+                <form method="POST" action="{{ route('photographer.payouts.start') }}">
+                    @csrf
+                    <button class="btn btn-warning" type="submit">Complete Payout Setup</button>
+                </form>
+            </div>
+        @endunless
+
         <form id="publish-photos-form" method="POST" action="{{ route('photographer.uploads.publish', $event) }}">
             @csrf
         </form>
@@ -130,7 +140,7 @@
                     @checked(($counts['ready'] ?? 0) > 0) @disabled(($counts['ready'] ?? 0) === 0)><label class="form-check-label"
                     for="select-all-ready">Select all ready</label></div>
             <button class="btn btn-success" id="publish-ready-button" type="submit" form="publish-photos-form"
-                @disabled(($counts['ready'] ?? 0) === 0)>Publish Ready Photos</button>
+                @disabled(($counts['ready'] ?? 0) === 0 || ! $payoutSetupReady)>Publish Ready Photos</button>
         </div>
         <div class="row g-3" id="review-grid">
             @forelse ($photos as $photo)

@@ -66,6 +66,10 @@ class PhotographerUploadTest extends TestCase
     public function test_ready_photos_can_be_published_incrementally(): void
     {
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $photographer->forceFill([
+            'stripe_account_id' => 'acct_ready',
+            'stripe_onboarding_status' => Photographer::STRIPE_READY,
+        ])->save();
         $batch = UploadBatch::create([
             'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
             'selected_count' => 1, 'status' => 'in_progress',
@@ -82,6 +86,29 @@ class PhotographerUploadTest extends TestCase
         $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
         $this->assertNotNull($event->fresh()->gallery_published_at);
         $this->assertNotNull($event->fresh()->sales_close_at);
+    }
+
+    public function test_ready_photos_cannot_be_published_before_payout_setup_is_ready(): void
+    {
+        [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $batch = UploadBatch::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
+            'selected_count' => 1, 'status' => 'in_progress',
+        ]);
+        $photo = Photo::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
+            'upload_batch_id' => $batch->id, 'original_filename' => 'race.jpg',
+            'original_key' => 'private/original.jpg', 'preview_key' => 'private/preview.jpg',
+            'thumbnail_key' => 'private/thumb.jpg', 'status' => Photo::STATUS_READY,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('photographer.uploads.publish', $event), ['photo_ids' => [$photo->uuid]])
+            ->assertRedirect()
+            ->assertSessionHasErrors('payouts');
+
+        $this->assertSame(Photo::STATUS_READY, $photo->fresh()->status);
+        $this->assertNull($event->fresh()->gallery_published_at);
     }
 
     private function approvedAssignment(): array

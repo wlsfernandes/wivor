@@ -26,6 +26,14 @@
                         <dt class="col-sm-4">Introduction</dt><dd class="col-sm-8 text-break">{{ $photographer->about }}</dd>
                         <dt class="col-sm-4">Registered</dt><dd class="col-sm-8">{{ $registeredAtLabel }}</dd>
                         <dt class="col-sm-4">Stripe onboarding</dt><dd class="col-sm-8">{{ $stripeOnboardingLabel }}</dd>
+                        <dt class="col-sm-4">Stripe account</dt><dd class="col-sm-8">{{ $photographer->stripe_account_id ?? 'Not created' }}</dd>
+                        <dt class="col-sm-4">Transfers active</dt><dd class="col-sm-8">{{ $photographer->stripe_transfers_active ? 'Yes' : 'No' }}</dd>
+                        <dt class="col-sm-4">Bank payouts enabled</dt><dd class="col-sm-8">{{ $photographer->stripe_payouts_enabled ? 'Yes' : 'No' }}</dd>
+                        <dt class="col-sm-4">Outstanding requirements</dt><dd class="col-sm-8">{{ $photographer->stripe_requirements_due ? 'Yes' : 'No' }}</dd>
+                        <dt class="col-sm-4">Publication and sales allowed</dt><dd class="col-sm-8">{{ $photographer->isReadyForPayouts() ? 'Yes' : 'No' }}</dd>
+                        <dt class="col-sm-4">Setup started</dt><dd class="col-sm-8">{{ $photographer->stripe_setup_started_at?->format('M j, Y g:i A') ?? 'Not started' }}</dd>
+                        <dt class="col-sm-4">Setup ready</dt><dd class="col-sm-8">{{ $photographer->stripe_ready_at?->format('M j, Y g:i A') ?? 'Not ready' }}</dd>
+                        <dt class="col-sm-4">Last synchronized</dt><dd class="col-sm-8">{{ $photographer->stripe_last_synced_at?->format('M j, Y g:i A') ?? 'Never' }}</dd>
                         @if ($reviewedAtLabel)
                             <dt class="col-sm-4">Last reviewed</dt><dd class="col-sm-8">{{ $reviewedAtLabel }} by {{ $reviewerName }}</dd>
                         @endif
@@ -41,6 +49,18 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="h5">Review actions</h2>
+
+                    @if ($errors->has('payouts'))
+                        <div class="alert alert-danger">{{ $errors->first('payouts') }}</div>
+                    @endif
+
+                    @if ($photographer->stripe_account_id)
+                        <form method="POST" action="{{ route('admin.photographers.payout-status', $photographer) }}" class="mb-2">
+                            @csrf
+                            <button class="btn btn-outline-primary w-100" type="submit">Refresh Stripe Status</button>
+                        </form>
+                        <a class="btn btn-outline-secondary w-100 mb-4" href="{{ $stripeDashboardUrl }}" target="_blank" rel="noopener noreferrer">Open in Stripe Dashboard</a>
+                    @endif
 
                     @if ($canApprove)
                         <form method="POST" action="{{ route('admin.photographers.approve', $photographer) }}" class="mb-4">

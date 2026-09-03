@@ -48,6 +48,7 @@ class PhotographerUploadController extends Controller
             'acceptedCount' => $acceptedCount,
             'remainingCount' => max(0, config('photo_uploads.max_event_photos') - $acceptedCount),
             'deadline' => $deadline, 'uploadOpen' => $deadline->isFuture(),
+            'payoutSetupReady' => $photographer->isReadyForPayouts(),
             'galleryStatus' => $galleryStatus,
             'scheduledDeletionCount' => Photo::where('event_id', $event->id)->where('photographer_id', $photographer->id)
                 ->where('status', Photo::STATUS_PUBLISHED)->where('sale_count', 0)->count(),
@@ -156,8 +157,13 @@ class PhotographerUploadController extends Controller
     public function publish(Request $request, Event $event): RedirectResponse
     {
         $this->access->assignment($request->user(), $event);
+        $photographer = $request->user()->photographer;
+        if (! $photographer->isReadyForPayouts()) {
+            return back()->withErrors(['payouts' => 'Complete Payout Setup to publish and sell these photos.']);
+        }
+
         $validated = $request->validate(['photo_ids' => ['nullable', 'array'], 'photo_ids.*' => ['uuid']]);
-        $query = Photo::where('event_id', $event->id)->where('photographer_id', $request->user()->photographer->id)
+        $query = Photo::where('event_id', $event->id)->where('photographer_id', $photographer->id)
             ->where('status', Photo::STATUS_READY);
         if (! empty($validated['photo_ids'])) {
             $query->whereIn('uuid', $validated['photo_ids']);

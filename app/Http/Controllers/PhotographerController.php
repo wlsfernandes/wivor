@@ -60,12 +60,61 @@ class PhotographerController extends Controller
 
         return view('photographers.dashboard', [
             'photographerName' => $photographer->first_name,
-            'payoutSetupComplete' => $photographer->stripe_onboarding_status === 'complete',
+            'payoutSetup' => $this->payoutSetupCard($photographer),
             'salesFilters' => $filters,
             'salesFilterEvents' => $photographer->events()->orderBy('events.title')->get(['events.id', 'events.title'])->pluck('title', 'id'),
             'salesSummary' => $this->salesSummary($itemsQuery),
             'sales' => $sales,
         ]);
+    }
+
+    /** Return the simple photographer-facing payout state and next action. */
+    private function payoutSetupCard(Photographer $photographer): array
+    {
+        return match ($photographer->stripe_onboarding_status) {
+            Photographer::STRIPE_INCOMPLETE => [
+                'title' => 'Finish payout setup',
+                'message' => 'Your Stripe setup is not complete. Continue to provide the missing information.',
+                'action' => 'Continue Payout Setup',
+                'route' => 'photographer.payouts.start',
+                'color' => 'warning',
+            ],
+            Photographer::STRIPE_UNDER_REVIEW => [
+                'title' => 'Verification in progress',
+                'message' => 'Stripe is reviewing your information. No action is needed right now.',
+                'action' => 'Check Status',
+                'route' => 'photographer.payouts.status',
+                'color' => 'info',
+            ],
+            Photographer::STRIPE_ACTION_REQUIRED => [
+                'title' => 'Payout information required',
+                'message' => 'Stripe needs additional or updated information before you can receive earnings.',
+                'action' => 'Update Payout Information',
+                'route' => 'photographer.payouts.start',
+                'color' => 'warning',
+            ],
+            Photographer::STRIPE_READY => [
+                'title' => 'Payout setup complete',
+                'message' => 'Your account is ready to receive WivorPhotos earnings.',
+                'action' => 'Open Stripe Dashboard',
+                'route' => 'photographer.payouts.dashboard',
+                'color' => 'success',
+            ],
+            Photographer::STRIPE_RESTRICTED => [
+                'title' => 'Payouts temporarily unavailable',
+                'message' => 'Your Stripe account currently cannot receive payouts. Review the required information in Stripe.',
+                'action' => 'Resolve with Stripe',
+                'route' => 'photographer.payouts.start',
+                'color' => 'danger',
+            ],
+            default => [
+                'title' => 'Set up payouts',
+                'message' => 'Complete secure Stripe setup so WivorPhotos can send your photo earnings to your bank account.',
+                'action' => 'Complete Payout Setup',
+                'route' => 'photographer.payouts.start',
+                'color' => 'warning',
+            ],
+        };
     }
 
     /** Build the photographer's own order items, scoped by the submitted sales-panel filters. */

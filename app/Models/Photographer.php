@@ -35,7 +35,14 @@ class Photographer extends Model
     public const STATUS_SUSPENDED = 'suspended';
 
     public const STRIPE_NOT_STARTED = 'not_started';
-    public const STRIPE_COMPLETE = 'complete';
+    public const STRIPE_INCOMPLETE = 'incomplete';
+    public const STRIPE_UNDER_REVIEW = 'under_review';
+    public const STRIPE_ACTION_REQUIRED = 'action_required';
+    public const STRIPE_READY = 'ready';
+    public const STRIPE_RESTRICTED = 'restricted';
+
+    /** @deprecated Use STRIPE_READY. */
+    public const STRIPE_COMPLETE = self::STRIPE_READY;
 
     /** @var list<string> */
     protected $fillable = [
@@ -59,6 +66,15 @@ class Photographer extends Model
         'reviewed_at' => 'datetime',
         'age_confirmed_at' => 'datetime',
         'terms_accepted_at' => 'datetime',
+        'stripe_transfers_active' => 'boolean',
+        'stripe_payouts_enabled' => 'boolean',
+        'stripe_requirements_due' => 'boolean',
+        'stripe_requirements_deadline_at' => 'datetime',
+        'stripe_last_synced_at' => 'datetime',
+        'stripe_setup_started_at' => 'datetime',
+        'stripe_ready_at' => 'datetime',
+        'stripe_restricted_at' => 'datetime',
+        'stripe_disabled_at' => 'datetime',
     ];
 
     /** Return the user account that authenticates this photographer. */
@@ -106,7 +122,20 @@ class Photographer extends Model
     {
         return $this->isApproved()
             && filled($this->stripe_account_id)
-            && $this->stripe_onboarding_status === self::STRIPE_COMPLETE;
+            && $this->stripe_onboarding_status === self::STRIPE_READY;
+    }
+
+    /** Return the photographer-facing payout setup status. */
+    public function payoutStatusLabel(): string
+    {
+        return match ($this->stripe_onboarding_status) {
+            self::STRIPE_INCOMPLETE => 'Incomplete',
+            self::STRIPE_UNDER_REVIEW => 'Under review',
+            self::STRIPE_ACTION_REQUIRED => 'Action required',
+            self::STRIPE_READY => 'Ready',
+            self::STRIPE_RESTRICTED => 'Restricted',
+            default => 'Not started',
+        };
     }
 
     /** Return a display-ready label for the current application state. */

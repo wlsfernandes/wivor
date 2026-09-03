@@ -11,13 +11,23 @@
             </div>
         </div>
 
-        @if (!$payoutSetupComplete)
-            <div class="alert alert-warning" role="alert">
-                <h2 class="h5 alert-heading">Complete payout setup</h2>
-                <p class="mb-0">Stripe onboarding must be complete before WivorPhotos can send payouts. Payout setup will
-                    be enabled with the marketplace payment workflow.</p>
-            </div>
+        @if (session('success'))
+            <div class="alert alert-success" role="status">{{ session('success') }}</div>
         @endif
+        @if ($errors->has('payouts'))
+            <div class="alert alert-danger" role="alert">{{ $errors->first('payouts') }}</div>
+        @endif
+
+        <div class="card border-{{ $payoutSetup['color'] }} shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5">{{ $payoutSetup['title'] }}</h2>
+                <p>{{ $payoutSetup['message'] }}</p>
+                <form method="POST" action="{{ route($payoutSetup['route']) }}">
+                    @csrf
+                    <button class="btn btn-{{ $payoutSetup['color'] }}" type="submit">{{ $payoutSetup['action'] }}</button>
+                </form>
+            </div>
+        </div>
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">

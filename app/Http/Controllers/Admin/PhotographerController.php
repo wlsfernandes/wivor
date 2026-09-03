@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Mail\PhotographerAccountStatusChanged;
 use App\Mail\PhotographerApplicationApproved;
 use App\Models\Photographer;
+use App\Services\StripeConnectService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Throwable;
@@ -38,6 +40,7 @@ class PhotographerController extends Controller
                 'email' => $photographer->user->email,
                 'email_verified_label' => $photographer->user->hasVerifiedEmail() ? 'Yes' : 'No',
                 'status_label' => $photographer->statusLabel(),
+                'payout_status_label' => $photographer->payoutStatusLabel(),
                 'registered_at_label' => $photographer->created_at->format('M j, Y'),
                 'review_url' => route('admin.photographers.show', $photographer),
             ]);
@@ -68,7 +71,10 @@ class PhotographerController extends Controller
             'registeredAtLabel' => $photographer->created_at->format('M j, Y g:i A'),
             'reviewedAtLabel' => $photographer->reviewed_at?->format('M j, Y g:i A'),
             'reviewerName' => $photographer->reviewer?->name ?? 'Unknown administrator',
-            'stripeOnboardingLabel' => ucfirst(str_replace('_', ' ', $photographer->stripe_onboarding_status)),
+            'stripeOnboardingLabel' => $photographer->payoutStatusLabel(),
+            'stripeDashboardUrl' => $photographer->stripe_account_id
+                ? 'https://dashboard.stripe.com/'.(Str::startsWith((string) config('services.stripe.secret'), 'sk_test_') ? 'test/' : '').'connect/accounts/'.$photographer->stripe_account_id
+                : null,
             'canApprove' => in_array($photographer->status, [Photographer::STATUS_PENDING, Photographer::STATUS_DECLINED], true),
             'canDecline' => $photographer->status === Photographer::STATUS_PENDING,
             'canSuspend' => $photographer->status === Photographer::STATUS_APPROVED,
@@ -136,6 +142,27 @@ class PhotographerController extends Controller
             new PhotographerApplicationApproved($photographer->user),
             'Photographer access restored.'
         );
+    }
+
+    /** Retrieve Stripe's authoritative payout status without allowing an override. */
+    public function refreshPayoutStatus(Photographer $photographer, StripeConnectService $connect): RedirectResponse
+    {
+        if (! $photographer->stripe_account_id) {
+            return back()->withErrors(['payouts' => 'This photographer has not started payout setup.']);
+        }
+
+        try {
+            $connect->synchronize($photographer);
+
+            return back()->with('success', 'Stripe payout status refreshed.');
+        } catch (Throwable) {
+            Log::error('Admin Stripe payout status refresh failed.', [
+                'event' => 'admin.photographers.payout_status',
+                'photographer_id' => $photographer->id,
+            ]);
+
+            return back()->withErrors(['payouts' => 'Stripe payout status could not be refreshed.']);
+        }
     }
 
     /** Persist an account-state transition and notify the photographer. */

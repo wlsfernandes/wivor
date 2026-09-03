@@ -33,6 +33,7 @@
                                     <th scope="col">Email</th>
                                     <th scope="col">Verified</th>
                                     <th scope="col">State</th>
+                                    <th scope="col">Payout setup</th>
                                     <th scope="col">Registered</th>
                                     <th scope="col"><span class="visually-hidden">Actions</span></th>
                                 </tr>
@@ -45,6 +46,7 @@
                                         <td>{{ $photographer['email'] }}</td>
                                         <td>{{ $photographer['email_verified_label'] }}</td>
                                         <td>{{ $photographer['status_label'] }}</td>
+                                        <td>{{ $photographer['payout_status_label'] }}</td>
                                         <td>{{ $photographer['registered_at_label'] }}</td>
                                         <td class="text-end">
                                             <a class="btn btn-sm btn-outline-primary" href="{{ $photographer['review_url'] }}">Review</a>
@@ -52,7 +54,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center text-muted py-4">No photographer applications match this filter.</td>
+                                        <td colspan="8" class="text-center text-muted py-4">No photographer applications match this filter.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

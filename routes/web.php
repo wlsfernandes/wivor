@@ -12,6 +12,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
+use App\Http\Controllers\PhotographerPayoutController;
 use App\Http\Controllers\PhotographerUploadController;
 use App\Http\Controllers\PhotoDeliveryController;
 use App\Http\Controllers\PhotoRemovalRequestController;
@@ -126,6 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/list-photographers/{photographer}/decline', [AdminPhotographerController::class, 'decline'])->name('admin.photographers.decline');
         Route::patch('/list-photographers/{photographer}/suspend', [AdminPhotographerController::class, 'suspend'])->name('admin.photographers.suspend');
         Route::patch('/list-photographers/{photographer}/restore', [AdminPhotographerController::class, 'restore'])->name('admin.photographers.restore');
+        Route::post('/list-photographers/{photographer}/payout-status', [AdminPhotographerController::class, 'refreshPayoutStatus'])->name('admin.photographers.payout-status');
 
         Route::post('/events/{event}/photographers', [EventController::class, 'assignPhotographer'])->name('admin.events.photographers.assign');
 
@@ -156,6 +158,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/photographers/my-events', [PhotographerController::class, 'myEvents'])->name('photographer.myEvents');
         Route::get('/photographers/new-event', [PhotographerController::class, 'newEvent'])->name('photographer.newEvent');
         Route::post('/photographers/event/create', [EventController::class, 'store'])->name('eventCreatedByPhotographer');
+
+        Route::post('/photographers/payouts/start', [PhotographerPayoutController::class, 'start'])->name('photographer.payouts.start');
+        Route::get('/photographers/payouts/refresh', [PhotographerPayoutController::class, 'refresh'])->name('photographer.payouts.refresh');
+        Route::get('/photographers/payouts/return', [PhotographerPayoutController::class, 'returned'])->name('photographer.payouts.return');
+        Route::post('/photographers/payouts/status', [PhotographerPayoutController::class, 'synchronize'])->name('photographer.payouts.status');
+        Route::post('/photographers/payouts/dashboard', [PhotographerPayoutController::class, 'dashboard'])->name('photographer.payouts.dashboard');
 
         Route::prefix('/photographers/events/{event}/uploads')->name('photographer.uploads.')->group(function () {
             Route::get('/', [PhotographerUploadController::class, 'show'])->name('show');
