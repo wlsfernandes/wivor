@@ -14,6 +14,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
 use App\Http\Controllers\PhotographerUploadController;
 use App\Http\Controllers\PhotoDeliveryController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Frontend\PhotographerRegistrationController;
@@ -57,6 +58,11 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 Route::get('/events/{event:slug}/photos/{photo}', [PhotoDeliveryController::class, 'gallery'])->name('events.photos.show');
+Route::get('/events/{event:slug}/photos/{photo}/image.jpg', [PhotoDeliveryController::class, 'image'])->name('events.photos.image');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemaps/events-{page}.xml', [SitemapController::class, 'events'])->whereNumber('page')->name('sitemap.events');
+Route::get('/sitemaps/photos-{page}.xml', [SitemapController::class, 'photos'])->whereNumber('page')->name('sitemap.photos');
 
 
 
@@ -130,6 +136,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/status', [PhotographerUploadController::class, 'statuses'])->name('status');
             Route::post('/photos/{photo}/complete', [PhotographerUploadController::class, 'complete'])->name('complete');
             Route::post('/photos/{photo}/retry-url', [PhotographerUploadController::class, 'retryUrl'])->name('retry-url');
+            Route::patch('/photos/{photo}/metadata', [PhotographerUploadController::class, 'updateMetadata'])->name('metadata');
             Route::get('/photos/{photo}/preview', [PhotoDeliveryController::class, 'photographerPreview'])->name('preview');
             Route::delete('/photos/{photo}', [PhotographerUploadController::class, 'destroy'])->name('destroy');
             Route::post('/publish', [PhotographerUploadController::class, 'publish'])->name('publish');

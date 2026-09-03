@@ -103,13 +103,15 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('photographer.uploads.publish', $event) }}">
+    <form id="publish-photos-form" method="POST" action="{{ route('photographer.uploads.publish', $event) }}">
         @csrf
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <h2 class="h4 mb-0 me-auto">Review photos</h2>
-            <div class="form-check"><input class="form-check-input" id="select-all-ready" type="checkbox" checked><label class="form-check-label" for="select-all-ready">Select all ready</label></div>
-            <button class="btn btn-success" type="submit">Publish Ready Photos</button>
-        </div>
+    </form>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <h2 class="h4 mb-0 me-auto">Review photos</h2>
+        <div class="form-check"><input class="form-check-input" id="select-all-ready" type="checkbox" checked><label class="form-check-label" for="select-all-ready">Select all ready</label></div>
+        <button class="btn btn-success" type="submit" form="publish-photos-form">Publish Ready Photos</button>
+    </div>
+    <p class="small text-muted mb-3">Add a natural title, useful alt text, and a caption. Identify people only when you are authorized to publish their names; minors require special care.</p>
         <div class="row g-3" id="review-grid">
             @forelse ($photos as $photo)
                 <div class="col-6 col-md-4 col-xl-3" data-server-photo="{{ $photo->uuid }}">
@@ -122,12 +124,45 @@
                             <span class="badge mt-2 {{ $photo->status === 'rejected' ? 'bg-danger' : ($photo->status === 'ready' ? 'bg-success' : 'bg-secondary') }}">{{ ucfirst($photo->status) }}</span>
                             @if ($photo->rejection_reason)<p class="small text-danger mt-2 mb-0">{{ $photo->rejection_reason }}</p>@endif
                             @if ($photo->status === 'ready')
-                                <div class="form-check mt-2"><input class="form-check-input" type="checkbox" name="photo_ids[]" value="{{ $photo->uuid }}" checked><label class="form-check-label small">Publish</label></div>
+                                <div class="form-check mt-2"><input class="form-check-input" type="checkbox" name="photo_ids[]" value="{{ $photo->uuid }}" form="publish-photos-form" checked><label class="form-check-label small">Publish</label></div>
                             @endif
+
+                            @if (in_array($photo->status, ['ready', 'published']))
+                                <details class="mt-3">
+                                    <summary class="small fw-semibold">SEO and people</summary>
+                                    <form method="POST" action="{{ route('photographer.uploads.metadata', [$event, $photo]) }}" class="mt-3">
+                                        @csrf
+                                        @method('PATCH')
+                                        <label class="form-label small" for="title-{{ $photo->uuid }}">Photo title</label>
+                                        <input class="form-control form-control-sm mb-2" id="title-{{ $photo->uuid }}" name="title" maxlength="80" value="{{ $photo->title }}" placeholder="Runner crossing the finish line">
+
+                                        <label class="form-label small" for="alt-{{ $photo->uuid }}">Alt text</label>
+                                        <textarea class="form-control form-control-sm mb-2" id="alt-{{ $photo->uuid }}" name="alt_text" maxlength="250" rows="2" placeholder="Describe what is visible">{{ $photo->alt_text }}</textarea>
+
+                                        <label class="form-label small" for="caption-{{ $photo->uuid }}">Caption</label>
+                                        <textarea class="form-control form-control-sm mb-2" id="caption-{{ $photo->uuid }}" name="caption" maxlength="1000" rows="2">{{ $photo->caption }}</textarea>
+
+                                        <label class="form-label small" for="copyright-{{ $photo->uuid }}">Copyright notice</label>
+                                        <input class="form-control form-control-sm mb-2" id="copyright-{{ $photo->uuid }}" name="copyright_notice" maxlength="255" value="{{ $photo->copyright_notice }}" placeholder="© 2026 Copyright owner">
+
+                                        <label class="form-label small" for="people-{{ $photo->uuid }}">People shown</label>
+                                        <textarea class="form-control form-control-sm mb-2" id="people-{{ $photo->uuid }}" name="people" maxlength="2000" rows="2" placeholder="One name per line">{{ collect($photo->people)->join("\n") }}</textarea>
+
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" id="people-confirmed-{{ $photo->uuid }}" name="people_publication_confirmed" type="checkbox" value="1" @checked($photo->people_publication_confirmed_at)>
+                                            <label class="form-check-label small" for="people-confirmed-{{ $photo->uuid }}">I confirm authorization to publish these names, including guardian authorization for any minor.</label>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary" type="submit">Save SEO details</button>
+                                    </form>
+                                </details>
+                            @endif
+
                             @if (in_array($photo->status, ['queued', 'uploading', 'ready', 'rejected']))
-                                <button class="btn btn-sm btn-outline-danger mt-2" type="submit" name="_method" value="DELETE"
-                                    formaction="{{ route('photographer.uploads.destroy', [$event, $photo]) }}"
-                                    onclick="return confirm('Remove this unpublished photo?')">Remove</button>
+                                <form method="POST" action="{{ route('photographer.uploads.destroy', [$event, $photo]) }}" class="mt-2">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Remove this unpublished photo?')">Remove</button>
+                                </form>
                             @endif
                         </div>
                     </div>
@@ -137,7 +172,6 @@
             @endforelse
         </div>
         <div class="mt-4">{{ $photos->links() }}</div>
-    </form>
 
     <div class="card mt-4 border-info"><div class="card-body">
         <h2 class="h6">Gallery and media expiration</h2>

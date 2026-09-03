@@ -102,6 +102,8 @@ class ProcessPhoto implements ShouldQueue
         }
 
         $image = $this->orient($image, $path);
+        $width = imagesx($image);
+        $height = imagesy($image);
         $base = "events/{$photo->event->uuid}/photographers/{$photo->photographer->uuid}/photos/{$photo->uuid}";
         $previewKey = "{$base}/preview.jpg";
         $thumbnailKey = "{$base}/thumbnail.jpg";

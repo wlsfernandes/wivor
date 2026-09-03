@@ -11,11 +11,6 @@
 
 </div> <!-- close from header <div class="boxed_wrapper"> -->
 
-<!-- Scripts -->
-
-
-</body>
-
 <footer class="main-footer">
     <div class="auto-container">
         <div class="footer-top">

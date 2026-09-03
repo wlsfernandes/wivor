@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
  * @property \Illuminate\Support\Carbon|null $terms_accepted_at
  * @property string $stripe_onboarding_status
  * @property-read User $user
+ * @property-read string $full_name
  */
 class Photographer extends Model
 {
@@ -79,6 +80,12 @@ class Photographer extends Model
     protected static function booted(): void
     {
         static::creating(fn (self $photographer) => $photographer->uuid ??= (string) Str::uuid());
+    }
+
+    /** Return the public byline used for photo credits. */
+    public function getFullNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
     }
 
     /** Return the administrator who last reviewed the application. */

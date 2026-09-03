@@ -1,50 +1,10 @@
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Wivor</title>
-    <link rel="icon" href="assets/images/logo/wivor_favicon.png" type="image/x-icon">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
-    
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Stylesheets -->
-    <link href="{{ asset('assets/css/font-awesome-all.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/flaticon.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/owl.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/bootstrap.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/jquery.fancybox.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/animate.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/nice-select.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/jquery-ui.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/jquery.bootstrap-touchspin.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/color.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/elpath.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/responsive.css') }}" rel="stylesheet">
-
-</head>
-
-<!-- START BODY -->
-
-<body>
-    <div class="boxed_wrapper">
+<div class="boxed_wrapper">
 
 
         <div id="search-popup" class="search-popup">
             <div class="popup-inner">
                 <div class="upper-box clearfix">
-                    <figure class="logo-box pull-left"><a href=""><img src="assets/images/logo/wivor.png" alt=""></a>
+                    <figure class="logo-box pull-left"><a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor.png') }}" alt="WivorPhotos"></a>
                     </figure>
                     <div class="close-search pull-right"><span class="far fa-times"></span></div>
                 </div>
@@ -139,7 +99,7 @@
             <div class="header-lower">
                 <div class="outer-box">
                     <div class="logo-box">
-                        <figure class="logo"> <a href="{{ url('/') }}"><img src="assets/images/logo/wivor.png"
+                        <figure class="logo"> <a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor.png') }}"
                                     alt=""></a>
                         </figure>
                     </div>
@@ -225,7 +185,7 @@
                 <div class="outer-container">
                     <div class="outer-box">
                         <div class="logo-box">
-                            <figure class="logo"><a href=""><img src="assets/images/logo/wivor.png" alt=""></a>
+                            <figure class="logo"><a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor.png') }}" alt="WivorPhotos"></a>
                             </figure>
                         </div>
                         <div class="menu-area clearfix">
@@ -251,7 +211,7 @@
             <div class="close-btn"><i class="fas fa-times"></i></div>
 
             <nav class="menu-box">
-                <div class="nav-logo"><a href=""><img src="assets/images/logo/wivor.png" alt="" title=""></a>
+                <div class="nav-logo"><a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor.png') }}" alt="WivorPhotos" title="WivorPhotos"></a>
                 </div>
                 <div class="menu-outer">
                     <!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->

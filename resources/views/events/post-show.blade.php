@@ -2,6 +2,14 @@
 
 @section('title', $seoTitle)
 @section('meta-description', $seoDescription)
+@section('meta-keywords', e(collect([
+    $event->title,
+    $event->sport ? $event->sport . ' photos' : null,
+    $event->city ? $event->city . ' event photos' : null,
+    $event->state ? $event->state . ' sports photography' : null,
+    'sports event photos',
+    'WivorPhotos',
+])->filter()->unique()->implode(', ')))
 @section('canonical', $canonicalUrl)
 @section('og-image', $event->cover_url)
 
@@ -40,8 +48,8 @@
                                 <div class="row g-3 mt-1">
                                     @foreach ($photos as $photo)
                                         <div class="col-6 col-md-4">
-                                            <a href="{{ route('events.photos.show', [$event, $photo]) }}" target="_blank" rel="noopener">
-                                                <img class="img-fluid rounded w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ route('events.photos.show', [$event, $photo]) }}" alt="Photo from {{ $event->title }}" loading="lazy">
+                                            <a href="{{ route('events.photos.show', ['event' => $event->slug, 'photo' => $photo]) }}">
+                                                <img class="img-fluid rounded w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ route('events.photos.image', ['event' => $event->slug, 'photo' => $photo]) }}" alt="{{ $photo->display_alt_text }}" loading="lazy">
                                             </a>
                                         </div>
                                     @endforeach

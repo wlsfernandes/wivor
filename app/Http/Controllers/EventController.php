@@ -97,7 +97,7 @@ class EventController extends Controller
     }
 
     /** Display a published event by its public slug. */
-    public function show(Event $event): View
+    public function show(Request $request, Event $event): View
     {
         abort_unless($event->status === Event::STATUS_PUBLISHED, 404);
 
@@ -112,15 +112,20 @@ class EventController extends Controller
             default => 'Event photography is being prepared. Please check back soon.',
         };
 
-        $photos = $event->photos()->where('status', Photo::STATUS_PUBLISHED)
+        $photos = $event->photos()->with('photographer')->where('status', Photo::STATUS_PUBLISHED)
             ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'))
             ->latest('published_at')->paginate(48);
+
+        $canonicalUrl = route('events.show', ['event' => $event->slug]);
+        if ($request->integer('page') > 1) {
+            $canonicalUrl .= '?page='.$request->integer('page');
+        }
 
         return view('events.post-show', [
             'event' => $event,
             'seoTitle' => "{$event->title} Photos | WivorPhotos",
             'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
-            'canonicalUrl' => route('events.show', ['event' => $event->slug]),
+            'canonicalUrl' => $canonicalUrl,
             'availabilityMessage' => $availabilityMessage,
             'photos' => $photos,
         ]);

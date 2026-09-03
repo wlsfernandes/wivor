@@ -2,9 +2,9 @@
 
 @section('title', '#somosAETH | Our Team')
 
-@section('meta-description', 'This is a brief description of the home page.')
+@section('meta-description', 'Meet the WivorPhotos team building a trusted marketplace that connects sports photographers, athletes, and event communities.')
 
-@section('meta-keywords', 'home, welcome, introduction')
+@section('meta-keywords', 'WivorPhotos team, sports photography team, event photography marketplace, photographer platform, athlete photo marketplace')
 
 <style>
     /* FontAwesome for working BootSnippet :> */

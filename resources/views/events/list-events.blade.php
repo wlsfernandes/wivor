@@ -1,7 +1,8 @@
 @extends($layout)
 
 @section('title', 'Find Your Event Photos | WivorPhotos')
-@section('meta-description', 'Find professional sports event photos by event name, location, sport, or date.')
+@section('meta-description', 'Search WivorPhotos for professional sports and fitness event photos by event name, city, state, sport, or date.')
+@section('meta-keywords', 'find event photos, sports event photography, race photos, marathon photos, cycling photos, fitness event photos, WivorPhotos')
 
 @section('content')
     <main class="container py-5">

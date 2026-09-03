@@ -2,7 +2,8 @@
 
 @section('title', 'Apply as a Photographer | WivorPhotos')
 
-@section('meta-description', 'Apply to cover sports events and sell your photography through WivorPhotos.')
+@section('meta-description', 'Apply to become a WivorPhotos photographer, cover sports and fitness events, showcase your work, and sell photos directly to athletes.')
+@section('meta-keywords', 'become a sports photographer, sell sports photos, event photography jobs, photographer marketplace, fitness photography, WivorPhotos photographers')
 
 @section('content')
     <section class="cta-section home-3 centred">

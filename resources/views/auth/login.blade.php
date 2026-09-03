@@ -2,8 +2,8 @@
 
 @section('title', '#somosAETH | Portal')
 
-@section('meta-description', 'This is a brief description of the home page.')
-@section('meta-keywords', 'Wivor')
+@section('meta-description', 'Sign in to your WivorPhotos account to manage event photos, photographer uploads, purchases, and marketplace activity.')
+@section('meta-keywords', 'WivorPhotos login, photographer login, sports photo account, event photo marketplace')
 
 @section('content')
     <section class="h-100 gradient-form" style="background-color: #eee;">
