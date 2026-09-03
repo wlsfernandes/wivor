@@ -32,6 +32,7 @@ class StoreEventRequest extends FormRequest
             'city' => ['required', 'string', 'max:120'],
             'state' => ['required', 'string', 'size:2'],
             'country_code' => ['required', Rule::in(['US'])],
+            'price' => ['required', 'numeric', 'min:0.50', 'max:999.99'],
             'image_url' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'status' => ['required', Rule::in([
                 Event::STATUS_DRAFT,

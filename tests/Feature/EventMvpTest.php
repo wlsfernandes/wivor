@@ -220,6 +220,7 @@ class EventMvpTest extends TestCase
             'city' => 'Orlando',
             'state' => 'FL',
             'country_code' => 'US',
+            'price' => '10.00',
             'status' => Event::STATUS_DRAFT,
         ], $overrides);
     }

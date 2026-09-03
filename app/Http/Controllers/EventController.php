@@ -6,6 +6,7 @@ use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use App\Models\Photo;
+use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,10 @@ use Throwable;
  */
 class EventController extends Controller
 {
+    public function __construct(private readonly CartService $cart)
+    {
+    }
+
     /** Display events the authenticated user may manage. */
     public function index(Request $request): View
     {
@@ -121,6 +126,8 @@ class EventController extends Controller
             $canonicalUrl .= '?page='.$request->integer('page');
         }
 
+        $cartEvent = $this->cart->event();
+
         return view('events.post-show', [
             'event' => $event,
             'seoTitle' => "{$event->title} Photos | WivorPhotos",
@@ -128,6 +135,9 @@ class EventController extends Controller
             'canonicalUrl' => $canonicalUrl,
             'availabilityMessage' => $availabilityMessage,
             'photos' => $photos,
+            'cartPhotoUuids' => $cartEvent?->is($event) ? $this->cart->photos()->pluck('uuid') : collect(),
+            'cartCount' => $this->cart->count(),
+            'cartSubtotalCents' => $this->cart->subtotalCents(),
         ]);
     }
 
@@ -152,6 +162,8 @@ class EventController extends Controller
         $validated['content'] ??= '';
         $validated['published'] = $validated['status'] === Event::STATUS_PUBLISHED;
         $validated['published_at'] = $validated['published'] ? now() : null;
+        $validated['price_cents'] = (int) round(((float) $validated['price']) * 100);
+        unset($validated['price']);
 
         try {
             $event = DB::transaction(function () use ($request, $validated): Event {
@@ -193,6 +205,8 @@ class EventController extends Controller
         $validated = $this->normalizeEventTimes($validated);
         $validated['content'] ??= '';
         $validated['published'] = $validated['status'] === Event::STATUS_PUBLISHED;
+        $validated['price_cents'] = (int) round(((float) $validated['price']) * 100);
+        unset($validated['price']);
 
         if ($validated['published'] && ! $event->published_at) {
             $validated['published_at'] = now();
@@ -290,6 +304,7 @@ class EventController extends Controller
                 'venue_name' => $event?->venue_name ?? '',
                 'city' => $event?->city ?? '',
                 'state' => $event?->state ?? '',
+                'price' => $event?->price_cents ? number_format($event->price_cents / 100, 2, '.', '') : '',
                 'status' => $event?->status ?? Event::STATUS_DRAFT,
                 'cover_url' => $event?->cover_url,
             ],

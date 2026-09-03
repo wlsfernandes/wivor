@@ -108,6 +108,24 @@
 </div>
 
 <div class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Pricing</h2></div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label" for="price">Price per photo (USD)</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input class="form-control @error('price') is-invalid @enderror" id="price" name="price"
+                        type="number" step="0.01" min="0.50" max="999.99" value="{{ old('price', $formValues['price']) }}" required>
+                </div>
+                <div class="form-text">Applies to every photo published for this event.</div>
+                @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
     <div class="card-header"><h2 class="h5 mb-0">Publishing</h2></div>
     <div class="card-body">
         <div class="row g-3">

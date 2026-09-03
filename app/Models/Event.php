@@ -63,6 +63,7 @@ class Event extends Model
         'published_at',
         'gallery_published_at',
         'sales_close_at',
+        'price_cents',
         'date_of_event',
         'starts_at',
         'ends_at',
@@ -83,6 +84,7 @@ class Event extends Model
     {
         return [
             'published' => 'boolean',
+            'price_cents' => 'integer',
             'published_at' => 'datetime',
             'gallery_published_at' => 'datetime',
             'sales_close_at' => 'datetime',
@@ -237,5 +239,19 @@ class Event extends Model
         return $this->photos_live_at
             ? $this->photos_live_at->timezone($this->timezone)->format('M j, Y g:i A T')
             : 'Not scheduled';
+    }
+
+    /** Return the per-photo price formatted as a US dollar amount. */
+    public function getPriceLabelAttribute(): string
+    {
+        return $this->price_cents ? '$'.number_format($this->price_cents / 100, 2) : 'Not priced';
+    }
+
+    /** Determine whether photos may currently be added to a cart for this event. */
+    public function isSellable(): bool
+    {
+        return $this->is_published
+            && $this->price_cents > 0
+            && ! $this->sales_close_at?->isPast();
     }
 }

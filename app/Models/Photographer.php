@@ -35,6 +35,7 @@ class Photographer extends Model
     public const STATUS_SUSPENDED = 'suspended';
 
     public const STRIPE_NOT_STARTED = 'not_started';
+    public const STRIPE_COMPLETE = 'complete';
 
     /** @var list<string> */
     protected $fillable = [
@@ -98,6 +99,14 @@ class Photographer extends Model
     public function isApproved(): bool
     {
         return $this->status === self::STATUS_APPROVED;
+    }
+
+    /** Determine whether Checkout may assign this photographer as the payment destination. */
+    public function isReadyForPayouts(): bool
+    {
+        return $this->isApproved()
+            && filled($this->stripe_account_id)
+            && $this->stripe_onboarding_status === self::STRIPE_COMPLETE;
     }
 
     /** Return a display-ready label for the current application state. */

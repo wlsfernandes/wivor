@@ -32,6 +32,21 @@
                         <p class="mb-0">{{ $availabilityMessage }}</p>
                     </div>
 
+                    @if ($event->isSellable())
+                        <div class="alert alert-light border d-flex flex-wrap justify-content-between align-items-center gap-2" role="status">
+                            <span>{{ $event->price_label }} per photo</span>
+                            @if ($cartCount > 0)
+                                <a class="btn btn-sm btn-primary" href="{{ route('cart.show') }}">
+                                    {{ $cartCount }} photo(s) selected &middot; ${{ number_format($cartSubtotalCents / 100, 2) }} &middot; View selection
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
+                    @endif
+
                     @if ($event->content)
                         <section class="my-5" aria-labelledby="event-description">
                             <h2 id="event-description" class="h4">About this event</h2>
@@ -51,6 +66,21 @@
                                             <a href="{{ route('events.photos.show', ['event' => $event->slug, 'photo' => $photo]) }}">
                                                 <img class="img-fluid rounded w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ route('events.photos.image', ['event' => $event->slug, 'photo' => $photo]) }}" alt="{{ $photo->display_alt_text }}" loading="lazy">
                                             </a>
+                                            @if ($event->isSellable())
+                                                @if ($cartPhotoUuids->contains($photo->uuid))
+                                                    <form class="mt-1" method="POST" action="{{ route('cart.items.destroy', ['photo' => $photo->uuid]) }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Remove from selection</button>
+                                                    </form>
+                                                @else
+                                                    <form class="mt-1" method="POST" action="{{ route('cart.items.store') }}">
+                                                        @csrf
+                                                        <input type="hidden" name="photo" value="{{ $photo->uuid }}">
+                                                        <button class="btn btn-sm btn-primary w-100" type="submit">Add to selection</button>
+                                                    </form>
+                                                @endif
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -58,6 +88,7 @@
                             @endif
                         </div>
                     </section>
+
                 </div>
             </div>
         </article>

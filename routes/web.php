@@ -14,6 +14,9 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
 use App\Http\Controllers\PhotographerUploadController;
 use App\Http\Controllers\PhotoDeliveryController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
@@ -59,6 +62,21 @@ Route::middleware('auth')->group(function () {
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 Route::get('/events/{event:slug}/photos/{photo}', [PhotoDeliveryController::class, 'gallery'])->name('events.photos.show');
 Route::get('/events/{event:slug}/photos/{photo}/image.jpg', [PhotoDeliveryController::class, 'image'])->name('events.photos.image');
+
+/********************** Cart (guest checkout selection) ****************************************/
+Route::get('/cart', [CartController::class, 'index'])->name('cart.show');
+Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
+Route::delete('/cart/items/{photo}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+
+/********************** Checkout (guest, Stripe-hosted) *****************************************/
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/{order}/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout/{order}/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
+/********************** Secure order & download page (guest, token-gated) ***********************/
+Route::get('/orders/{accessToken}', [OrderController::class, 'show'])->name('orders.show');
+Route::get('/orders/{accessToken}/photos/{photo}/download', [OrderController::class, 'download'])->name('orders.download');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemaps/events-{page}.xml', [SitemapController::class, 'events'])->whereNumber('page')->name('sitemap.events');
