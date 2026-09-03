@@ -26,6 +26,27 @@ class PhotographerUploadTest extends TestCase
         $this->actingAs($user)->get(route('photographer.uploads.show', $event))->assertForbidden();
     }
 
+    public function test_expired_uploader_keeps_upload_controls_visible_but_disabled(): void
+    {
+        [$user, , $event, $assignment] = $this->approvedAssignment();
+        $assignment->update(['upload_deadline_at' => now()->subMinute()]);
+
+        $response = $this->actingAs($user)->get(route('photographer.uploads.show', $event));
+
+        $response->assertOk()->assertSee('Add Photos');
+        $this->assertMatchesRegularExpression('/id="drop-zone"[^>]*disabled/', $response->getContent());
+    }
+
+    public function test_publish_controls_are_disabled_when_no_photos_are_ready(): void
+    {
+        [$user, , $event] = $this->approvedAssignment();
+
+        $response = $this->actingAs($user)->get(route('photographer.uploads.show', $event));
+
+        $this->assertMatchesRegularExpression('/id="select-all-ready"[^>]*disabled/', $response->getContent());
+        $this->assertMatchesRegularExpression('/id="publish-ready-button"[^>]*disabled/', $response->getContent());
+    }
+
     public function test_batch_creation_reserves_exact_private_object_keys_and_records_confirmation(): void
     {
         [$user, $photographer, $event] = $this->approvedAssignment();

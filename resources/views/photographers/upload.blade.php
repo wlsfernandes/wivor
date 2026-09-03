@@ -9,7 +9,8 @@
     data-complete-template="{{ route('photographer.uploads.complete', [$event, '__PHOTO__']) }}"
     data-retry-template="{{ route('photographer.uploads.retry-url', [$event, '__PHOTO__']) }}"
     data-delete-template="{{ route('photographer.uploads.destroy', [$event, '__PHOTO__']) }}"
-    data-max-files="{{ $rules['max_batch_size'] }}" data-max-bytes="{{ $rules['max_file_bytes'] }}">
+    data-max-files="{{ $rules['max_batch_size'] }}" data-max-bytes="{{ $rules['max_file_bytes'] }}"
+    data-upload-open="{{ $uploadOpen ? '1' : '0' }}">
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
         <div>
             <a href="{{ route('events.index') }}" class="small text-decoration-none">← Return to My Events</a>
@@ -83,33 +84,31 @@
         </div>
     </div>
 
-    @if ($uploadOpen)
-        <div class="card mb-4">
-            <div class="card-body">
-                <input id="photo-input" type="file" accept=".jpg,.jpeg,image/jpeg" multiple hidden>
-                <button type="button" id="drop-zone" class="btn w-100 border border-2 rounded p-5 text-center bg-light">
-                    <span class="h5 d-block">Drop JPEG photos here</span>
-                    <span class="text-muted">or click to choose files</span>
-                </button>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <button class="btn btn-primary" type="button" id="upload-button" disabled>Add Photos</button>
-                    <button class="btn btn-outline-warning" type="button" id="retry-button" disabled>Retry Failed</button>
-                    <span class="ms-auto align-self-center"><span id="overall-label">No batch selected</span></span>
-                </div>
-                <div class="progress mt-2" style="height: 8px"><div id="overall-progress" class="progress-bar" style="width:0%"></div></div>
-                <div id="client-error" class="alert alert-danger mt-3 d-none"></div>
-                <div id="upload-rows" class="mt-3"></div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <input id="photo-input" type="file" accept=".jpg,.jpeg,image/jpeg" multiple hidden @disabled(! $uploadOpen)>
+            <button type="button" id="drop-zone" class="btn w-100 border border-2 rounded p-5 text-center bg-light" @disabled(! $uploadOpen)>
+                <span class="h5 d-block">Drop JPEG photos here</span>
+                <span class="text-muted">or click to choose files</span>
+            </button>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <button class="btn btn-primary" type="button" id="upload-button" disabled>Add Photos</button>
+                <button class="btn btn-outline-warning" type="button" id="retry-button" disabled>Retry Failed</button>
+                <span class="ms-auto align-self-center"><span id="overall-label">No batch selected</span></span>
             </div>
+            <div class="progress mt-2" style="height: 8px"><div id="overall-progress" class="progress-bar" style="width:0%"></div></div>
+            <div id="client-error" class="alert alert-danger mt-3 d-none"></div>
+            <div id="upload-rows" class="mt-3"></div>
         </div>
-    @endif
+    </div>
 
     <form id="publish-photos-form" method="POST" action="{{ route('photographer.uploads.publish', $event) }}">
         @csrf
     </form>
     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
         <h2 class="h4 mb-0 me-auto">Review photos</h2>
-        <div class="form-check"><input class="form-check-input" id="select-all-ready" type="checkbox" checked><label class="form-check-label" for="select-all-ready">Select all ready</label></div>
-        <button class="btn btn-success" type="submit" form="publish-photos-form">Publish Ready Photos</button>
+        <div class="form-check"><input class="form-check-input" id="select-all-ready" type="checkbox" @checked(($counts['ready'] ?? 0) > 0) @disabled(($counts['ready'] ?? 0) === 0)><label class="form-check-label" for="select-all-ready">Select all ready</label></div>
+        <button class="btn btn-success" id="publish-ready-button" type="submit" form="publish-photos-form" @disabled(($counts['ready'] ?? 0) === 0)>Publish Ready Photos</button>
     </div>
     <p class="small text-muted mb-3">Add a natural title, useful alt text, and a caption. Identify people only when you are authorized to publish their names; minors require special care.</p>
         <div class="row g-3" id="review-grid">
@@ -195,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     selectAll?.addEventListener('change', () => document.querySelectorAll('input[name="photo_ids[]"]').forEach(input => input.checked = selectAll.checked));
     const input = document.getElementById('photo-input');
     if (!root || !input) return;
+    const uploadOpen = root.dataset.uploadOpen === '1';
     const zone = document.getElementById('drop-zone');
     const uploadButton = document.getElementById('upload-button');
     const retryButton = document.getElementById('retry-button');
@@ -212,13 +212,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const total = items.length || 1;
         const progress = Math.round(items.reduce((sum, item) => sum + item.progress, 0) / total);
         overall.style.width = progress + '%'; overallLabel.textContent = items.length ? `${progress}% overall · ${items.filter(i => i.progress === 100).length} transferred` : 'No batch selected';
-        retryButton.disabled = !items.some(item => item.status === 'failed');
+        retryButton.disabled = !uploadOpen || !items.some(item => item.status === 'failed');
     };
     const render = () => {
         rows.innerHTML = items.map((item, index) => `<div class="border rounded p-2 mb-2" data-index="${index}"><div class="d-flex gap-2 align-items-center"><span class="text-truncate flex-grow-1">${escapeHtml(item.file.name)}</span><span class="small status">${escapeHtml(item.label)}</span>${item.status === 'queued' ? `<button type="button" class="btn btn-sm btn-link text-danger remove-file" data-index="${index}">Remove</button>` : ''}</div><div class="progress mt-1" style="height:5px"><div class="progress-bar ${item.status === 'failed' ? 'bg-danger' : ''}" style="width:${item.progress}%"></div></div>${item.error ? `<div class="small text-danger mt-1">${escapeHtml(item.error)}</div>` : ''}</div>`).join('');
-        uploadButton.disabled = !items.some(item => item.status === 'queued'); refreshOverall();
+        uploadButton.disabled = !uploadOpen || !items.some(item => item.status === 'queued'); refreshOverall();
     };
     const selectFiles = fileList => {
+        if (!uploadOpen) return;
         clearError(); const files = Array.from(fileList);
         if (files.length > Number(root.dataset.maxFiles)) return showError(`Select no more than ${root.dataset.maxFiles} photos per batch.`);
         const invalid = files.find(file => !/\.jpe?g$/i.test(file.name) || (file.type && file.type !== 'image/jpeg'));
