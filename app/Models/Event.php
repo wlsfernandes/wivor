@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -50,6 +51,8 @@ class Event extends Model
 
     public const STATUS_ARCHIVED = 'archived';
 
+    public const STATUS_CANCELLED = 'cancelled';
+
     /** @var list<string> */
     protected $fillable = [
         'title',
@@ -58,8 +61,11 @@ class Event extends Model
         'published',
         'status',
         'published_at',
+        'gallery_published_at',
+        'sales_close_at',
         'date_of_event',
         'starts_at',
+        'ends_at',
         'photos_live_at',
         'timezone',
         'venue_name',
@@ -78,8 +84,13 @@ class Event extends Model
         return [
             'published' => 'boolean',
             'published_at' => 'datetime',
+            'gallery_published_at' => 'datetime',
+            'sales_close_at' => 'datetime',
+            'retention_warning_14_sent_at' => 'datetime',
+            'retention_warning_3_sent_at' => 'datetime',
             'date_of_event' => 'date',
             'starts_at' => 'datetime',
+            'ends_at' => 'datetime',
             'photos_live_at' => 'datetime',
         ];
     }
@@ -87,7 +98,33 @@ class Event extends Model
     /** Get photographers assigned to the event. */
     public function photographers(): BelongsToMany
     {
-        return $this->belongsToMany(Photographer::class)->withTimestamps();
+        return $this->belongsToMany(Photographer::class)
+            ->withPivot(['id', 'status', 'upload_deadline_at', 'rights_confirmed_at'])
+            ->withTimestamps();
+    }
+
+    public function photos(): HasMany { return $this->hasMany(Photo::class); }
+    public function uploadBatches(): HasMany { return $this->hasMany(UploadBatch::class); }
+
+    /** Return the event-specific deadline, falling back to 72 hours after its best-known end. */
+    public function uploadDeadlineFor(Photographer $photographer): Carbon
+    {
+        $assignment = $this->photographers()->whereKey($photographer->id)->first()?->pivot;
+        if ($assignment?->upload_deadline_at) {
+            return Carbon::parse($assignment->upload_deadline_at);
+        }
+
+        $eventEnd = $this->ends_at
+            ?? $this->starts_at
+            ?? $this->date_of_event?->copy()->endOfDay()
+            ?? $this->created_at;
+
+        return $eventEnd->copy()->addHours(config('photo_uploads.upload_deadline_hours'));
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(fn (self $event) => $event->uuid ??= (string) Str::uuid());
     }
 
     /** Limit a query to publicly available events. */

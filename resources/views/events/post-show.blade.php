@@ -32,9 +32,22 @@
                     @endif
 
                     <section class="card border-0 bg-light my-5" aria-labelledby="event-photos">
-                        <div class="card-body text-center py-5">
+                        <div class="card-body py-4">
                             <h2 id="event-photos" class="h4">Event photos</h2>
-                            <p class="text-muted mb-0">Photo browsing will be available in the next WivorPhotos release.</p>
+                            @if ($photos->isEmpty())
+                                <p class="text-muted mb-0">No photos are currently available.</p>
+                            @else
+                                <div class="row g-3 mt-1">
+                                    @foreach ($photos as $photo)
+                                        <div class="col-6 col-md-4">
+                                            <a href="{{ route('events.photos.show', [$event, $photo]) }}" target="_blank" rel="noopener">
+                                                <img class="img-fluid rounded w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ route('events.photos.show', [$event, $photo]) }}" alt="Photo from {{ $event->title }}" loading="lazy">
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-4">{{ $photos->links() }}</div>
+                            @endif
                         </div>
                     </section>
                 </div>

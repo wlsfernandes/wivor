@@ -1,0 +1,16 @@
+{
+  "Rules": [
+    {
+      "ID": "abort-incomplete-photo-uploads",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "" },
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 1 }
+    },
+    {
+      "ID": "remove-abandoned-temporary-uploads",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "temporary-uploads/" },
+      "Expiration": { "Days": 2 }
+    }
+  ]
+}

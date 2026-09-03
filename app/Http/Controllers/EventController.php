@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
+use App\Models\Photo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -104,11 +105,16 @@ class EventController extends Controller
             ? $event->photos_live_at->timezone($event->timezone)->format('F j, Y \a\t g:i A T')
             : null;
 
-        $availabilityMessage = match ($event->public_availability_label) {
-            'Photos coming soon' => "Photos for this event are not available yet. Please return after {$photosLiveLabel}.",
-            'Photos are live' => 'Event photography is being prepared. Photo browsing will be available in the next WivorPhotos release.',
-            default => 'Event details are available now. Photo browsing will be added in a future WivorPhotos release.',
+        $availabilityMessage = match (true) {
+            $event->sales_close_at?->isPast() => 'This event gallery is now closed.',
+            $event->photos()->where('status', Photo::STATUS_PUBLISHED)->exists() => 'Browse the photographs currently published for this event.',
+            $event->public_availability_label === 'Photos coming soon' => "Photos for this event are not available yet. Please return after {$photosLiveLabel}.",
+            default => 'Event photography is being prepared. Please check back soon.',
         };
+
+        $photos = $event->photos()->where('status', Photo::STATUS_PUBLISHED)
+            ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'))
+            ->latest('published_at')->paginate(48);
 
         return view('events.post-show', [
             'event' => $event,
@@ -116,6 +122,7 @@ class EventController extends Controller
             'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
             'canonicalUrl' => route('events.show', ['event' => $event->slug]),
             'availabilityMessage' => $availabilityMessage,
+            'photos' => $photos,
         ]);
     }
 
@@ -272,6 +279,7 @@ class EventController extends Controller
                 'summary' => $event?->summary ?? '',
                 'date_of_event' => $event?->date_of_event?->format('Y-m-d') ?? '',
                 'starts_at' => $event?->starts_at?->timezone($eventTimezone)->format('Y-m-d\TH:i') ?? '',
+                'ends_at' => $event?->ends_at?->timezone($eventTimezone)->format('Y-m-d\TH:i') ?? '',
                 'photos_live_at' => $event?->photos_live_at?->timezone($eventTimezone)->format('Y-m-d\TH:i') ?? '',
                 'timezone' => $eventTimezone,
                 'venue_name' => $event?->venue_name ?? '',
@@ -302,7 +310,7 @@ class EventController extends Controller
     /** Convert event-local date-times to the application storage timezone. */
     private function normalizeEventTimes(array $validated): array
     {
-        foreach (['starts_at', 'photos_live_at'] as $field) {
+        foreach (['starts_at', 'ends_at', 'photos_live_at'] as $field) {
             if (! empty($validated[$field])) {
                 $validated[$field] = Carbon::parse($validated[$field], $validated['timezone'])->utc();
             }

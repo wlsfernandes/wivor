@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 /**
  * Represents a photographer profile and its marketplace approval state.
@@ -66,7 +68,17 @@ class Photographer extends Model
     /** Return events associated with this photographer. */
     public function events(): BelongsToMany
     {
-        return $this->belongsToMany(Event::class);
+        return $this->belongsToMany(Event::class)
+            ->withPivot(['id', 'status', 'upload_deadline_at', 'rights_confirmed_at'])
+            ->withTimestamps();
+    }
+
+    public function photos(): HasMany { return $this->hasMany(Photo::class); }
+    public function uploadBatches(): HasMany { return $this->hasMany(UploadBatch::class); }
+
+    protected static function booted(): void
+    {
+        static::creating(fn (self $photographer) => $photographer->uuid ??= (string) Str::uuid());
     }
 
     /** Return the administrator who last reviewed the application. */

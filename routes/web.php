@@ -12,7 +12,10 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
+use App\Http\Controllers\PhotographerUploadController;
+use App\Http\Controllers\PhotoDeliveryController;
 use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
+use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Frontend\PhotographerRegistrationController;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -53,6 +56,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
+Route::get('/events/{event:slug}/photos/{photo}', [PhotoDeliveryController::class, 'gallery'])->name('events.photos.show');
 
 
 
@@ -95,6 +99,16 @@ Route::middleware('auth')->group(function () {
         Route::patch('/list-photographers/{photographer}/suspend', [AdminPhotographerController::class, 'suspend'])->name('admin.photographers.suspend');
         Route::patch('/list-photographers/{photographer}/restore', [AdminPhotographerController::class, 'restore'])->name('admin.photographers.restore');
 
+        Route::get('/admin/media', [AdminMediaController::class, 'index'])->name('admin.media.index');
+        Route::get('/admin/media/{event}', [AdminMediaController::class, 'show'])->name('admin.media.show');
+        Route::patch('/admin/media/{event}/assignments/{photographer}/deadline', [AdminMediaController::class, 'extendDeadline'])->name('admin.media.deadline');
+        Route::post('/admin/media/{event}/photos/{photo}/retry', [AdminMediaController::class, 'retry'])->name('admin.media.retry');
+        Route::patch('/admin/media/{event}/photos/{photo}/unpublish', [AdminMediaController::class, 'unpublish'])->name('admin.media.unpublish');
+        Route::delete('/admin/media/{event}/photos/{photo}', [AdminMediaController::class, 'remove'])->name('admin.media.remove');
+        Route::post('/admin/media/{event}/close', [AdminMediaController::class, 'closeGallery'])->name('admin.media.close');
+        Route::post('/admin/media/{event}/holds', [AdminMediaController::class, 'hold'])->name('admin.media.holds.store');
+        Route::delete('/admin/media/{event}/holds/{hold}', [AdminMediaController::class, 'releaseHold'])->name('admin.media.holds.release');
+
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     });
 
@@ -109,6 +123,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/photographers/my-events', [PhotographerController::class, 'myEvents'])->name('photographer.myEvents');
         Route::get('/photographers/new-event', [PhotographerController::class, 'newEvent'])->name('photographer.newEvent');
         Route::post('/photographers/event/create', [EventController::class, 'store'])->name('eventCreatedByPhotographer');
+
+        Route::prefix('/photographers/events/{event}/uploads')->name('photographer.uploads.')->group(function () {
+            Route::get('/', [PhotographerUploadController::class, 'show'])->name('show');
+            Route::post('/batches', [PhotographerUploadController::class, 'createBatch'])->name('batches.store');
+            Route::get('/status', [PhotographerUploadController::class, 'statuses'])->name('status');
+            Route::post('/photos/{photo}/complete', [PhotographerUploadController::class, 'complete'])->name('complete');
+            Route::post('/photos/{photo}/retry-url', [PhotographerUploadController::class, 'retryUrl'])->name('retry-url');
+            Route::get('/photos/{photo}/preview', [PhotoDeliveryController::class, 'photographerPreview'])->name('preview');
+            Route::delete('/photos/{photo}', [PhotographerUploadController::class, 'destroy'])->name('destroy');
+            Route::post('/publish', [PhotographerUploadController::class, 'publish'])->name('publish');
+        });
     });
 
 

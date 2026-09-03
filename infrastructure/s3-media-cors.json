@@ -1,0 +1,11 @@
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": ["https://wivorphotos.com", "https://www.wivorphotos.com"],
+      "AllowedMethods": ["PUT"],
+      "AllowedHeaders": ["content-type", "x-amz-*"],
+      "ExposeHeaders": ["ETag"],
+      "MaxAgeSeconds": 3600
+    }
+  ]
+}

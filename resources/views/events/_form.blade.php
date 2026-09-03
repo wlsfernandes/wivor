@@ -41,14 +41,21 @@
     <div class="card-header"><h2 class="h5 mb-0">Date and time</h2></div>
     <div class="card-body">
         <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label" for="date_of_event">Event date</label>
                 <input class="form-control @error('date_of_event') is-invalid @enderror" id="date_of_event"
                     name="date_of_event" type="date" value="{{ old('date_of_event', $formValues['date_of_event']) }}" required>
                 <div class="form-text">The day the sports event takes place.</div>
                 @error('date_of_event')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label class="form-label" for="ends_at">End time</label>
+                <input class="form-control @error('ends_at') is-invalid @enderror" id="ends_at" name="ends_at"
+                    type="datetime-local" value="{{ old('ends_at', $formValues['ends_at']) }}">
+                <div class="form-text">Used to calculate the 72-hour upload deadline.</div>
+                @error('ends_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-3">
                 <label class="form-label" for="starts_at">Start time</label>
                 <input class="form-control @error('starts_at') is-invalid @enderror" id="starts_at" name="starts_at"
                     type="datetime-local" value="{{ old('starts_at', $formValues['starts_at']) }}">

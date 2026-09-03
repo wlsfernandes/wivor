@@ -25,6 +25,7 @@ class StoreEventRequest extends FormRequest
             'summary' => ['nullable', 'string', 'max:500'],
             'date_of_event' => ['required', 'date'],
             'starts_at' => ['nullable', 'date'],
+            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'photos_live_at' => ['nullable', 'date'],
             'timezone' => ['required', 'timezone'],
             'venue_name' => ['nullable', 'string', 'max:255'],
