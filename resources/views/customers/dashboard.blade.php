@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Wivor | Home')
+@section('meta-description',
+    'Find and purchase professional sports and fitness photos from events across the United
+    States, or join WivorPhotos as a photographer.')
 
-@section('meta-description', 'Discover comprehensive Hispanic theological education and Latino ministry training programs. Explore Bible institute certifications, leadership development, and theological resources for Hispanic pastors and church leaders. Empower your ministry with tailored courses and Spanish-language resources.')
+@section('meta-keywords',
+    'WivorPhotos, sports photography, event photos, race photos, athlete photos, fitness
+    photography, find event photos, buy sports photos, sports photographers')
 
 @section('meta-keywords', 'somosWivor')
 @section('content')
@@ -14,7 +18,7 @@
         </div>
 
         <div class="row g-4">
-            @foreach($posts as $post)
+            @foreach ($posts as $post)
                 <div class="col-md-6 col-lg-4" style="margin-bottom:48px;">
                     <div class="card h-100 shadow-sm border-0">
                         <a href="{{ route('post.show', $post->slug) }}">
@@ -25,7 +29,7 @@
                         </a>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">
-                                @if(App::getLocale() == 'es')
+                                @if (App::getLocale() == 'es')
                                     {{ $post->title_es }}
                                 @elseif(App::getLocale() == 'pt')
                                     {{ $post->title_pt }}
