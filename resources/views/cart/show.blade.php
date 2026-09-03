@@ -26,7 +26,9 @@
                 @foreach ($photos as $photo)
                     <div class="col-6 col-md-3">
                         <div class="card h-100">
-                            <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ route('events.photos.image', ['event' => $event->slug, 'photo' => $photo]) }}" alt="{{ $photo->display_alt_text }}">
+                            <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;"
+                                src="{{ route('events.photos.image', ['event' => $event->slug, 'photo' => $photo]) }}"
+                                alt="{{ $photo->display_alt_text }}">
                             <div class="card-body p-2 text-center">
                                 <form method="POST" action="{{ route('cart.items.destroy', ['photo' => $photo->uuid]) }}">
                                     @csrf
