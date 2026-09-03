@@ -134,6 +134,28 @@ class EventMvpTest extends TestCase
         $this->get(route('events.show', ['event' => $event->slug]))->assertNotFound();
     }
 
+    public function test_admin_can_assign_and_approve_a_photographer_for_an_event(): void
+    {
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $admin = User::factory()->create();
+        $admin->roles()->attach($adminRole);
+        [, $photographer] = $this->createPhotographerUser();
+        $event = $this->createEvent();
+
+        $this->actingAs($admin)
+            ->post(route('admin.events.photographers.assign', $event), [
+                'photographer_id' => $photographer->id,
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('event_photographer', [
+            'event_id' => $event->id,
+            'photographer_id' => $photographer->id,
+            'status' => 'approved',
+        ]);
+    }
+
     public function test_event_creation_requires_the_mvp_fields_and_assigns_owner(): void
     {
         [$owner, $photographer] = $this->createPhotographerUser();

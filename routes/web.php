@@ -127,6 +127,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/list-photographers/{photographer}/suspend', [AdminPhotographerController::class, 'suspend'])->name('admin.photographers.suspend');
         Route::patch('/list-photographers/{photographer}/restore', [AdminPhotographerController::class, 'restore'])->name('admin.photographers.restore');
 
+        Route::post('/events/{event}/photographers', [EventController::class, 'assignPhotographer'])->name('admin.events.photographers.assign');
+
         Route::get('/admin/media', [AdminMediaController::class, 'index'])->name('admin.media.index');
         Route::get('/admin/media/{event}', [AdminMediaController::class, 'show'])->name('admin.media.show');
         Route::patch('/admin/media/{event}/assignments/{photographer}/deadline', [AdminMediaController::class, 'extendDeadline'])->name('admin.media.deadline');

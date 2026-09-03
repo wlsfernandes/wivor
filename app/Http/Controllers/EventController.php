@@ -6,6 +6,7 @@ use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use App\Models\Photo;
+use App\Models\Photographer;
 use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -191,7 +192,18 @@ class EventController extends Controller
     {
         Gate::authorize('update', $event);
 
-        return view('events.edit', $this->formViewData($request, $event));
+        $viewData = $this->formViewData($request, $event);
+
+        if ($request->user()->hasRole('admin')) {
+            $viewData['approvedPhotographers'] = Photographer::query()
+                ->where('status', Photographer::STATUS_APPROVED)
+                ->orderBy('first_name')
+                ->orderBy('last_name')
+                ->get();
+            $event->load('photographers');
+        }
+
+        return view('events.edit', $viewData);
     }
 
     /** Update an event and safely replace its optional cover image. */
@@ -254,6 +266,29 @@ class EventController extends Controller
         });
 
         return back()->with('success', $publish ? 'Event published successfully.' : 'Event unpublished successfully.');
+    }
+
+    /** Assign an approved photographer to an event with upload access. */
+    public function assignPhotographer(Request $request, Event $event): RedirectResponse
+    {
+        $validated = $request->validate([
+            'photographer_id' => ['required', 'integer', 'exists:photographers,id'],
+        ]);
+
+        $photographer = Photographer::query()
+            ->whereKey($validated['photographer_id'])
+            ->where('status', Photographer::STATUS_APPROVED)
+            ->first();
+
+        if (! $photographer) {
+            return back()->withErrors(['photographer_id' => 'Only approved photographers can be assigned.']);
+        }
+
+        $event->photographers()->syncWithoutDetaching([
+            $photographer->id => ['status' => 'approved'],
+        ]);
+
+        return back()->with('success', "{$photographer->full_name} was assigned and approved for this event.");
     }
 
     /** Archive an event instead of permanently deleting it. */
