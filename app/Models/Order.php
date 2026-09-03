@@ -77,4 +77,40 @@ class Order extends Model
 
         return $candidate;
     }
+
+    /** Return the paid date, falling back to when the order was placed. */
+    public function getSaleDateLabelAttribute(): string
+    {
+        return ($this->paid_at ?? $this->created_at)->format('M j, Y');
+    }
+
+    /** Return a display-ready payment status. */
+    public function getPaymentStatusLabelAttribute(): string
+    {
+        return ucfirst(str_replace('_', ' ', $this->payment_status));
+    }
+
+    /** Return the payout state; payout tracking is not yet ingested from Stripe, so paid orders are always pending. */
+    public function getPayoutStatusLabelAttribute(): string
+    {
+        return $this->payment_status === self::PAYMENT_PAID ? 'Pending payout' : 'Not applicable';
+    }
+
+    /** Return the pre-commission sale amount formatted as US dollars. */
+    public function getGrossAmountLabelAttribute(): string
+    {
+        return '$'.number_format($this->subtotal_cents / 100, 2);
+    }
+
+    /** Return the WivorPhotos commission formatted as US dollars. */
+    public function getFeesLabelAttribute(): string
+    {
+        return '$'.number_format($this->commission_cents / 100, 2);
+    }
+
+    /** Return the photographer's net earnings formatted as US dollars. */
+    public function getNetAmountLabelAttribute(): string
+    {
+        return '$'.number_format($this->photographer_allocation_cents / 100, 2);
+    }
 }
