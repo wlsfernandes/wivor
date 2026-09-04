@@ -34,6 +34,8 @@ class PhotographerPayoutSetupTest extends TestCase
 
             public $accountLinks;
 
+            public $v2;
+
             public function __construct()
             {
                 $this->accounts = new class
@@ -109,6 +111,13 @@ class PhotographerPayoutSetupTest extends TestCase
                         return (object) ['url' => 'https://connect.stripe.test/onboarding'];
                     }
                 };
+
+                $this->v2 = (object) [
+                    'core' => (object) [
+                        'accounts' => $this->accounts,
+                        'accountLinks' => $this->accountLinks,
+                    ],
+                ];
             }
         };
 

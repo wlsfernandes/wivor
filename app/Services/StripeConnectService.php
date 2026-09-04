@@ -17,21 +17,36 @@ class StripeConnectService
             $locked = Photographer::query()->lockForUpdate()->findOrFail($photographer->id);
 
             if (! $locked->stripe_account_id) {
-                $account = $this->stripe->accounts->create([
-                    'type' => 'express',
-                    'country' => 'US',
-                    'email' => $locked->user->email,
-                    'capabilities' => [
-                        'transfers' => ['requested' => true],
+                $account = $this->stripe->v2->core->accounts->create([
+                    'contact_email' => $locked->user->email,
+                    'display_name' => trim("{$locked->first_name} {$locked->last_name}"),
+                    'dashboard' => 'express',
+                    'identity' => [
+                        'country' => 'us',
                     ],
-                    'business_profile' => [
-                        'product_description' => 'Event photography sold through WivorPhotos',
+                    'configuration' => [
+                        'recipient' => [
+                            'capabilities' => [
+                                'stripe_balance' => [
+                                    'stripe_transfers' => ['requested' => true],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'defaults' => [
+                        'profile' => [
+                            'product_description' => 'Event photography sold through WivorPhotos',
+                        ],
+                        'responsibilities' => [
+                            'fees_collector' => 'application',
+                            'losses_collector' => 'application',
+                        ],
                     ],
                     'metadata' => [
                         'wivor_photographer_id' => (string) $locked->id,
                     ],
                 ], [
-                    'idempotency_key' => "wivor-photographer-{$locked->id}",
+                    'idempotency_key' => "wivor-v2-photographer-{$locked->id}",
                 ]);
 
                 $locked->forceFill([
@@ -44,14 +59,19 @@ class StripeConnectService
             return $locked;
         });
 
-        $link = $this->stripe->accountLinks->create([
+        $link = $this->stripe->v2->core->accountLinks->create([
             'account' => $photographer->stripe_account_id,
-            'refresh_url' => route('photographer.payouts.refresh'),
-            'return_url' => route('photographer.payouts.return'),
-            'type' => 'account_onboarding',
-            'collection_options' => [
-                'fields' => 'eventually_due',
-                'future_requirements' => 'include',
+            'use_case' => [
+                'type' => 'account_onboarding',
+                'account_onboarding' => [
+                    'configurations' => ['recipient'],
+                    'refresh_url' => route('photographer.payouts.refresh'),
+                    'return_url' => route('photographer.payouts.return'),
+                    'collection_options' => [
+                        'fields' => 'eventually_due',
+                        'future_requirements' => 'include',
+                    ],
+                ],
             ],
         ]);
 
