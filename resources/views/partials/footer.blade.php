@@ -14,14 +14,13 @@
 <footer class="main-footer">
     <div class="auto-container">
         <div class="footer-top">
-            <figure class="footer-logo"><a href="index.php"><img src="{{ asset('assets/images/logo-3.png') }}"
+            <figure class="footer-logo"><a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor_white.png') }}"
                         alt="Wivor Logo"></a></figure>
             <ul class="social-links">
                 <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="_blank"
-                        rel="noopener noreferrer"><i
-                            class="fab fa-facebook-f"></i></a></li>
-                <li><a href="https://www.instagram.com/wivor.photos/" target="_blank"
-                        rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
+                <li><a href="https://www.instagram.com/wivor.photos/" target="_blank" rel="noopener noreferrer"><i
+                            class="fab fa-instagram"></i></a>
                 </li>
             </ul>
         </div>
@@ -35,11 +34,11 @@
                         </div>
                         <div class="widget-content">
                             <ul class="links-list clearfix">
-                                <li><a href="index.php">About Us</a></li>
-                                <li><a href="index.php">Services</a></li>
-                                <li><a href="index.php">Case</a></li>
-                                <li><a href="index.php">Pricing</a></li>
-                                <li><a href="index.php">Contact Us</a></li>
+                                <li><a href="{{ url('/') }}">About Us</a></li>
+                                <li><a href="{{ url('/') }}">Services</a></li>
+                                <li><a href="{{ url('/') }}">Case</a></li>
+                                <li><a href="{{ url('/') }}">Pricing</a></li>
+                                <li><a href="{{ url('/') }}">Contact Us</a></li>
                             </ul>
                         </div>
                     </div>
@@ -79,7 +78,8 @@
         </div> -->
         <div class="footer-bottom centred">
             <div class="copyright">
-                <p><small>Copyright <span id="currentYear"></span> by <a href="#">devpromaster</a> All Right Reserved.</small>
+                <p><small>Copyright <span id="currentYear"></span> by <a href="#">devpromaster</a> All Right
+                        Reserved.</small>
                 </p>
             </div>
         </div>
