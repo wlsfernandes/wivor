@@ -3526,9 +3526,9 @@ div#mCSB_1_container {
 
 .footer-top {
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 75px minmax(0, 1fr) 75px;
   align-items: center;
-  justify-content: space-between;
   padding: 28px 0px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
@@ -3546,8 +3546,10 @@ div#mCSB_1_container {
 .footer-top .social-links {
   position: relative;
   display: flex;
+  grid-column: 2;
   align-items: center;
   justify-content: center;
+  justify-self: center;
 }
 
 .footer-top .social-links li {

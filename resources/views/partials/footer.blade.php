@@ -17,12 +17,12 @@
             <figure class="footer-logo"><a href="index.php"><img src="{{ asset('assets/images/logo-3.png') }}"
                         alt="Wivor Logo"></a></figure>
             <ul class="social-links">
-                <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="blank"><i
+                <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="_blank"
+                        rel="noopener noreferrer"><i
                             class="fab fa-facebook-f"></i></a></li>
-                <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><i class="fab fa-instagram"></i></a>
+                <li><a href="https://www.instagram.com/wivor.photos/" target="_blank"
+                        rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
                 </li>
-                <li><a href="#"><i class="fab fa-vimeo"></i></a></li>
-                <li><a href="#"><i class="fab fa-whatsapp"></i></a></li>
             </ul>
         </div>
         <!--   <div class="widget-section">
