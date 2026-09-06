@@ -40,14 +40,14 @@
             <div class="row">
                 <div class="col-lg-8 align-self-center">
                     <ul>
-                        <li><i class="fa fa-envelope"></i> info@example.com</li>
+                        <li><i class="fa fa-envelope"></i> contact@wivor</li>
                         <li><i class="fa fa-map-marker-alt"></i> 6391 Elgin St. Celina, 10299</li>
                     </ul>
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     <ul class="topbar-right">
                         <li><a class="btn btn-base border-radius-0 me-3" href="#">Get A Quote</a></li>
-                        <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                        <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/"><i class="fab fa-facebook"></i></a></li>
                         <li><a href="#"><i class="fab fa-twitter"></i></a></li>
                         <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
                         <li><a href="#"><i class="fab fa-youtube"></i></a></li>

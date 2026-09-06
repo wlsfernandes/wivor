@@ -1,6 +1,7 @@
 @extends('layouts.app-sidebar')
 
 @section('title', '#WiVor | Events')
+@section('workspace-title', 'Create event')
 
 @section('meta-description', 'This is a brief description of the blog page.')
 

@@ -1,36 +1,35 @@
-@extends('layouts.app')
+@extends('layouts.app-sidebar')
 
 @section('title', 'Photographer Application | WivorPhotos')
+@section('workspace-title', 'Application status')
 
 @section('content')
-    <section class="contact-section sec-pad">
-        <div class="auto-container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4 p-md-5">
-                            <p class="text-uppercase text-muted mb-2">Photographer application</p>
-                            <h1 class="h2 mb-3">{{ $statusLabel }}</h1>
+    <div class="py-2 py-md-4">
+        <div class="row justify-content-center">
+            <div class="col-xl-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <p class="text-uppercase text-muted small fw-semibold mb-2">Photographer application</p>
+                        <h1 class="h2 mb-3">{{ $statusLabel }}</h1>
 
-                            @if ($showVerificationResend)
-                                <div class="alert alert-warning" role="alert">
-                                    {{ $statusMessage }}
-                                </div>
-                                <form method="POST" action="{{ route('verification.resend') }}">
-                                    @csrf
-                                    <button class="theme-btn-one" type="submit"><span>Resend verification email</span></button>
-                                </form>
-                            @else
-                                <p>{{ $statusMessage }}</p>
-                            @endif
+                        @if ($showVerificationResend)
+                            <div class="alert alert-warning" role="alert">
+                                {{ $statusMessage }}
+                            </div>
+                            <form method="POST" action="{{ route('verification.resend') }}">
+                                @csrf
+                                <button class="btn btn-primary" type="submit">Resend verification email</button>
+                            </form>
+                        @else
+                            <p class="mb-0">{{ $statusMessage }}</p>
+                        @endif
 
-                            @if ($canOpenDashboard)
-                                <a class="theme-btn-one" href="{{ route('photographer.dashboard') }}"><span>Open dashboard</span></a>
-                            @endif
-                        </div>
+                        @if ($canOpenDashboard)
+                            <a class="btn btn-primary mt-3" href="{{ route('photographer.dashboard') }}">Open dashboard</a>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 @endsection

@@ -71,7 +71,10 @@ class PhotographerApprovalTest extends TestCase
         $pendingPhotographer->forceFill(['status' => Photographer::STATUS_APPROVED])->save();
         $this->actingAs($pendingUser)
             ->get(route('photographer.dashboard'))
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('id="photographer-sidebar"', false)
+            ->assertSee('data-photographer-sidebar-toggle', false)
+            ->assertSee('My events');
 
         $pendingUser->forceFill(['email_verified_at' => null])->save();
         $this->actingAs($pendingUser)
@@ -87,7 +90,10 @@ class PhotographerApprovalTest extends TestCase
             ->get(route('photographer.application-status'))
             ->assertOk()
             ->assertSee('Pending review')
-            ->assertSee('application is under review');
+            ->assertSee('application is under review')
+            ->assertSee('id="photographer-sidebar"', false)
+            ->assertSee('Application status')
+            ->assertDontSee('My events');
     }
 
     public function test_admin_can_approve_a_photographer_and_sends_welcome_email(): void

@@ -165,18 +165,46 @@
                     <div class="team-block-two">
                         <div class="inner-box">
                             <figure class="image-box">
-                                <a href="{{ route('junior')}}"><img src="assets/images/team/wilson-fernandes-junior.png"
-                                        alt=""></a>
+                                <a href="{{ route('junior') }}"><img src="assets/images/team/wilson-fernandes-junior.png"
+                                        alt="Wilson Fernandes Junior"></a>
                             </figure>
                             <div class="lower-content">
-                                <h3><a href="{{ route('junior')}}" style="color:#4a235a;"> Wilson Fernandes Junior</a></h3>
+                                <h3><a href="{{ route('junior') }}" style="color:#4a235a;"> Wilson Fernandes Junior</a></h3>
                                 <span class="designation">@lang('team.junior.p1')</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="col-lg-4 col-md-6 col-sm-12 team-block">
+                    <div class="team-block-two">
+                        <div class="inner-box">
+                            <figure class="image-box">
+                                <a href="{{ route('victor') }}"><img src="assets/images/team/victor.png"
+                                        alt="Victor"></a>
+                            </figure>
+                            <div class="lower-content">
+                                <h3><a href="{{ route('victor') }}" style="color:#4a235a;">Victor</a></h3>
+                                <span class="designation">@lang('team.victor.p1')</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="col-lg-4 col-md-6 col-sm-12 team-block">
+                    <div class="team-block-two">
+                        <div class="inner-box">
+                            <figure class="image-box">
+                                <a href="{{ route('carlos') }}"><img src="assets/images/team/carlos.png"
+                                        alt="Carlos"></a>
+                            </figure>
+                            <div class="lower-content">
+                                <h3><a href="{{ route('carlos') }}" style="color:#4a235a;">Carlos</a></h3>
+                                <span class="designation">@lang('team.carlos.p1')</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 

@@ -93,6 +93,8 @@ Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
 Route::get('/photobook', [HomeController::class, 'photobook'])->name('photobook');
 Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name('junior');
+Route::get('/victor', [HomeController::class, 'victor'])->name('victor');
+Route::get('/carlos', [HomeController::class, 'carlos'])->name('carlos');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/contact', [HomeController::class, 'contactUs'])->name('contact_us');
 Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('testimonials');

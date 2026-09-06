@@ -27,7 +27,7 @@
 
                             <ul class="info-list clearfix">
                                 <li><span>Email:</span> <a
-                                        href="mailto:wfernandes@wivorphotos.com">wfernandes@wivorphotos.com</a>
+                                        href="mailto:contact@wivor">contact@wivor</a>
                                 </li>
                             </ul>
                         </div>

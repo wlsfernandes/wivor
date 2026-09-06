@@ -1,6 +1,7 @@
 @extends('layouts.app-sidebar')
 
 @section('title', 'Upload photos — ' . $event->title)
+@section('workspace-title', 'Photo uploads')
 
 @section('content')
     <div class="container-fluid" id="photo-uploader"

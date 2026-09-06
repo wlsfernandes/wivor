@@ -19,7 +19,7 @@
                     <h3>@lang('messages.feel_free')</h3>
                     <p>@lang('messages.feel_free_p1')</p>
                     <ul class="social-links clearfix">
-                        <li><a href="https://www.facebook.com/groups/662799037578468" target="blank"><i
+                        <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="blank"><i
                                     class="fab fa-facebook-f"></i></a></li>
                         <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><i
                                     class="fab fa-instagram"></i></a></li>

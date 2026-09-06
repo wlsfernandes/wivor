@@ -17,12 +17,12 @@
             <figure class="footer-logo"><a href="index.php"><img src="{{ asset('assets/images/logo-3.png') }}"
                         alt="Wivor Logo"></a></figure>
             <ul class="social-links">
-                <li><a href="http://www.facebook.com/groups/somosaeth/" target="blank"><i
+                <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="blank"><i
                             class="fab fa-facebook-f"></i></a></li>
-                <li><a href="https://www.instagram.com/aeth_org/" target="blank"><i class="fab fa-instagram"></i></a>
+                <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><i class="fab fa-instagram"></i></a>
                 </li>
-                <li><a href="https://vimeo.com/aeth" target="blank"><i class="fab fa-vimeo"></i></a></li>
-                <li><a href="https://wa.me/14077546863" target="blank"><i class="fab fa-whatsapp"></i></a></li>
+                <li><a href="#"><i class="fab fa-vimeo"></i></a></li>
+                <li><a href="#"><i class="fab fa-whatsapp"></i></a></li>
             </ul>
         </div>
         <!--   <div class="widget-section">
@@ -68,7 +68,7 @@
                         <div class="widget-content">
                             <ul class="info-list clearfix">
                                 <li><i class="icon-17"></i>160 Clairemont Ave. Suite 300 Decatur, GA 30030</li>
-                                <li><i class="icon-18"></i><a href="mailto:jcgcenter@aeth.org">jcgcenter@aeth.org</a>
+                                <li><i class="icon-18"></i><a href="mailto:contact@wivor">contact@wivor</a>
                                 </li>
 
                             </ul>
@@ -79,8 +79,7 @@
         </div> -->
         <div class="footer-bottom centred">
             <div class="copyright">
-                <p><small>Copyright <span id="currentYear"></span> by <a href="https://devpromaster.com"
-                            target="_blank">devpromaster</a> All Right Reserved.</small>
+                <p><small>Copyright <span id="currentYear"></span> by <a href="#">devpromaster</a> All Right Reserved.</small>
                 </p>
             </div>
         </div>

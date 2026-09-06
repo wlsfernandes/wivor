@@ -1,6 +1,7 @@
 @extends('layouts.app-sidebar')
 
 @section('title', 'Photographer Dashboard | WivorPhotos')
+@section('workspace-title', 'Dashboard')
 
 @section('content')
     <div class="container-fluid">
@@ -18,7 +19,7 @@
             <div class="alert alert-danger" role="alert">{{ $errors->first('payouts') }}</div>
         @endif
 
-        <div class="card border-{{ $payoutSetup['color'] }} shadow-sm mb-4">
+        <div class="card border-{{ $payoutSetup['color'] }} shadow-sm mb-4" id="payout-setup">
             <div class="card-body">
                 <h2 class="h5">{{ $payoutSetup['title'] }}</h2>
                 <p>{{ $payoutSetup['message'] }}</p>

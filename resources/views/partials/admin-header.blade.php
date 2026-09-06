@@ -33,11 +33,11 @@
                     <div class="top-left">
                         <div class="social-links">
                             <ul class="clearfix">
-                                <li><a href="https://www.facebook.com/groups/662799037578468" target="blank"><span
+                                <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="blank"><span
                                             class="fab fa-facebook-square"></span></a></li>
-                                <li><a href="https://www.instagram.com/aeth_org/" target="blank"><span
+                                <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><span
                                             class="fab fa-instagram"></span></a></li>
-                                <li><a href="https://www.vimeo.com/aeth" target="blank"><span
+                                <li><a href="#"><span
                                             class="fab fa-vimeo"></span></a></li>
 
                             </ul>
@@ -65,8 +65,8 @@
                     <div class="top-right">
                         <ul class="info">
                             <li>
-                                <a href="mailto:info@WiVor.com" style="font-size: 12px;  color: #fff;">
-                                    info@wivor.com
+                                <a href="mailto:contact@wivor" style="font-size: 12px;  color: #fff;">
+                                    contact@wivor
                                 </a>
                         </ul>
                     </div>
@@ -238,14 +238,14 @@
                     <ul>
                         <li>Chicago 12, Melborne City, USA</li>
                         <li><a href="tel:+8801682648101">+88 01682648101</a></li>
-                        <li><a href="mailto:info@example.com">info@example.com</a></li>
+                        <li><a href="mailto:contact@wivor">contact@wivor</a></li>
                     </ul>
                 </div> -->
                 <div class="social-links">
                     <ul class="clearfix">
-                        <li><a href="https://www.facebook.com/groups/662799037578468" target="blank"><span
+                        <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="blank"><span
                                     class="fab fa-facebook-square"></span></a></li>
-                        <li><a href="https://www.instagram.com/aeth_org/" target="blank"><span
+                        <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><span
                                     class="fab fa-instagram"></span></a></li>
                     </ul>
                 </div>

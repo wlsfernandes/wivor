@@ -1,6 +1,7 @@
 @extends($layout)
 
 @section('title', 'Create Event')
+@section('workspace-title', 'Create event')
 
 @section('content')
     <div class="container py-4">
