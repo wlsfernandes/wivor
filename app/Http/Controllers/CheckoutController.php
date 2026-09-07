@@ -78,13 +78,20 @@ class CheckoutController extends Controller
         }
 
         $order->refresh();
+        $isPaid = $order->payment_status === Order::PAYMENT_PAID;
+        $confirmationAttempt = min(max((int) $request->query('confirmation_attempt', 0), 0), 10);
 
         return view('checkout.success', [
             'order' => $order,
-            'isPaid' => $order->payment_status === Order::PAYMENT_PAID,
+            'isPaid' => $isPaid,
             'confirmationUnavailable' => $confirmationUnavailable,
             'orderUrl' => route('orders.show', ['accessToken' => $order->access_token]),
-            'refreshUrl' => route('checkout.success', ['order' => $order->order_number, 'session_id' => $sessionId]),
+            'refreshUrl' => route('checkout.success', [
+                'order' => $order->order_number,
+                'session_id' => $sessionId,
+                'confirmation_attempt' => $confirmationAttempt + 1,
+            ]),
+            'shouldAutoRefresh' => ! $isPaid && $confirmationAttempt < 10,
             'layout' => 'layouts.app',
         ]);
     }

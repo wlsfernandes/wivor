@@ -61,7 +61,18 @@ class CheckoutTest extends TestCase
         $this->get(route('checkout.success', [
             'order' => $order->order_number,
             'session_id' => $order->stripe_checkout_session_id,
-        ]))->assertOk()->assertSee('Confirming your payment');
+        ]))
+            ->assertOk()
+            ->assertSee('Confirming your payment')
+            ->assertSee('window.setTimeout', false);
+
+        $this->get(route('checkout.success', [
+            'order' => $order->order_number,
+            'session_id' => $order->stripe_checkout_session_id,
+            'confirmation_attempt' => 10,
+        ]))
+            ->assertOk()
+            ->assertDontSee('window.setTimeout', false);
 
         $this->get(route('cart.show'))->assertSee('You have not selected any photos yet.');
     }

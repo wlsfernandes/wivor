@@ -25,3 +25,13 @@
         </div>
     </main>
 @endsection
+
+@if ($shouldAutoRefresh)
+    @section('scripts')
+        <script>
+            window.setTimeout(function () {
+                window.location.replace(@json($refreshUrl));
+            }, 2000);
+        </script>
+    @endsection
+@endif
