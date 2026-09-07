@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'banner_1_title' => 'Cada Momento Merece Ser Recordado',
+    'banner_1_subtitle' => 'Fotografía deportiva profesional, fácil de encontrar y tuya para conservar.',
+    'banner_2_title' => 'Fotógrafos Enfocados en el Momento',
+    'banner_2_subtitle' => 'WivorPhotos conecta tu trabajo con los atletas y las familias que lo valoran.',
+    'banner_3_title' => 'Encuentra Tu Evento. Encuentra Tus Fotos.',
+    'banner_3_subtitle' => 'Busca eventos deportivos y de fitness, elige tus favoritas y paga de forma segura.',
+    'banner_4_title' => 'Tu Esfuerzo. Tu Historia. Tu Foto.',
+    'banner_4_subtitle' => 'Revive los momentos que reflejan todo aquello por lo que trabajaste.',
     'program_resources' => 'Programas y Recursos',
     'certification_of_theological' => 'Certificación de Programas de Educación Teológica',
     'certification' => 'Certificación',

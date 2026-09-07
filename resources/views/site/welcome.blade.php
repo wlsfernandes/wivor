@@ -6,6 +6,40 @@
 
 @section('meta-keywords', 'WivorPhotos, sports photography, event photos, race photos, athlete photos, fitness photography, find event photos, buy sports photos, sports photographers')
 
+<style>
+    .home-banner-copy {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        z-index: 2;
+        width: min(90%, 900px);
+        padding: 0 15px;
+        text-align: center;
+        transform: translate(-50%, -50%);
+    }
+
+    .home-banner-copy h1 {
+        color: #fff;
+        font-size: clamp(2rem, 4.5vw, 4.5rem);
+        line-height: 1.1;
+        text-shadow: 0 3px 14px rgba(0, 0, 0, 0.75);
+    }
+
+    .home-banner-copy p {
+        max-width: 760px;
+        margin: 18px auto 0;
+        color: #fff;
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        line-height: 1.5;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+    }
+
+    .home-banner-copy.dark h1,
+    .home-banner-copy.dark p {
+        color: #1f1f1f;
+        text-shadow: 0 2px 12px rgba(255, 255, 255, 0.9);
+    }
+</style>
 
 <!-- Content here -->
 
@@ -22,41 +56,42 @@
             <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <img class="d-block w-100" src="assets/images/resource/banner_wivor.jpg" alt="Wivor">
-                        <div class="auto-container"
-                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; text-align: center;">
+                        <img class="d-block w-100" src="assets/images/resource/banner_wivor.jpg"
+                            alt="Sports photographer preparing to capture an event">
+                        <div class="home-banner-copy">
                             <div class="content-box">
-                                <h1 style="font-size:72px;color: #FFFFFF"><b>WiVor</b></h1>
+                                <h1><b>@lang('messages.banner_1_title')</b></h1>
+                                <p>@lang('messages.banner_1_subtitle')</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img class="d-block w-100" src="assets/images/resource/wivor_banner2.png" alt="Wivor">
-                        <div class="auto-container"
-                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; text-align: center;">
+                        <img class="d-block w-100" src="assets/images/resource/wivor_banner2.png"
+                            alt="Photographer carrying a camera and tripod">
+                        <div class="home-banner-copy dark">
                             <div class="content-box">
-                                <h1 style="font-size:48px;color:#000000"><b>WiVor</b></h1>
-
+                                <h1><b>@lang('messages.banner_2_title')</b></h1>
+                                <p>@lang('messages.banner_2_subtitle')</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img class="d-block w-100" src="assets/images/gallery/banner3.jpg" alt="Second slide">
-                        <div class="auto-container"
-                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; text-align: center;">
+                        <img class="d-block w-100" src="assets/images/gallery/banner3.jpg"
+                            alt="Baseball players gathered beside the field">
+                        <div class="home-banner-copy dark">
                             <div class="content-box">
-                                <h1 style="font-size:48px;color:#000000"><b>@lang('header.Wivor_values')</b></h1>
-                                <h5 style="font-size:24px;color:#000000">@lang('header.values_p1')</h5>
+                                <h1><b>@lang('messages.banner_3_title')</b></h1>
+                                <p>@lang('messages.banner_3_subtitle')</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img class="d-block w-100" src="assets/images/gallery/banner4.jpg" alt="Second slide">
-                        <div class="auto-container"
-                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; text-align: center;">
+                        <img class="d-block w-100" src="assets/images/gallery/banner4.jpg"
+                            alt="Surfer riding a wave">
+                        <div class="home-banner-copy dark">
                             <div class="content-box">
-                                <h1 style="font-size:48px;color:#000000"><b>@lang('header.Wivor_values')</b></h1>
-                                <h5 style="font-size:24px;color:#000000">@lang('header.values_p1')</h5>
+                                <h1><b>@lang('messages.banner_4_title')</b></h1>
+                                <p>@lang('messages.banner_4_subtitle')</p>
                             </div>
                         </div>
                     </div>
