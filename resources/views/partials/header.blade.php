@@ -122,9 +122,6 @@
                                     <ul>
                                         <li><a href="{{ route('about_us') }}">@lang('header.about_us')</a></li>
                                         <li><a href="{{ route('our_team') }}">@lang('header.our_team')</a></li>
-                                        <li><a href="{{ route('testimonials') }}">@lang('messages.testimonials')</a>
-                                        </li>
-                                        <li><a href="{{ route('contact_us') }}">@lang('header.contact_us')</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown">
@@ -139,8 +136,7 @@
                                     <a href="{{ route('events.listEvents') }}">@lang('header.events')</a>
                                 </li>
                                 <li class="dropdown">
-                                    <a href="{{ route('photographers') }}"
-                                        class="dropdown-title">@lang('header.photographers')</a>
+                                    <a href="{{ route('photographers') }}" class="dropdown-title">@lang('header.photographers')</a>
                                     <ul>
                                         <li><a href="{{ route('photographers') }}#how-it-works">How it works</a></li>
                                         <li><a href="{{ route('photographers') }}#register_section">Apply as a
