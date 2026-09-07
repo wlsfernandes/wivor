@@ -77,6 +77,6 @@ return [
     'annual_fund2' => 'Por trinta anos, a Wivor tem trabalhado para capacitar líderes hispânicos e proporcionar caminhos para a educação teológica na edificação e fortalecimento da Igreja Hispânica. Oferecer educação teológica é nossa missão. Sua contribuição nos permitirá alcançar isso por meio de nossas operações diárias e iniciativas de desenvolvimento.',
     'bookstore' => 'Livraria Wivor',
     'bookstore_p1' => 'Seja você um leitor casual, um estudioso dedicado ou alguém em busca de inspiração, nossa coleção cuidadosamente selecionada de livros certamente reacenderá sua fé!',
-    'important_partners' => 'Parcerias importantes'
+    'important_partners' => 'Parcerias importantes',
 
 ];

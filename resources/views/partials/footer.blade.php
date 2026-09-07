@@ -14,8 +14,8 @@
 <footer class="main-footer">
     <div class="auto-container">
         <div class="footer-top">
-            <figure class="footer-logo"><a href="{{ url('/') }}"><img src="{{ asset('assets/images/logo/wivor_white.png') }}"
-                        alt="Wivor Logo"></a></figure>
+            <figure class="footer-logo"><a href="{{ url('/') }}"><img
+                        src="{{ asset('assets/images/logo/wivor_white.png') }}" alt="Wivor Logo"></a></figure>
             <ul class="social-links">
                 <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="_blank"
                         rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
@@ -67,7 +67,7 @@
                         <div class="widget-content">
                             <ul class="info-list clearfix">
                                 <li><i class="icon-17"></i>160 Clairemont Ave. Suite 300 Decatur, GA 30030</li>
-                                <li><i class="icon-18"></i><a href="mailto:contact@wivor">contact@wivor</a>
+                                <li><i class="icon-18"></i><a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a>
                                 </li>
 
                             </ul>

@@ -52,5 +52,5 @@ return [
     'values_p3' => 'Accessibility: We make it easy to access high-quality photos of special sports moments.',
     'values_p4' => '<b>Recognition of Photography:</b> We support and create new opportunities for photographers.',
     'values_p5' => '<b>User Experience:</b> We prioritize an intuitive and efficient platform for both clients and professionals.',
-
+   'our_team' => 'Our Team',
 ];

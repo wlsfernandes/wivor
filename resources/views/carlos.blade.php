@@ -2,9 +2,11 @@
 
 @section('title', 'Carlos | Co-Founder of Wivor')
 
-@section('meta-description', 'Meet Carlos, co-founder of Wivor, engineer, business strategist, athlete, and advocate for professional sports photography.')
+@section('meta-description', 'Meet Carlos, co-founder of Wivor, engineer, business strategist, athlete, and advocate for
+    professional sports photography.')
 
-@section('meta-keywords', 'Carlos, Wivor co-founder, WivorPhotos, sports photography, mechanical engineer, Brazilian Jiu-Jitsu')
+@section('meta-keywords', 'Carlos, Wivor co-founder, WivorPhotos, sports photography, mechanical engineer, Brazilian
+    Jiu-Jitsu')
 
 @section('content')
     <section class="team-details">
@@ -26,7 +28,8 @@
                             <p>@lang('team.carlos.p5')</p>
 
                             <ul class="info-list clearfix">
-                                <li><span>Email:</span> <a href="mailto:contact@wivor">contact@wivor</a></li>
+                                <li><span>Email:</span> <a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a>
+                                </li>
                             </ul>
                         </div>
                     </div>

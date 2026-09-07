@@ -80,6 +80,7 @@
             </div>
         </div>
     </section>
+    @include('partials.customer-how-it-works')
     @include('partials.event', ['events' => $events])
     <section class="about-style-two pt_120">
         <div class="auto-container">
@@ -141,6 +142,7 @@
         </div>
     </section>
 
+   
 
     <section class=" cta-style-two" style="margin-top:48px;">
         <div class="pattern-layer"></div>

@@ -37,8 +37,7 @@
                                         class="fab fa-facebook-square"></span></a></li>
                             <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><span
                                         class="fab fa-instagram"></span></a></li>
-                            <li><a href="#"><span
-                                        class="fab fa-vimeo"></span></a></li>
+                            <li><a href="#"><span class="fab fa-vimeo"></span></a></li>
 
                         </ul>
                     </div>
@@ -65,8 +64,8 @@
                 <div class="top-right">
                     <ul class="info">
                         <li>
-                            <a href="mailto:contact@wivor" style="font-size: 12px;  color: #fff;">
-                                contact@wivor
+                            <a href="mailto:contact@wivorphotos.com" style="font-size: 12px;  color: #fff;">
+                                contact@wivorphotos.com
                             </a>
                     </ul>
                 </div>
@@ -129,25 +128,30 @@
                                     </ul>
                                 </li>
                                 <li class="dropdown">
-                                    <a href="#" class="dropdown-title"
-                                        style="pointer-events: none;">@lang('header.faq')</a>
+                                    <a href="{{ route('faq') }}" class="dropdown-title">@lang('header.faq')</a>
                                     <ul>
-                                        <li><a href="#">@lang('header.faq')</a></li>
-
+                                        <li><a href="{{ route('faq') }}#customers">Customer questions</a></li>
+                                        <li><a href="{{ route('faq') }}#orders">Payments and downloads</a></li>
+                                        <li><a href="{{ route('faq') }}#photographers">Photographer questions</a></li>
                                     </ul>
                                 </li>
                                 <li>
-                                    <a href="{{ route('events.listEvents') }}"><i class="bi bi-calendar"></i>
-                                        @lang('header.events')</a>
+                                    <a href="{{ route('events.listEvents') }}">@lang('header.events')</a>
                                 </li>
-                                <li>
-                                    <a href="/photographers"><i class="bi bi-camera"></i>
-                                        @lang('header.photographers')</a>
+                                <li class="dropdown">
+                                    <a href="{{ route('photographers') }}"
+                                        class="dropdown-title">@lang('header.photographers')</a>
+                                    <ul>
+                                        <li><a href="{{ route('photographers') }}#how-it-works">How it works</a></li>
+                                        <li><a href="{{ route('photographers') }}#register_section">Apply as a
+                                                photographer</a>
+                                        </li>
+                                        <li><a href="{{ route('login') }}">Photographer sign in</a></li>
+                                    </ul>
                                 </li>
 
                                 <li>
-                                    <a href="/list-events"><i class="bi bi-download"></i>
-                                        @lang('header.download_photos')</a>
+                                    <a href="/list-events">@lang('header.download_photos')</a>
                                 </li>
 
                             </ul>
@@ -160,7 +164,8 @@
                         <i class="icon-1"></i>
                     </li>
                     <li class="cart-box">
-                        <a href="{{ route('cart.show') }}" aria-label="View selected photos"><i class="icon-23" aria-hidden="true"></i></a>
+                        <a href="{{ route('cart.show') }}" aria-label="View selected photos"><i class="icon-23"
+                                aria-hidden="true"></i></a>
                     </li>
 
                     <a href="/login" class="btn btn-primary"
@@ -225,7 +230,7 @@
                     <ul>
                         <li>Chicago 12, Melborne City, USA</li>
                         <li><a href="tel:+8801682648101">+88 01682648101</a></li>
-                        <li><a href="mailto:contact@wivor">contact@wivor</a></li>
+                        <li><a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a></li>
                     </ul>
                 </div> -->
             <div class="social-links">

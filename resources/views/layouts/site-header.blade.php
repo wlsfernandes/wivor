@@ -40,7 +40,7 @@
             <div class="row">
                 <div class="col-lg-8 align-self-center">
                     <ul>
-                        <li><i class="fa fa-envelope"></i> contact@wivor</li>
+                        <li><i class="fa fa-envelope"></i> contact@wivorphotos.com</li>
                         <li><i class="fa fa-map-marker-alt"></i> 6391 Elgin St. Celina, 10299</li>
                     </ul>
                 </div>
@@ -105,7 +105,7 @@
                                         <li><a href="index-4.html">Home 04</a></li>
                                         <li><a href="index-5.html">Home 05</a></li>
                                     </ul>
-                                </div>  
+                                </div>
                                 <div class="col-lg-3">
                                     <ul>
                                         <li><a href="course.html">Course 01</a></li>
@@ -129,7 +129,7 @@
                                         <li><a href="blog-3.html">Blog 03</a></li>
                                         <li><a href="blog-details.html">Blog Details</a></li>
                                     </ul>
-                                </div>  
+                                </div>
                             </div>
                         </div>
                     </li>

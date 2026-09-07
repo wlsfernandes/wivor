@@ -2,12 +2,14 @@
 
 @section('title', '#somosAETH | Our team')
 
-@section('meta-description', 'Meet Wilson Fernandes Junior and learn about his role in building WivorPhotos for sports photographers, athletes, and event communities.')
+@section('meta-description', 'Meet Wilson Fernandes Junior and learn about his role in building WivorPhotos for sports
+    photographers, athletes, and event communities.')
 
-@section('meta-keywords', 'Wilson Fernandes Junior, WivorPhotos, sports photography leadership, event photography platform, photographer marketplace')
+@section('meta-keywords', 'Wilson Fernandes Junior, WivorPhotos, sports photography leadership, event photography
+    platform, photographer marketplace')
 
 
-<!-- Content here -->
+    <!-- Content here -->
 
 @section('content')
     <section class="team-details">
@@ -15,7 +17,8 @@
             <div class="team-details-content">
                 <div class="row clearfix">
                     <div class="col-lg-3 col-md-12 col-sm-12 image-column">
-                        <figure class="image-box"><img src="assets/images/team/wilson-fernandes-junior.png" alt=""></figure>
+                        <figure class="image-box"><img src="assets/images/team/wilson-fernandes-junior.png" alt="">
+                        </figure>
                     </div>
                     <div class="col-lg-9 col-md-12 col-sm-12 content-column">
                         <div class="content-box">
@@ -26,8 +29,7 @@
                             <p>@lang('team.junior.p4')</p>
 
                             <ul class="info-list clearfix">
-                                <li><span>Email:</span> <a
-                                        href="mailto:contact@wivor">contact@wivor</a>
+                                <li><span>Email:</span> <a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a>
                                 </li>
                             </ul>
                         </div>

@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Apply as a Photographer | WivorPhotos')
+@section('title', 'How WivorPhotos Works for Photographers | WivorPhotos')
 
-@section('meta-description', 'Apply to become a WivorPhotos photographer, cover sports and fitness events, showcase your work, and sell photos directly to athletes.')
+@section('meta-description', 'Learn how WivorPhotos helps photographers cover events, publish sports photos, track sales, and apply to join the platform.')
 @section('meta-keywords', 'become a sports photographer, sell sports photos, event photography jobs, photographer marketplace, fitness photography, WivorPhotos photographers')
 
 @section('content')
@@ -13,10 +13,12 @@
             <div class="inner-box">
                 <h1>Photograph sports with WivorPhotos</h1>
                 <p>Apply to cover events and sell the moments you capture.</p>
-                <a href="#register_section" class="theme-btn-one"><span>Start your application</span></a>
+                <a href="#how-it-works" class="theme-btn-one"><span>See how it works</span></a>
             </div>
         </div>
     </section>
+
+    @include('photographers.how-it-works')
 
     @include('partials.cards')
 

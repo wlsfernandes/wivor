@@ -2,7 +2,8 @@
 
 @section('title', 'Victor | Co-Founder of Wivor')
 
-@section('meta-description', 'Meet Victor, co-founder of Wivor, CPA, sports enthusiast, and advocate for professional sports photography.')
+@section('meta-description', 'Meet Victor, co-founder of Wivor, CPA, sports enthusiast, and advocate for professional
+    sports photography.')
 
 @section('meta-keywords', 'Victor, Wivor co-founder, WivorPhotos, sports photography, CPA, Brazilian Jiu-Jitsu')
 
@@ -26,7 +27,8 @@
                             <p>@lang('team.victor.p5')</p>
 
                             <ul class="info-list clearfix">
-                                <li><span>Email:</span> <a href="mailto:contact@wivor">contact@wivor</a></li>
+                                <li><span>Email:</span> <a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a>
+                                </li>
                             </ul>
                         </div>
                     </div>

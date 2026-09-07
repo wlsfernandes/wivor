@@ -90,6 +90,7 @@ Route::get('/sitemaps/photos-{page}.xml', [SitemapController::class, 'photos'])-
 
 
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
+Route::view('/faq', 'faq')->name('faq');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
 Route::get('/photobook', [HomeController::class, 'photobook'])->name('photobook');
 Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name('junior');

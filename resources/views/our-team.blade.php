@@ -2,144 +2,167 @@
 
 @section('title', '#somosAETH | Our Team')
 
-@section('meta-description', 'Meet the WivorPhotos team building a trusted marketplace that connects sports photographers, athletes, and event communities.')
+@section('meta-description',
+    'Meet the WivorPhotos team building a trusted marketplace that connects sports
+    photographers, athletes, and event communities.')
 
-@section('meta-keywords', 'WivorPhotos team, sports photography team, event photography marketplace, photographer platform, athlete photo marketplace')
+@section('meta-keywords',
+    'WivorPhotos team, sports photography team, event photography marketplace, photographer
+    platform, athlete photo marketplace')
 
-<style>
-    /* FontAwesome for working BootSnippet :> */
+    <style>
+        /* FontAwesome for working BootSnippet :> */
 
-    @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+        @import url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 
-    #team {
-        background: #eee !important;
-    }
+        #team {
+            background: #eee !important;
+        }
 
-    .btn-primary:hover,
-    .btn-primary:focus {
-        background-color: #4a235a;
-        border-color: #4a235a;
-        box-shadow: none;
-        outline: none;
-    }
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #4a235a;
+            border-color: #4a235a;
+            box-shadow: none;
+            outline: none;
+        }
 
-    .btn-primary {
-        color: #fff;
-        background-color: #4a235a;
-        border-color: #4a235a;
-    }
+        .btn-primary {
+            color: #fff;
+            background-color: #4a235a;
+            border-color: #4a235a;
+        }
 
-    section {
-        padding: 60px 0;
-    }
+        section {
+            padding: 60px 0;
+        }
 
-    section .section-title {
-        text-align: center;
-        color: #4a235a;
-        margin-bottom: 50px;
-        text-transform: uppercase;
-    }
+        section .section-title {
+            text-align: center;
+            color: #4a235a;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+        }
 
-    #team .card {
-        border: none;
-        background: #ffffff;
-    }
+        #team .card {
+            border: none;
+            background: #ffffff;
+        }
 
-    .image-flip:hover .backside,
-    .image-flip.hover .backside {
-        -webkit-transform: rotateY(0deg);
-        -moz-transform: rotateY(0deg);
-        -o-transform: rotateY(0deg);
-        -ms-transform: rotateY(0deg);
-        transform: rotateY(0deg);
-        border-radius: .25rem;
-    }
+        .image-flip:hover .backside,
+        .image-flip.hover .backside {
+            -webkit-transform: rotateY(0deg);
+            -moz-transform: rotateY(0deg);
+            -o-transform: rotateY(0deg);
+            -ms-transform: rotateY(0deg);
+            transform: rotateY(0deg);
+            border-radius: .25rem;
+        }
 
-    .image-flip:hover .frontside,
-    .image-flip.hover .frontside {
-        -webkit-transform: rotateY(180deg);
-        -moz-transform: rotateY(180deg);
-        -o-transform: rotateY(180deg);
-        transform: rotateY(180deg);
-    }
+        .image-flip:hover .frontside,
+        .image-flip.hover .frontside {
+            -webkit-transform: rotateY(180deg);
+            -moz-transform: rotateY(180deg);
+            -o-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+        }
 
-    .mainflip {
-        -webkit-transition: 1s;
-        -webkit-transform-style: preserve-3d;
-        -ms-transition: 1s;
-        -moz-transition: 1s;
-        -moz-transform: perspective(1000px);
-        -moz-transform-style: preserve-3d;
-        -ms-transform-style: preserve-3d;
-        transition: 1s;
-        transform-style: preserve-3d;
-        position: relative;
-    }
+        .mainflip {
+            -webkit-transition: 1s;
+            -webkit-transform-style: preserve-3d;
+            -ms-transition: 1s;
+            -moz-transition: 1s;
+            -moz-transform: perspective(1000px);
+            -moz-transform-style: preserve-3d;
+            -ms-transform-style: preserve-3d;
+            transition: 1s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
 
-    .frontside {
-        position: relative;
-        -webkit-transform: rotateY(0deg);
-        -ms-transform: rotateY(0deg);
-        z-index: 2;
-        margin-bottom: 30px;
-    }
+        .frontside {
+            position: relative;
+            -webkit-transform: rotateY(0deg);
+            -ms-transform: rotateY(0deg);
+            z-index: 2;
+            margin-bottom: 30px;
+        }
 
-    .backside {
-        position: absolute;
-        top: 0;
-        left: 0;
-        background: white;
-        -webkit-transform: rotateY(-180deg);
-        -moz-transform: rotateY(-180deg);
-        -o-transform: rotateY(-180deg);
-        -ms-transform: rotateY(-180deg);
-        transform: rotateY(-180deg);
-        -webkit-box-shadow: 5px 7px 9px -4px rgb(158, 158, 158);
-        -moz-box-shadow: 5px 7px 9px -4px rgb(158, 158, 158);
-        box-shadow: 5px 7px 9px -4px rgb(158, 158, 158);
-    }
+        .backside {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: white;
+            -webkit-transform: rotateY(-180deg);
+            -moz-transform: rotateY(-180deg);
+            -o-transform: rotateY(-180deg);
+            -ms-transform: rotateY(-180deg);
+            transform: rotateY(-180deg);
+            -webkit-box-shadow: 5px 7px 9px -4px rgb(158, 158, 158);
+            -moz-box-shadow: 5px 7px 9px -4px rgb(158, 158, 158);
+            box-shadow: 5px 7px 9px -4px rgb(158, 158, 158);
+        }
 
-    .frontside,
-    .backside {
-        -webkit-backface-visibility: hidden;
-        -moz-backface-visibility: hidden;
-        -ms-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-transition: 1s;
-        -webkit-transform-style: preserve-3d;
-        -moz-transition: 1s;
-        -moz-transform-style: preserve-3d;
-        -o-transition: 1s;
-        -o-transform-style: preserve-3d;
-        -ms-transition: 1s;
-        -ms-transform-style: preserve-3d;
-        transition: 1s;
-        transform-style: preserve-3d;
-    }
+        .frontside,
+        .backside {
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+            -ms-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-transition: 1s;
+            -webkit-transform-style: preserve-3d;
+            -moz-transition: 1s;
+            -moz-transform-style: preserve-3d;
+            -o-transition: 1s;
+            -o-transform-style: preserve-3d;
+            -ms-transition: 1s;
+            -ms-transform-style: preserve-3d;
+            transition: 1s;
+            transform-style: preserve-3d;
+        }
 
-    .frontside .card,
-    .backside .card {
-        min-height: 312px;
-    }
+        .frontside .card,
+        .backside .card {
+            min-height: 312px;
+        }
 
-    .backside .card a {
-        font-size: 18px;
-        color: 330033 !important;
-    }
+        .backside .card a {
+            font-size: 18px;
+            color: 330033 !important;
+        }
 
-    .frontside .card .card-title,
-    .backside .card .card-title {
-        color: 330033 !important;
-    }
+        .frontside .card .card-title,
+        .backside .card .card-title {
+            color: 330033 !important;
+        }
 
-    .frontside .card .card-body img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-    }
-</style>
+        .frontside .card .card-body img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+        }
 
-<!-- Content here -->
+        .team-page-section .team-photo {
+            aspect-ratio: 1 / 1;
+            padding: 12px;
+            background-color: #ff6700;
+        }
+
+        .team-page-section .team-photo a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .team-page-section .team-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+    </style>
+
+    <!-- Content here -->
 
 @section('content')
     <section class="page-title centred">
@@ -164,13 +187,13 @@
                 <div class="col-lg-4 col-md-6 col-sm-12 team-block">
                     <div class="team-block-two">
                         <div class="inner-box">
-                            <figure class="image-box">
-                                <a href="{{ route('junior') }}"><img src="assets/images/team/wilson-fernandes-junior.png"
-                                        alt="Wilson Fernandes Junior"></a>
+                            <figure class="image-box team-photo">
+                                <a href="{{ route('carlos') }}"><img src="{{ asset('assets/images/team/carlos.png') }}"
+                                        alt="Carlos"></a>
                             </figure>
                             <div class="lower-content">
-                                <h3><a href="{{ route('junior') }}" style="color:#4a235a;"> Wilson Fernandes Junior</a></h3>
-                                <span class="designation">@lang('team.junior.p1')</span>
+                                <h3><a href="{{ route('carlos') }}" style="color:#4a235a;">Carlos</a></h3>
+                                <span class="designation">@lang('team.carlos.p1')</span>
                             </div>
                         </div>
                     </div>
@@ -179,8 +202,8 @@
                 <div class="col-lg-4 col-md-6 col-sm-12 team-block">
                     <div class="team-block-two">
                         <div class="inner-box">
-                            <figure class="image-box">
-                                <a href="{{ route('victor') }}"><img src="assets/images/team/victor.png"
+                            <figure class="image-box team-photo">
+                                <a href="{{ route('victor') }}"><img src="{{ asset('assets/images/team/victor.png') }}"
                                         alt="Victor"></a>
                             </figure>
                             <div class="lower-content">
@@ -194,13 +217,15 @@
                 <div class="col-lg-4 col-md-6 col-sm-12 team-block">
                     <div class="team-block-two">
                         <div class="inner-box">
-                            <figure class="image-box">
-                                <a href="{{ route('carlos') }}"><img src="assets/images/team/carlos.png"
-                                        alt="Carlos"></a>
+                            <figure class="image-box team-photo">
+                                <a href="{{ route('junior') }}"><img
+                                        src="{{ asset('assets/images/team/wilson-fernandes-junior.png') }}"
+                                        alt="Wilson Fernandes Junior"></a>
                             </figure>
                             <div class="lower-content">
-                                <h3><a href="{{ route('carlos') }}" style="color:#4a235a;">Carlos</a></h3>
-                                <span class="designation">@lang('team.carlos.p1')</span>
+                                <h3><a href="{{ route('junior') }}" style="color:#4a235a;">Wilson Fernandes Junior</a>
+                                </h3>
+                                <span class="designation">@lang('team.junior.p1')</span>
                             </div>
                         </div>
                     </div>
