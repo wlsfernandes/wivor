@@ -23,6 +23,7 @@
             <div class="card-body">
                 <h2 class="h5">{{ $payoutSetup['title'] }}</h2>
                 <p>{{ $payoutSetup['message'] }}</p>
+                <p class="small text-muted">During the MVP, payout setup is optional and does not prevent photo publishing or customer sales.</p>
                 <form method="POST" action="{{ route($payoutSetup['route']) }}">
                     @csrf
                     <button class="btn btn-{{ $payoutSetup['color'] }}" type="submit">{{ $payoutSetup['action'] }}</button>

@@ -6,8 +6,9 @@ use App\Models\Photo;
 use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 /** Handles the guest photo-selection cart used before Stripe checkout. */
 class CartController extends Controller
@@ -17,12 +18,17 @@ class CartController extends Controller
     }
 
     /** Display the current selection and subtotal. */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $checkoutToken = (string) Str::uuid();
+        $request->session()->put('wivor_checkout_token', $checkoutToken);
+
         return view('cart.show', [
             'event' => $this->cart->event(),
             'photos' => $this->cart->photos(),
-            'subtotalCents' => $this->cart->subtotalCents(),
+            'photoCountLabel' => $this->photoCountLabel($this->cart->count()),
+            'subtotalLabel' => $this->moneyLabel($this->cart->subtotalCents()),
+            'checkoutToken' => $checkoutToken,
             'layout' => 'layouts.app',
         ]);
     }
@@ -59,5 +65,17 @@ class CartController extends Controller
         $this->cart->clear();
 
         return back()->with('success', 'Your selection was cleared.');
+    }
+
+    /** Return a display-ready photo count. */
+    private function photoCountLabel(int $count): string
+    {
+        return $count.' '.($count === 1 ? 'photo' : 'photos').' selected';
+    }
+
+    /** Return a display-ready US dollar amount. */
+    private function moneyLabel(int $amountCents): string
+    {
+        return '$'.number_format($amountCents / 100, 2);
     }
 }

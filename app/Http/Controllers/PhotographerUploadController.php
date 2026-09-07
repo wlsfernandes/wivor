@@ -48,7 +48,6 @@ class PhotographerUploadController extends Controller
             'acceptedCount' => $acceptedCount,
             'remainingCount' => max(0, config('photo_uploads.max_event_photos') - $acceptedCount),
             'deadline' => $deadline, 'uploadOpen' => $deadline->isFuture(),
-            'payoutSetupReady' => $photographer->isReadyForPayouts(),
             'galleryStatus' => $galleryStatus,
             'scheduledDeletionCount' => Photo::where('event_id', $event->id)->where('photographer_id', $photographer->id)
                 ->where('status', Photo::STATUS_PUBLISHED)->where('sale_count', 0)->count(),
@@ -158,9 +157,6 @@ class PhotographerUploadController extends Controller
     {
         $this->access->assignment($request->user(), $event);
         $photographer = $request->user()->photographer;
-        if (! $photographer->isReadyForPayouts()) {
-            return back()->withErrors(['payouts' => 'Complete Payout Setup to publish and sell these photos.']);
-        }
 
         $validated = $request->validate(['photo_ids' => ['nullable', 'array'], 'photo_ids.*' => ['uuid']]);
         $query = Photo::where('event_id', $event->id)->where('photographer_id', $photographer->id)

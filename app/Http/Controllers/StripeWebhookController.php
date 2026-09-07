@@ -6,14 +6,12 @@ use App\Mail\OrderReceiptMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Photo;
-use App\Models\Photographer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Stripe\Exception\SignatureVerificationException;
-use Stripe\StripeClient;
 use Stripe\Webhook;
 use Throwable;
 use UnexpectedValueException;
@@ -21,11 +19,7 @@ use UnexpectedValueException;
 /** Receives verified Stripe payment notifications and fulfills paid orders exactly once. */
 class StripeWebhookController extends Controller
 {
-    public function __construct(private readonly StripeClient $stripe)
-    {
-    }
-
-    /** Verify the Stripe signature and fulfill the checkout.session.completed event. */
+    /** Verify the Stripe signature and process only the payment events required by the MVP. */
     public function handle(Request $request): Response
     {
         try {
@@ -40,18 +34,24 @@ class StripeWebhookController extends Controller
             return response('Invalid signature.', 400);
         }
 
-        if ($event->type === 'checkout.session.completed') {
-            try {
-                $this->fulfill($event->data->object);
-            } catch (Throwable $exception) {
-                Log::error('Stripe webhook fulfillment failed.', [
-                    'event' => 'stripe.webhook.fulfill',
-                    'stripe_session_id' => $event->data->object->id ?? null,
-                    'exception' => $exception->getMessage(),
-                ]);
+        try {
+            match ($event->type) {
+                'checkout.session.completed' => $this->fulfill($event->data->object),
+                'checkout.session.expired' => $this->expire($event->data->object),
+                'charge.refunded' => $this->refund($event->data->object),
+                'charge.dispute.created' => $this->dispute($event->data->object),
+                default => null,
+            };
+        } catch (Throwable $exception) {
+            Log::error('Stripe webhook processing failed.', [
+                'event' => 'stripe.webhook.process',
+                'stripe_event_id' => $event->id ?? null,
+                'stripe_event_type' => $event->type ?? null,
+                'stripe_object_id' => $event->data->object->id ?? null,
+                'exception' => $exception->getMessage(),
+            ]);
 
-                return response('Fulfillment failed.', 500);
-            }
+            return response('Webhook processing failed.', 500);
         }
 
         return response('OK', 200);
@@ -67,7 +67,13 @@ class StripeWebhookController extends Controller
         $order = DB::transaction(function () use ($session): ?Order {
             $order = Order::where('stripe_checkout_session_id', $session->id)->lockForUpdate()->first();
 
-            if (! $order || $order->payment_status !== Order::PAYMENT_PENDING) {
+            if (! $order) {
+                return null;
+            }
+
+            $this->assertSessionMatchesOrder($session, $order);
+
+            if ($order->payment_status !== Order::PAYMENT_PENDING) {
                 return null;
             }
 
@@ -97,49 +103,83 @@ class StripeWebhookController extends Controller
             return $order;
         });
 
-        // Only the call that actually transitioned the order sends the receipt, so retried webhooks never resend it.
+        // Only the call that transitioned the order sends the receipt, so duplicate events do not resend it.
         if ($order) {
             $this->sendReceipt($order);
-            $this->transferPhotographerEarnings($order);
         }
     }
 
-    /**
-     * Pay each contributing photographer their allocation as a separate Stripe Transfer.
-     *
-     * One order can include multiple photographers, so funds are collected into the platform
-     * account at Checkout and split here rather than via a single destination charge.
-     */
-    private function transferPhotographerEarnings(Order $order): void
+    /** Mark an unpaid order expired when its Stripe Checkout Session expires. */
+    private function expire(object $session): void
     {
-        $itemsByPhotographer = $order->items()->whereNull('stripe_transfer_id')->get()->groupBy('photographer_id');
-        if ($itemsByPhotographer->isEmpty()) {
+        DB::transaction(function () use ($session): void {
+            $order = Order::where('stripe_checkout_session_id', $session->id)->lockForUpdate()->first();
+
+            if (! $order || $order->payment_status !== Order::PAYMENT_PENDING) {
+                return;
+            }
+
+            $order->update([
+                'payment_status' => Order::PAYMENT_CANCELLED,
+                'fulfillment_status' => Order::FULFILLMENT_EXPIRED,
+                'cancelled_at' => now(),
+            ]);
+
+            $order->items()->update(['download_status' => OrderItem::DOWNLOAD_EXPIRED]);
+        });
+    }
+
+    /** Revoke future download access after a full Stripe refund. */
+    private function refund(object $charge): void
+    {
+        if (($charge->refunded ?? false) !== true || blank($charge->payment_intent ?? null)) {
             return;
         }
 
-        $photographers = Photographer::whereIn('id', $itemsByPhotographer->keys())->get()->keyBy('id');
+        $this->revokeOrder((string) $charge->payment_intent, Order::PAYMENT_REFUNDED, 'refunded_at');
+    }
 
-        foreach ($itemsByPhotographer as $photographerId => $items) {
-            $photographer = $photographers->get($photographerId);
-            $amountCents = $items->sum('photographer_allocation_cents');
+    /** Revoke future download access when Stripe reports a payment dispute. */
+    private function dispute(object $dispute): void
+    {
+        if (blank($dispute->payment_intent ?? null)) {
+            return;
+        }
 
-            try {
-                $transfer = $this->stripe->transfers->create([
-                    'amount' => $amountCents,
-                    'currency' => $order->currency,
-                    'destination' => $photographer->stripe_account_id,
-                    'transfer_group' => $order->order_number,
-                ]);
+        $this->revokeOrder((string) $dispute->payment_intent, Order::PAYMENT_DISPUTED, 'disputed_at');
+    }
 
-                OrderItem::whereIn('id', $items->pluck('id'))->update(['stripe_transfer_id' => $transfer->id]);
-            } catch (Throwable $exception) {
-                Log::error('Photographer transfer failed.', [
-                    'event' => 'stripe.webhook.transfer',
-                    'order_id' => $order->id,
-                    'photographer_id' => $photographerId,
-                    'exception' => $exception->getMessage(),
-                ]);
+    /** Apply a terminal payment status and revoke every remaining download entitlement. */
+    private function revokeOrder(string $paymentIntentId, string $paymentStatus, string $timestampColumn): void
+    {
+        DB::transaction(function () use ($paymentIntentId, $paymentStatus, $timestampColumn): void {
+            $order = Order::where('stripe_payment_intent_id', $paymentIntentId)->lockForUpdate()->first();
+
+            if (! $order || $order->payment_status !== Order::PAYMENT_PAID) {
+                return;
             }
+
+            $order->update([
+                'payment_status' => $paymentStatus,
+                'fulfillment_status' => Order::FULFILLMENT_REVOKED,
+                $timestampColumn => now(),
+            ]);
+
+            $order->items()->update(['download_status' => OrderItem::DOWNLOAD_REVOKED]);
+        });
+    }
+
+    /** Confirm that Stripe's immutable checkout values match the frozen local order. */
+    private function assertSessionMatchesOrder(object $session, Order $order): void
+    {
+        $metadataOrderId = (string) ($session->metadata->wivor_order_id ?? '');
+        $metadataOrderNumber = (string) ($session->metadata->wivor_order_number ?? '');
+
+        if ((string) $order->id !== $metadataOrderId
+            || $order->order_number !== $metadataOrderNumber
+            || $order->currency !== ($session->currency ?? null)
+            || $order->total_cents !== ($session->amount_total ?? null)) {
+            throw new UnexpectedValueException('Stripe Checkout Session does not match the local order.');
         }
     }
 

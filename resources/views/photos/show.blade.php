@@ -54,6 +54,23 @@
                     </div>
 
                     <aside class="col-lg-4">
+                        @if ($isSellable)
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h2 class="h5">Purchase this photo</h2>
+                                    <p class="h4">{{ $priceLabel }}</p>
+                                    @if ($isInCart)
+                                        <a class="btn btn-primary w-100" href="{{ route('cart.show') }}">View selected photos</a>
+                                    @else
+                                        <form method="POST" action="{{ route('cart.items.store') }}">
+                                            @csrf
+                                            <input type="hidden" name="photo" value="{{ $photo->uuid }}">
+                                            <button class="btn btn-primary w-100" type="submit">Add to selected photos</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                         <div class="card bg-light border-0">
                             <div class="card-body">
                                 <h2 class="h5">Photo credit</h2>

@@ -26,7 +26,9 @@ class OrderController extends Controller
             $item->id => $item->photo?->thumbnail_key ? $this->storage->deliveryUrl($item->photo->thumbnail_key) : null,
         ]);
         $downloadableItemIds = $order->items
-            ->filter(fn (OrderItem $item) => $item->download_status === OrderItem::DOWNLOAD_READY && ! $item->download_expires_at?->isPast())
+            ->filter(fn (OrderItem $item) => $item->download_status === OrderItem::DOWNLOAD_READY
+                && $item->download_expires_at
+                && ! $item->download_expires_at->isPast())
             ->pluck('id');
 
         return view('orders.show', [
@@ -47,7 +49,8 @@ class OrderController extends Controller
         abort_unless(
             $order->payment_status === Order::PAYMENT_PAID
                 && $item->download_status === OrderItem::DOWNLOAD_READY
-                && ! $item->download_expires_at?->isPast(),
+                && $item->download_expires_at
+                && ! $item->download_expires_at->isPast(),
             403,
             'This download link is no longer available.'
         );

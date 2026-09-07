@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 
-/** Manages the guest checkout selection: one event per cart, any approved photographer's photos. */
+/** Manages the guest checkout selection for one event at a time. */
 class CartService
 {
     private const SESSION_KEY = 'wivor_cart';
@@ -16,11 +16,10 @@ class CartService
     /** Add a photo to the cart, enforcing the single-event rule. */
     public function add(Photo $photo): void
     {
-        $photo->loadMissing(['event', 'photographer']);
+        $photo->loadMissing('event');
 
         if ($photo->status !== Photo::STATUS_PUBLISHED
-            || ! $photo->event->isSellable()
-            || ! $photo->photographer?->isReadyForPayouts()) {
+            || ! $photo->event->isSellable()) {
             throw ValidationException::withMessages([
                 'photo' => 'This photo is not currently available for purchase.',
             ]);
@@ -59,11 +58,11 @@ class CartService
         }
 
         $photos = Photo::query()
-            ->with(['event', 'photographer'])
+            ->with('event')
             ->whereIn('uuid', $ids->all())
             ->where('status', Photo::STATUS_PUBLISHED)
             ->get()
-            ->filter(fn (Photo $photo) => $photo->event->isSellable() && $photo->photographer?->isReadyForPayouts());
+            ->filter(fn (Photo $photo) => $photo->event->isSellable());
 
         // The first surviving item establishes the cart's single event; any photographer may contribute.
         $first = $photos->first();

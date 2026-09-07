@@ -160,7 +160,7 @@
                         <i class="icon-1"></i>
                     </li>
                     <li class="cart-box">
-                        <a href="#"><i class="icon-23"></i></a>
+                        <a href="{{ route('cart.show') }}" aria-label="View selected photos"><i class="icon-23" aria-hidden="true"></i></a>
                     </li>
 
                     <a href="/login" class="btn btn-primary"

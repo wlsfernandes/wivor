@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Photo;
+use App\Services\CartService;
 use App\Services\PhotographerUploadAccess;
 use App\Services\PhotoStorage;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +25,7 @@ class PhotoDeliveryController extends Controller
     }
 
     /** Display an indexable landing page for one published photograph. */
-    public function gallery(Event $event, Photo $photo): View
+    public function gallery(Event $event, Photo $photo, CartService $cart): View
     {
         $this->assertPublic($event, $photo);
         $photo->loadMissing(['event', 'photographer']);
@@ -39,6 +40,7 @@ class PhotoDeliveryController extends Controller
             : $photo->display_title;
         $description = $photo->caption ?: "{$subject} at {$event->title} in {$event->location_label}, photographed by {$photographerName}.";
         $seoDescription = Str::limit($description, 160);
+        $cartPhotoUuids = $cart->event()?->is($event) ? $cart->photos()->pluck('uuid') : collect();
 
         $imageObject = array_filter([
             '@type' => 'ImageObject',
@@ -98,6 +100,9 @@ class PhotoDeliveryController extends Controller
             'seoDescription' => $seoDescription,
             'copyrightNotice' => $photo->copyright_notice,
             'licenseUrl' => $licenseUrl,
+            'isSellable' => $event->isSellable(),
+            'isInCart' => $cartPhotoUuids->contains($photo->uuid),
+            'priceLabel' => $event->price_label,
             'structuredData' => [
                 '@context' => 'https://schema.org',
                 '@graph' => [

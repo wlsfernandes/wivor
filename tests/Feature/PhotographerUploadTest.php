@@ -88,7 +88,7 @@ class PhotographerUploadTest extends TestCase
         $this->assertNotNull($event->fresh()->sales_close_at);
     }
 
-    public function test_ready_photos_cannot_be_published_before_payout_setup_is_ready(): void
+    public function test_ready_photos_can_be_published_before_payout_setup_is_ready(): void
     {
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
         $batch = UploadBatch::create([
@@ -105,10 +105,10 @@ class PhotographerUploadTest extends TestCase
         $this->actingAs($user)
             ->post(route('photographer.uploads.publish', $event), ['photo_ids' => [$photo->uuid]])
             ->assertRedirect()
-            ->assertSessionHasErrors('payouts');
+            ->assertSessionDoesntHaveErrors();
 
-        $this->assertSame(Photo::STATUS_READY, $photo->fresh()->status);
-        $this->assertNull($event->fresh()->gallery_published_at);
+        $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
+        $this->assertNotNull($event->fresh()->gallery_published_at);
     }
 
     private function approvedAssignment(): array

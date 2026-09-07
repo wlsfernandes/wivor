@@ -11,7 +11,6 @@ use App\Models\Photographer;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stripe\StripeClient;
 use Tests\TestCase;
 
 class StripeWebhookTest extends TestCase
@@ -24,14 +23,13 @@ class StripeWebhookTest extends TestCase
     {
         parent::setUp();
         config(['services.stripe.webhook_secret' => self::WEBHOOK_SECRET]);
-        $this->fakeStripe();
     }
 
     public function test_paid_checkout_session_fulfills_the_order_and_protects_the_photo(): void
     {
         [$order, $photo] = $this->pendingOrder();
 
-        $this->postWebhook($this->checkoutCompletedPayload($order->stripe_checkout_session_id))
+        $this->postWebhook($this->checkoutCompletedPayload($order))
             ->assertOk();
 
         $order->refresh();
@@ -50,7 +48,7 @@ class StripeWebhookTest extends TestCase
         $item = $order->items()->firstOrFail();
         $this->assertSame(OrderItem::DOWNLOAD_READY, $item->download_status);
         $this->assertNotNull($item->download_expires_at);
-        $this->assertSame('tr_test_123', $item->stripe_transfer_id);
+        $this->assertNull($item->stripe_transfer_id);
 
         $photo->refresh();
         $this->assertSame(1, $photo->sale_count);
@@ -60,7 +58,7 @@ class StripeWebhookTest extends TestCase
     public function test_duplicate_delivery_of_the_same_event_does_not_fulfill_twice(): void
     {
         [$order, $photo] = $this->pendingOrder();
-        $payload = $this->checkoutCompletedPayload($order->stripe_checkout_session_id);
+        $payload = $this->checkoutCompletedPayload($order);
 
         $this->postWebhook($payload)->assertOk();
         $this->postWebhook($payload)->assertOk();
@@ -72,7 +70,7 @@ class StripeWebhookTest extends TestCase
     public function test_invalid_signature_is_rejected_and_leaves_the_order_pending(): void
     {
         [$order] = $this->pendingOrder();
-        $payload = $this->checkoutCompletedPayload($order->stripe_checkout_session_id);
+        $payload = $this->checkoutCompletedPayload($order);
         $body = json_encode($payload);
 
         $this->call('POST', route('stripe.webhook'), [], [], [], [
@@ -86,26 +84,80 @@ class StripeWebhookTest extends TestCase
 
     public function test_unknown_checkout_session_is_acknowledged_without_error(): void
     {
-        $this->postWebhook($this->checkoutCompletedPayload('cs_does_not_exist'))->assertOk();
+        [$order] = $this->pendingOrder();
+
+        $this->postWebhook($this->checkoutCompletedPayload($order, 'cs_does_not_exist'))->assertOk();
     }
 
-    private function fakeStripe(): void
+    public function test_expired_checkout_session_closes_only_the_pending_order(): void
     {
-        $this->app->instance(StripeClient::class, new class extends StripeClient
-        {
-            public $transfers;
+        [$order] = $this->pendingOrder();
+        $payload = [
+            'id' => 'evt_'.uniqid(),
+            'type' => 'checkout.session.expired',
+            'data' => ['object' => ['id' => $order->stripe_checkout_session_id]],
+        ];
 
-            public function __construct()
-            {
-                $this->transfers = new class
-                {
-                    public function create(array $params): object
-                    {
-                        return (object) ['id' => 'tr_test_123'];
-                    }
-                };
-            }
-        });
+        $this->postWebhook($payload)->assertOk();
+
+        $order->refresh();
+        $this->assertSame(Order::PAYMENT_CANCELLED, $order->payment_status);
+        $this->assertSame(Order::FULFILLMENT_EXPIRED, $order->fulfillment_status);
+        $this->assertSame(OrderItem::DOWNLOAD_EXPIRED, $order->items()->firstOrFail()->download_status);
+    }
+
+    public function test_full_refund_revokes_download_access(): void
+    {
+        [$order] = $this->pendingOrder();
+        $this->postWebhook($this->checkoutCompletedPayload($order))->assertOk();
+
+        $payload = [
+            'id' => 'evt_'.uniqid(),
+            'type' => 'charge.refunded',
+            'data' => ['object' => [
+                'id' => 'ch_123',
+                'payment_intent' => 'pi_123',
+                'refunded' => true,
+            ]],
+        ];
+        $this->postWebhook($payload)->assertOk();
+
+        $order->refresh();
+        $this->assertSame(Order::PAYMENT_REFUNDED, $order->payment_status);
+        $this->assertSame(Order::FULFILLMENT_REVOKED, $order->fulfillment_status);
+        $this->assertSame(OrderItem::DOWNLOAD_REVOKED, $order->items()->firstOrFail()->download_status);
+    }
+
+    public function test_dispute_revokes_download_access(): void
+    {
+        [$order] = $this->pendingOrder();
+        $this->postWebhook($this->checkoutCompletedPayload($order))->assertOk();
+
+        $payload = [
+            'id' => 'evt_'.uniqid(),
+            'type' => 'charge.dispute.created',
+            'data' => ['object' => [
+                'id' => 'dp_123',
+                'payment_intent' => 'pi_123',
+            ]],
+        ];
+        $this->postWebhook($payload)->assertOk();
+
+        $order->refresh();
+        $this->assertSame(Order::PAYMENT_DISPUTED, $order->payment_status);
+        $this->assertSame(Order::FULFILLMENT_REVOKED, $order->fulfillment_status);
+        $this->assertSame(OrderItem::DOWNLOAD_REVOKED, $order->items()->firstOrFail()->download_status);
+    }
+
+    public function test_mismatched_checkout_amount_is_rejected(): void
+    {
+        [$order] = $this->pendingOrder();
+        $payload = $this->checkoutCompletedPayload($order);
+        $payload['data']['object']['amount_total'] = 1;
+
+        $this->postWebhook($payload)->assertStatus(500);
+
+        $this->assertSame(Order::PAYMENT_PENDING, $order->fresh()->payment_status);
     }
 
     /** @return array{Order, Photo} */
@@ -195,16 +247,22 @@ class StripeWebhookTest extends TestCase
         return [$order, $photo];
     }
 
-    private function checkoutCompletedPayload(string $sessionId): array
+    private function checkoutCompletedPayload(Order $order, ?string $sessionId = null): array
     {
         return [
             'id' => 'evt_'.uniqid(),
             'type' => 'checkout.session.completed',
             'data' => [
                 'object' => [
-                    'id' => $sessionId,
+                    'id' => $sessionId ?? $order->stripe_checkout_session_id,
                     'payment_status' => 'paid',
                     'payment_intent' => 'pi_123',
+                    'currency' => $order->currency,
+                    'amount_total' => $order->total_cents,
+                    'metadata' => [
+                        'wivor_order_id' => (string) $order->id,
+                        'wivor_order_number' => $order->order_number,
+                    ],
                     'customer_details' => ['email' => 'buyer@example.com'],
                 ],
             ],

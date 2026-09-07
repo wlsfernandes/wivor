@@ -37,7 +37,7 @@
                             <span>{{ $event->price_label }} per photo</span>
                             @if ($cartCount > 0)
                                 <a class="btn btn-sm btn-primary" href="{{ route('cart.show') }}">
-                                    {{ $cartCount }} photo(s) selected &middot; ${{ number_format($cartSubtotalCents / 100, 2) }} &middot; View selection
+                                    {{ $cartSelectionLabel }}
                                 </a>
                             @endif
                         </div>

@@ -8,7 +8,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PayPalController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PhotographerController;
@@ -23,6 +22,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PhotoRemovalRequestController as AdminPhotoRemovalRequestController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Frontend\PhotographerRegistrationController;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -75,7 +75,7 @@ Route::delete('/cart/items/{photo}', [CartController::class, 'destroy'])->name('
 Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
 
 /********************** Checkout (guest, Stripe-hosted) *****************************************/
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])->block(10, 10)->name('checkout.store');
 Route::get('/checkout/{order}/success', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/checkout/{order}/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 
@@ -146,7 +146,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/removal-requests', [AdminPhotoRemovalRequestController::class, 'index'])->name('admin.removal-requests.index');
         Route::patch('/admin/removal-requests/{removalRequest}/resolve', [AdminPhotoRemovalRequestController::class, 'resolve'])->name('admin.removal-requests.resolve');
 
-        Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+        Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
     });
 
     Route::middleware('can:photographer-account')->group(function () {

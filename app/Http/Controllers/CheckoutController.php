@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -19,8 +20,15 @@ class CheckoutController extends Controller
     }
 
     /** Revalidate the cart, create the pending order, and redirect to Stripe Checkout. */
-    public function store(): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
+        $submittedToken = (string) $request->input('checkout_token', '');
+        $expectedToken = (string) $request->session()->pull('wivor_checkout_token', '');
+
+        if ($submittedToken === '' || $expectedToken === '' || ! hash_equals($expectedToken, $submittedToken)) {
+            return redirect()->route('cart.show')->withErrors(['cart' => 'This checkout request has expired. Please try again.']);
+        }
+
         $event = $this->cart->event();
         $photos = $this->cart->photos();
 
@@ -39,28 +47,51 @@ class CheckoutController extends Controller
             return redirect()->route('cart.show')->withErrors(['cart' => 'Checkout is temporarily unavailable. Please try again.']);
         }
 
-        $this->cart->clear();
-
         return redirect()->away($session->url);
     }
 
-    /** Display the payment-confirmation return page. */
-    public function success(Order $order): View
+    /** Verify the returned Stripe Session and display the payment-confirmation page. */
+    public function success(Request $request, Order $order): View
     {
+        $sessionId = (string) $request->query('session_id', '');
+        abort_if($sessionId === '', 404);
+
+        $confirmationUnavailable = false;
+
+        try {
+            $session = $this->checkout->retrieveCheckoutSession($order, $sessionId);
+        } catch (ValidationException) {
+            abort(404);
+        } catch (Throwable $exception) {
+            $confirmationUnavailable = true;
+            Log::error('Checkout return verification failed.', [
+                'event' => 'checkout.success',
+                'order_id' => $order->id,
+                'stripe_session_id' => $sessionId,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
+
+        if (! $confirmationUnavailable) {
+            abort_unless(($session->payment_status ?? null) === 'paid', 404);
+            $this->cart->clear();
+        }
+
+        $order->refresh();
+
         return view('checkout.success', [
             'order' => $order,
             'isPaid' => $order->payment_status === Order::PAYMENT_PAID,
+            'confirmationUnavailable' => $confirmationUnavailable,
+            'orderUrl' => route('orders.show', ['accessToken' => $order->access_token]),
+            'refreshUrl' => route('checkout.success', ['order' => $order->order_number, 'session_id' => $sessionId]),
             'layout' => 'layouts.app',
         ]);
     }
 
-    /** Display the cancellation return page and leave the order unpaid. */
+    /** Display a read-only cancellation page while preserving the customer's cart. */
     public function cancel(Order $order): View
     {
-        if ($order->payment_status === Order::PAYMENT_PENDING) {
-            $order->update(['cancelled_at' => now(), 'payment_status' => Order::PAYMENT_CANCELLED]);
-        }
-
         return view('checkout.cancel', [
             'order' => $order,
             'layout' => 'layouts.app',

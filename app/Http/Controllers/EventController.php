@@ -128,6 +128,7 @@ class EventController extends Controller
         }
 
         $cartEvent = $this->cart->event();
+        $cartCount = $this->cart->count();
 
         return view('events.post-show', [
             'event' => $event,
@@ -137,8 +138,8 @@ class EventController extends Controller
             'availabilityMessage' => $availabilityMessage,
             'photos' => $photos,
             'cartPhotoUuids' => $cartEvent?->is($event) ? $this->cart->photos()->pluck('uuid') : collect(),
-            'cartCount' => $this->cart->count(),
-            'cartSubtotalCents' => $this->cart->subtotalCents(),
+            'cartCount' => $cartCount,
+            'cartSelectionLabel' => $cartCount.' '.($cartCount === 1 ? 'photo' : 'photos').' selected · $'.number_format($this->cart->subtotalCents() / 100, 2).' · View selection',
         ]);
     }
 

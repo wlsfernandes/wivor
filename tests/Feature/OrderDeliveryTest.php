@@ -63,6 +63,15 @@ class OrderDeliveryTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_download_is_blocked_when_the_entitlement_has_no_expiration(): void
+    {
+        [$order, $item, $photo] = $this->paidOrder();
+        $item->update(['download_expires_at' => null]);
+
+        $this->get(route('orders.download', ['accessToken' => $order->access_token, 'photo' => $photo->uuid]))
+            ->assertForbidden();
+    }
+
     public function test_download_is_blocked_when_the_order_is_not_paid(): void
     {
         [$order, $item, $photo] = $this->paidOrder();
@@ -77,7 +86,7 @@ class OrderDeliveryTest extends TestCase
     {
         Mail::fake();
         [$order] = $this->pendingOrder();
-        $payload = $this->checkoutCompletedPayload($order->stripe_checkout_session_id);
+        $payload = $this->checkoutCompletedPayload($order);
 
         $this->postWebhook($payload)->assertOk();
         $this->postWebhook($payload)->assertOk();
@@ -230,16 +239,22 @@ class OrderDeliveryTest extends TestCase
         return [$order, $photo];
     }
 
-    private function checkoutCompletedPayload(string $sessionId): array
+    private function checkoutCompletedPayload(Order $order): array
     {
         return [
             'id' => 'evt_'.uniqid(),
             'type' => 'checkout.session.completed',
             'data' => [
                 'object' => [
-                    'id' => $sessionId,
+                    'id' => $order->stripe_checkout_session_id,
                     'payment_status' => 'paid',
                     'payment_intent' => 'pi_123',
+                    'currency' => $order->currency,
+                    'amount_total' => $order->total_cents,
+                    'metadata' => [
+                        'wivor_order_id' => (string) $order->id,
+                        'wivor_order_number' => $order->order_number,
+                    ],
                     'customer_details' => ['email' => 'buyer@example.com'],
                 ],
             ],

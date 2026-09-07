@@ -44,8 +44,8 @@
             <div class="card mt-4">
                 <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
                     <div>
-                        <p class="mb-0">{{ $photos->count() }} photo(s) selected</p>
-                        <p class="h4 mb-0">Subtotal: ${{ number_format($subtotalCents / 100, 2) }}</p>
+                        <p class="mb-0">{{ $photoCountLabel }}</p>
+                        <p class="h4 mb-0">Subtotal: {{ $subtotalLabel }}</p>
                     </div>
                     <div class="d-flex gap-2">
                         <form method="POST" action="{{ route('cart.clear') }}">
@@ -53,13 +53,26 @@
                             @method('DELETE')
                             <button class="btn btn-outline-secondary" type="submit">Clear selection</button>
                         </form>
-                        <form method="POST" action="{{ route('checkout.store') }}">
+                        <form method="POST" action="{{ route('checkout.store') }}" data-checkout-form>
                             @csrf
-                            <button class="btn btn-primary" type="submit">Continue to Secure Checkout</button>
+                            <input type="hidden" name="checkout_token" value="{{ $checkoutToken }}">
+                            <button class="btn btn-primary" type="submit" data-checkout-button>Continue to Secure Checkout</button>
                         </form>
                     </div>
                 </div>
             </div>
         @endif
     </main>
+@endsection
+
+@section('scripts')
+    <script>
+        document.querySelector('[data-checkout-form]')?.addEventListener('submit', function () {
+            const button = this.querySelector('[data-checkout-button]');
+            if (button) {
+                button.disabled = true;
+                button.textContent = 'Opening secure checkout…';
+            }
+        });
+    </script>
 @endsection

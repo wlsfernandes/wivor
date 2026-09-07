@@ -22,7 +22,7 @@ class CartTest extends TestCase
         $this->post(route('cart.items.store'), ['photo' => $photo->uuid])->assertRedirect();
         $this->get(route('cart.show'))
             ->assertOk()
-            ->assertSee('1 photo(s) selected')
+            ->assertSee('1 photo selected')
             ->assertSee('Subtotal: $10.00');
 
         $this->delete(route('cart.items.destroy', ['photo' => $photo->uuid]))->assertRedirect();
@@ -38,7 +38,7 @@ class CartTest extends TestCase
         $this->post(route('cart.items.store'), ['photo' => $photoOne->uuid])->assertRedirect();
         $this->post(route('cart.items.store'), ['photo' => $photoTwo->uuid])->assertRedirect()->assertSessionDoesntHaveErrors();
 
-        $this->get(route('cart.show'))->assertSee('2 photo(s) selected');
+        $this->get(route('cart.show'))->assertSee('2 photos selected');
     }
 
     public function test_cart_rejects_a_photo_from_a_different_event(): void
@@ -50,18 +50,18 @@ class CartTest extends TestCase
         $this->post(route('cart.items.store'), ['photo' => $photoTwo->uuid])
             ->assertSessionHasErrors('photo');
 
-        $this->get(route('cart.show'))->assertSee('1 photo(s) selected');
+        $this->get(route('cart.show'))->assertSee('1 photo selected');
     }
 
-    public function test_cart_rejects_a_photo_whose_photographer_is_not_stripe_ready(): void
+    public function test_cart_allows_an_approved_photo_before_the_photographer_finishes_stripe_setup(): void
     {
         $event = $this->publishedEvent();
         $photo = $this->publishedPhotoForEvent($event, stripeReady: false);
 
         $this->post(route('cart.items.store'), ['photo' => $photo->uuid])
-            ->assertSessionHasErrors('photo');
+            ->assertSessionDoesntHaveErrors();
 
-        $this->get(route('cart.show'))->assertSee('You have not selected any photos yet.');
+        $this->get(route('cart.show'))->assertSee('1 photo selected');
     }
 
     public function test_cart_subtotal_reflects_the_current_event_price(): void
