@@ -11,7 +11,7 @@
 
 </div> <!-- close from header <div class="boxed_wrapper"> -->
 
-<footer class="main-footer">
+<footer class="main-footer" style="margin-top: 250px;">
     <div class="auto-container">
         <div class="footer-top">
             <figure class="footer-logo"><a href="{{ url('/') }}"><img
