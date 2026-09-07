@@ -159,9 +159,18 @@
                     <li class="search-box-outer search-toggler">
                         <i class="icon-1"></i>
                     </li>
+                    @php($cartCount = count((array) session('wivor_cart', [])))
                     <li class="cart-box">
-                        <a href="{{ route('cart.show') }}" aria-label="View selected photos"><i class="icon-23"
-                                aria-hidden="true"></i></a>
+                        <a href="{{ route('cart.show') }}"
+                            aria-label="View cart with {{ $cartCount }} selected {{ $cartCount === 1 ? 'photo' : 'photos' }}"><i
+                                class="icon-23" aria-hidden="true"></i>
+                            @if ($cartCount > 0)
+                                <span
+                                    class="cart-count-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                    style="min-width: 18px; font-size: 10px; line-height: 1;"
+                                    aria-hidden="true">{{ $cartCount }}</span>
+                            @endif
+                        </a>
                     </li>
 
                     <a href="/login" class="btn btn-primary"

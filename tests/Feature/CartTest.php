@@ -23,10 +23,14 @@ class CartTest extends TestCase
         $this->get(route('cart.show'))
             ->assertOk()
             ->assertSee('1 photo selected')
+            ->assertSee('View cart with 1 selected photo')
+            ->assertSee('cart-count-badge', false)
             ->assertSee('Subtotal: $10.00');
 
         $this->delete(route('cart.items.destroy', ['photo' => $photo->uuid]))->assertRedirect();
-        $this->get(route('cart.show'))->assertSee('You have not selected any photos yet.');
+        $this->get(route('cart.show'))
+            ->assertSee('You have not selected any photos yet.')
+            ->assertDontSee('cart-count-badge', false);
     }
 
     public function test_cart_allows_photos_from_multiple_photographers_in_the_same_event(): void
