@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '#somosAETH | Our Team')
+@section('title', 'Wivor | Our Team')
 
 @section('meta-description',
     'Meet the WivorPhotos team building a trusted marketplace that connects sports

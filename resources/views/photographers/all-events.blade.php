@@ -1,6 +1,6 @@
 @extends('layouts.app-sidebar')
 
-@section('title', '#somosAETH | Events')
+@section('title', 'Wivor | Events')
 @section('workspace-title', 'Browse events')
 
 @section('meta-description', 'This is a brief description of the blog page.')

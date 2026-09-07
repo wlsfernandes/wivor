@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '#somosAETH | Our team')
+@section('title', 'Wivor | Our Team')
 
 @section('meta-description', 'Meet Wilson Fernandes Junior and learn about his role in building WivorPhotos for sports
     photographers, athletes, and event communities.')

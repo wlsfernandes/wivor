@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '#somosAETH | Portal')
+@section('title', 'Wivor | Portal')
 
 @section('meta-description', 'Sign in to your WivorPhotos account to manage event photos, photographer uploads, purchases, and marketplace activity.')
 @section('meta-keywords', 'WivorPhotos login, photographer login, sports photo account, event photo marketplace')
