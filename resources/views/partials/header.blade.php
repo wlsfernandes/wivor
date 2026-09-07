@@ -37,7 +37,7 @@
                                         class="fab fa-facebook-square"></span></a></li>
                             <li><a href="https://www.instagram.com/wivor.photos/" target="blank"><span
                                         class="fab fa-instagram"></span></a></li>
-                            <li><a href="#"><span class="fab fa-vimeo"></span></a></li>
+
 
                         </ul>
                     </div>

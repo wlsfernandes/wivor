@@ -18,9 +18,10 @@
                         src="{{ asset('assets/images/logo/wivor_white.png') }}" alt="Wivor Logo"></a></figure>
             <ul class="social-links">
                 <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="_blank"
-                        rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
-                <li><a href="https://www.instagram.com/wivor.photos/" target="_blank" rel="noopener noreferrer"><i
-                            class="fab fa-instagram"></i></a>
+                        rel="noopener noreferrer" aria-label="WivorPhotos on Facebook"><i class="fab fa-facebook-f"
+                            aria-hidden="true"></i></a></li>
+                <li><a href="https://www.instagram.com/wivor.photos/" target="_blank" rel="noopener noreferrer"
+                        aria-label="WivorPhotos on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
                 </li>
             </ul>
         </div>
