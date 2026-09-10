@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Mail\ContactMessage;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
+/** Handles messages submitted through the public WivorPhotos contact form. */
 class ContactController extends Controller
 {
-    public function sendEmail(Request $request)
+    /** Validate and deliver one public contact message to the configured support address. */
+    public function sendEmail(Request $request): RedirectResponse
     {
-        // Validate the form input
         $validated = $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required|string|max:15',
-            'message' => 'required|string',
+            'username' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['required', 'string', 'max:15'],
+            'message' => ['required', 'string', 'max:5000'],
         ]);
 
-        $data = $request->all();
-        $recipients = ['vhandrade90@gmail.com', 'wlsfernandes@gmail.com'];
-        Mail::to($recipients)->send(new ContactMessage($data));
+        Mail::to(config('contact.email'))->send(new ContactMessage($validated));
 
         return redirect()->back()
-            ->with('success', 'Your message has been sent! An WiVor Member will reach you out');
-
-
+            ->with('success', 'Your message has been sent. A WivorPhotos team member will contact you.');
     }
 }

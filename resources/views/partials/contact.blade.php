@@ -34,16 +34,16 @@
                         @csrf
                         <div class="row clearfix">
                             <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                                <input type="text" name="username" placeholder="@lang('messages.your_name')" required>
+                                <input type="text" name="username" value="{{ old('username') }}" placeholder="@lang('messages.your_name')" autocomplete="name" required>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-12 form-group">
-                                <input type="email" name="email" placeholder="@lang('messages.your_email')" required>
+                                <input type="email" name="email" value="{{ old('email') }}" placeholder="@lang('messages.your_email')" autocomplete="email" required>
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                                <input type="text" name="phone" required="" placeholder="@lang('messages.your_phone')">
+                                <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="@lang('messages.your_phone')" autocomplete="tel">
                             </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                                <textarea name="message" placeholder="@lang('messages.your_message')"></textarea>
+                                <textarea name="message" placeholder="@lang('messages.your_message')" required>{{ old('message') }}</textarea>
                             </div>
                               {{-- reCAPTCHA --}}
                               <input type="hidden" name="g-recaptcha-response" id="recaptcha-token">

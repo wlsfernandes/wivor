@@ -1,5 +1,15 @@
 <?php
 return [
+    'home' => 'Início',
+    'find_events' => 'Encontrar eventos',
+    'purchases_downloads' => 'Compras e downloads',
+    'for_photographers' => 'Para fotógrafos',
+    'login' => 'Entrar',
+    'search_events' => 'Pesquisar eventos',
+    'privacy_policy' => 'Política de Privacidade',
+    'terms_of_use' => 'Termos de Uso',
+    'refund_policy' => 'Política de Reembolso',
+    'photo_removal_request' => 'Solicitação de Remoção de Foto',
     'download_photos' => 'descargar fotos',
     'about_us' => 'Sobre Nós',
     'our_team' => 'Nossa Equipe',

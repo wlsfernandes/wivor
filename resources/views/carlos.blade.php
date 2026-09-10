@@ -28,7 +28,7 @@
                             <p>@lang('team.carlos.p5')</p>
 
                             <ul class="info-list clearfix">
-                                <li><span>Email:</span> <a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a>
+                                <li><span>Email:</span> <a href="mailto:{{ config('contact.email') }}">{{ config('contact.email') }}</a>
                                 </li>
                             </ul>
                         </div>

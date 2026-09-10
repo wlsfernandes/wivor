@@ -64,8 +64,8 @@
                 <div class="top-right">
                     <ul class="info">
                         <li>
-                            <a href="mailto:contact@wivorphotos.com" style="font-size: 12px;  color: #fff;">
-                                contact@wivorphotos.com
+                            <a href="mailto:{{ config('contact.email') }}" style="font-size: 12px;  color: #fff;">
+                                {{ config('contact.email') }}
                             </a>
                     </ul>
                 </div>
@@ -237,7 +237,7 @@
                     <ul>
                         <li>Chicago 12, Melborne City, USA</li>
                         <li><a href="tel:+8801682648101">+88 01682648101</a></li>
-                        <li><a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a></li>
+                        <li><a href="mailto:{{ config('contact.email') }}">{{ config('contact.email') }}</a></li>
                     </ul>
                 </div> -->
             <div class="social-links">

@@ -100,7 +100,7 @@
                                 Decatur, GA 30030
                             </p>
                             <p style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; margin: 0 0 20px; text-align: center;">
-                                <a href="mailto:contact@wivorphotos.com" style="color: #ff8a3d; text-decoration: underline;">contact@wivorphotos.com</a>
+                                <a href="mailto:{{ config('contact.email') }}" style="color: #ff8a3d; text-decoration: underline;">{{ config('contact.email') }}</a>
                             </p>
                             <table cellpadding="0" cellspacing="0" border="0" role="presentation" align="center">
                                 <tr>

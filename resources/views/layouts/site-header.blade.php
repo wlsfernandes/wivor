@@ -40,7 +40,7 @@
             <div class="row">
                 <div class="col-lg-8 align-self-center">
                     <ul>
-                        <li><i class="fa fa-envelope"></i> contact@wivorphotos.com</li>
+                        <li><i class="fa fa-envelope"></i> {{ config('contact.email') }}</li>
                         <li><i class="fa fa-map-marker-alt"></i> 6391 Elgin St. Celina, 10299</li>
                     </ul>
                 </div>

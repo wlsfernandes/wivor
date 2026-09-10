@@ -29,7 +29,7 @@ class ContactMessage extends Mailable
      */
     public function build()
     {
-        return $this->subject('Wivor - Contact Receive from the site')
+        return $this->subject('New WivorPhotos website contact message')
             ->view('emails.contact');
     }
 }

@@ -12,12 +12,12 @@
             <div class="overlay-layer"></div>
             <div class="auto-container">
                 <div class="search-form">
-                    <form method="post" action="index.php">
+                    <form method="get" action="{{ route('events.listEvents') }}">
                         <div class="form-group">
                             <fieldset>
-                                <input type="search" class="form-control" name="search-input" value=""
-                                    placeholder="Type your keyword and hit" required>
-                                <button type="submit"><i class="far fa-search"></i></button>
+                                <input type="search" class="form-control" name="search" value=""
+                                    placeholder="@lang('header.search_events')" aria-label="@lang('header.search_events')" required>
+                                <button type="submit" aria-label="@lang('header.search_events')"><i class="far fa-search"></i></button>
                             </fieldset>
                         </div>
                     </form>
@@ -64,8 +64,8 @@
                 <div class="top-right">
                     <ul class="info">
                         <li>
-                            <a href="mailto:contact@wivorphotos.com" style="font-size: 12px;  color: #fff;">
-                                contact@wivorphotos.com
+                            <a href="mailto:{{ config('contact.email') }}" style="font-size: 12px;  color: #fff;">
+                                {{ config('contact.email') }}
                             </a>
                     </ul>
                 </div>
@@ -113,41 +113,17 @@
                     <nav class="main-menu navbar-expand-md navbar-light">
                         <div class="collapse navbar-collapse show clearfix" id="navbarSupportedContent">
                             <ul class="navigation clearfix">
-                                <li class="current">
-                                    <a href="{{ url('/') }}">Home</a>
+                                <li class="{{ request()->routeIs('welcome') ? 'current' : '' }}">
+                                    <a href="{{ route('welcome') }}">@lang('header.home')</a>
                                 </li>
-                                <li class="dropdown">
-                                    <a href="#" class="dropdown-title"
-                                        style="pointer-events: none;">@lang('header.about_us')</a>
-                                    <ul>
-                                        <li><a href="{{ route('about_us') }}">@lang('header.about_us')</a></li>
-                                        <li><a href="{{ route('our_team') }}">@lang('header.our_team')</a></li>
-                                    </ul>
+                                <li class="{{ request()->routeIs('events.listEvents', 'events.show', 'events.photos.show') ? 'current' : '' }}">
+                                    <a href="{{ route('events.listEvents') }}">@lang('header.find_events')</a>
                                 </li>
-                                <li class="dropdown">
-                                    <a href="{{ route('faq') }}" class="dropdown-title">@lang('header.faq')</a>
-                                    <ul>
-                                        <li><a href="{{ route('faq') }}#customers">Customer questions</a></li>
-                                        <li><a href="{{ route('faq') }}#orders">Payments and downloads</a></li>
-                                        <li><a href="{{ route('faq') }}#photographers">Photographer questions</a></li>
-                                    </ul>
+                                <li class="{{ request()->routeIs('faq') ? 'current' : '' }}">
+                                    <a href="{{ route('faq') }}#orders">@lang('header.purchases_downloads')</a>
                                 </li>
-                                <li>
-                                    <a href="{{ route('events.listEvents') }}">@lang('header.events')</a>
-                                </li>
-                                <li class="dropdown">
-                                    <a href="{{ route('photographers') }}" class="dropdown-title">@lang('header.photographers')</a>
-                                    <ul>
-                                        <li><a href="{{ route('photographers') }}#how-it-works">How it works</a></li>
-                                        <li><a href="{{ route('photographers') }}#register_section">Apply as a
-                                                photographer</a>
-                                        </li>
-                                        <li><a href="{{ route('login') }}">Photographer sign in</a></li>
-                                    </ul>
-                                </li>
-
-                                <li>
-                                    <a href="/list-events">@lang('header.download_photos')</a>
+                                <li class="{{ request()->routeIs('photographers') ? 'current' : '' }}">
+                                    <a href="{{ route('photographers') }}">@lang('header.for_photographers')</a>
                                 </li>
 
                             </ul>
@@ -173,7 +149,7 @@
                         </a>
                     </li>
 
-                    <a href="/login" class="btn btn-primary"
+                    <a href="{{ route('login') }}" class="btn btn-primary"
                         style="
          border-color: #ff3d00;
             background: linear-gradient(to right, #ff6700, #ff3d00);
@@ -183,7 +159,7 @@
         border-radius: 8px;
         transition: 0.3s ease;
     ">
-                        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                        <i class="bi bi-box-arrow-in-right me-2"></i> @lang('header.login')
                     </a>
 
 
@@ -235,7 +211,7 @@
                     <ul>
                         <li>Chicago 12, Melborne City, USA</li>
                         <li><a href="tel:+8801682648101">+88 01682648101</a></li>
-                        <li><a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a></li>
+                        <li><a href="mailto:{{ config('contact.email') }}">{{ config('contact.email') }}</a></li>
                     </ul>
                 </div> -->
             <div class="social-links">

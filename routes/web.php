@@ -87,6 +87,14 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.i
 Route::get('/sitemaps/events-{page}.xml', [SitemapController::class, 'events'])->whereNumber('page')->name('sitemap.events');
 Route::get('/sitemaps/photos-{page}.xml', [SitemapController::class, 'photos'])->whereNumber('page')->name('sitemap.photos');
 
+/********************** Public policies and support ********************************************/
+Route::view('/privacy', 'policies.privacy')->name('privacy');
+Route::view('/terms', 'policies.terms')->name('terms');
+Route::view('/refund-policy', 'policies.refund')->name('refund-policy');
+Route::get('/photo-removal', [PhotoRemovalRequestController::class, 'general'])->name('photo-removal.create');
+Route::post('/photo-removal', [PhotoRemovalRequestController::class, 'storeGeneral'])->name('photo-removal.store');
+Route::view('/contact', 'contact')->name('contact_us');
+
 
 
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
@@ -97,7 +105,6 @@ Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name(
 Route::get('/victor', [HomeController::class, 'victor'])->name('victor');
 Route::get('/carlos', [HomeController::class, 'carlos'])->name('carlos');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
-Route::get('/contact', [HomeController::class, 'contactUs'])->name('contact_us');
 Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('testimonials');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/photobook', [PhotographerController::class, 'photobook'])->name('photobook');

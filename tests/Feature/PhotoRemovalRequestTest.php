@@ -62,6 +62,72 @@ class PhotoRemovalRequestTest extends TestCase
             ->assertSessionHasErrors(['requester_name', 'requester_email', 'reason']);
     }
 
+    public function test_general_removal_form_submits_an_existing_photo_for_review_without_removing_it(): void
+    {
+        [$event, $photo] = $this->publishedPhoto();
+
+        $this->get(route('photo-removal.create'))
+            ->assertOk()
+            ->assertSee('Photo URL or photo identifier')
+            ->assertSee('administrative review');
+
+        $this->post(route('photo-removal.store'), [
+            'requester_name' => 'Jamie Customer',
+            'requester_email' => 'jamie@example.com',
+            'event' => $event->title,
+            'photo_identifier' => $photo->reference_number,
+            'reason' => PhotoRemovalRequest::REASON_OTHER,
+            'additional_notes' => 'Please have an administrator review this image.',
+        ])->assertRedirect(route('photo-removal.create'));
+
+        $this->assertDatabaseHas('photo_removal_requests', [
+            'photo_id' => $photo->id,
+            'requester_name' => 'Jamie Customer',
+            'requester_email' => 'jamie@example.com',
+            'reason' => PhotoRemovalRequest::REASON_OTHER,
+            'status' => PhotoRemovalRequest::STATUS_PENDING,
+        ]);
+        $this->assertDatabaseHas('photos', [
+            'id' => $photo->id,
+            'status' => Photo::STATUS_PUBLISHED,
+        ]);
+    }
+
+    public function test_general_removal_form_accepts_a_full_photo_url(): void
+    {
+        [$event, $photo] = $this->publishedPhoto();
+        $photoUrl = route('events.photos.show', ['event' => $event->slug, 'photo' => $photo]);
+
+        $this->post(route('photo-removal.store'), [
+            'requester_name' => 'Jamie Customer',
+            'requester_email' => 'jamie@example.com',
+            'event' => $event->title,
+            'photo_identifier' => $photoUrl,
+            'reason' => PhotoRemovalRequest::REASON_INCORRECT_EVENT,
+            'additional_notes' => '',
+        ])->assertRedirect(route('photo-removal.create'));
+
+        $this->assertDatabaseHas('photo_removal_requests', [
+            'photo_id' => $photo->id,
+            'reason' => PhotoRemovalRequest::REASON_INCORRECT_EVENT,
+        ]);
+    }
+
+    public function test_general_removal_form_rejects_an_unknown_photo_identifier(): void
+    {
+        $this->from(route('photo-removal.create'))->post(route('photo-removal.store'), [
+            'requester_name' => 'Jamie Customer',
+            'requester_email' => 'jamie@example.com',
+            'event' => 'City Run',
+            'photo_identifier' => 'DEADBEEF',
+            'reason' => PhotoRemovalRequest::REASON_OTHER,
+            'additional_notes' => '',
+        ])->assertRedirect(route('photo-removal.create'))
+            ->assertSessionHasErrors('photo_identifier');
+
+        $this->assertDatabaseCount('photo_removal_requests', 0);
+    }
+
     public function test_admin_can_view_and_resolve_removal_requests(): void
     {
         [, $photo] = $this->publishedPhoto();

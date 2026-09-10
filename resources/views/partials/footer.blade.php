@@ -25,6 +25,15 @@
                 </li>
             </ul>
         </div>
+        <nav aria-label="Footer navigation" class="py-4">
+            <ul class="list-unstyled d-flex flex-wrap justify-content-center mb-0" style="gap: 12px 24px;">
+                <li><a class="text-white" href="{{ route('privacy') }}">@lang('header.privacy_policy')</a></li>
+                <li><a class="text-white" href="{{ route('terms') }}">@lang('header.terms_of_use')</a></li>
+                <li><a class="text-white" href="{{ route('refund-policy') }}">@lang('header.refund_policy')</a></li>
+                <li><a class="text-white" href="{{ route('photo-removal.create') }}">@lang('header.photo_removal_request')</a></li>
+                <li><a class="text-white" href="{{ route('contact_us') }}">@lang('header.contact_us')</a></li>
+            </ul>
+        </nav>
         <!--   <div class="widget-section">
             <div class="row clearfix">
 
@@ -68,7 +77,7 @@
                         <div class="widget-content">
                             <ul class="info-list clearfix">
                                 <li><i class="icon-17"></i>160 Clairemont Ave. Suite 300 Decatur, GA 30030</li>
-                                <li><i class="icon-18"></i><a href="mailto:contact@wivorphotos.com">contact@wivorphotos.com</a>
+                                <li><i class="icon-18"></i><a href="mailto:{{ config('contact.email') }}">{{ config('contact.email') }}</a>
                                 </li>
 
                             </ul>

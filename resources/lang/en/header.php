@@ -1,5 +1,15 @@
 <?php
 return [
+    'home' => 'Home',
+    'find_events' => 'Find Events',
+    'purchases_downloads' => 'Purchases & Downloads',
+    'for_photographers' => 'For Photographers',
+    'login' => 'Login',
+    'search_events' => 'Search events',
+    'privacy_policy' => 'Privacy Policy',
+    'terms_of_use' => 'Terms of Use',
+    'refund_policy' => 'Refund Policy',
+    'photo_removal_request' => 'Photo Removal Request',
     'policy' => 'PRIVACY POLICY',
     'by_click' => 'By clicking on Register you accept WiVor`s Terms of Use and confirm you read the Privacy Policy.', 
     'authorization'=>'I authorize WiVor to send emailś, include by automated means, for informational and/or marketing purposes. I understand that the authorization for send marketing messages is not a codition for usinh WiVors services. I al so understand that you can cancel the communications in the received email`s footer',
