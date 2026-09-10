@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ProcessPhoto;
 use App\Models\Event;
 use App\Models\EventAssignment;
 use App\Models\Photo;
@@ -10,6 +11,8 @@ use App\Models\Role;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PhotographerUploadTest extends TestCase
@@ -61,6 +64,38 @@ class PhotographerUploadTest extends TestCase
         $this->assertSame('finish-line.jpg', $photo->original_filename);
         $this->assertSame("events/{$event->uuid}/photographers/{$photographer->uuid}/photos/{$photo->uuid}/original.jpg", $photo->original_key);
         $this->assertNotNull(EventAssignment::firstOrFail()->rights_confirmed_at);
+    }
+
+    public function test_successful_upload_completion_queues_the_existing_photo_processing_flow(): void
+    {
+        Queue::fake();
+        Storage::fake('media');
+        config(['photo_uploads.disk' => 'media']);
+        [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $batch = UploadBatch::create([
+            'event_id' => $event->id,
+            'photographer_id' => $photographer->id,
+            'assignment_id' => $assignment->id,
+            'selected_count' => 1,
+        ]);
+        $photo = Photo::create([
+            'event_id' => $event->id,
+            'photographer_id' => $photographer->id,
+            'assignment_id' => $assignment->id,
+            'upload_batch_id' => $batch->id,
+            'original_filename' => 'finish.jpg',
+            'original_key' => 'events/test/finish/original.jpg',
+        ]);
+        Storage::disk('media')->put($photo->original_key, 'uploaded jpeg bytes');
+
+        $this->actingAs($user)
+            ->postJson(route('photographer.uploads.complete', [$event, $photo]))
+            ->assertAccepted()
+            ->assertJson(['status' => Photo::STATUS_PROCESSING]);
+
+        $this->assertSame(Photo::STATUS_PROCESSING, $photo->fresh()->status);
+        $this->assertNotNull($photo->fresh()->uploaded_at);
+        Queue::assertPushed(ProcessPhoto::class, fn ($job) => $job->photoId === $photo->id);
     }
 
     public function test_ready_photos_can_be_published_incrementally(): void

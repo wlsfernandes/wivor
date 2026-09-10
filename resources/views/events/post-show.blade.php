@@ -54,11 +54,37 @@
                         </section>
                     @endif
 
+                    <section class="card border-0 bg-light my-5" aria-labelledby="bib-search-heading">
+                        <div class="card-body py-4">
+                            <h2 id="bib-search-heading" class="h4">Find your photos</h2>
+                            <form class="row g-2 align-items-end" method="GET" action="{{ route('events.show', ['event' => $event->slug]) }}">
+                                <div class="col-sm-8">
+                                    <label class="form-label" for="bib">Bib number</label>
+                                    <input class="form-control" id="bib" name="bib" type="text" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5" value="{{ old('bib', $bibNumber) }}" placeholder="Enter your bib number">
+                                </div>
+                                <div class="col-sm-4">
+                                    <button class="btn btn-primary w-100" type="submit">Search</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
                     <section class="card border-0 bg-light my-5" aria-labelledby="event-photos">
                         <div class="card-body py-4">
-                            <h2 id="event-photos" class="h4">Event photos</h2>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <h2 id="event-photos" class="h4 mb-0">
+                                    {{ $bibNumber ? 'Photos matching bib #'.$bibNumber : 'Event photos' }}
+                                </h2>
+                                @if ($bibNumber)
+                                    <a href="{{ route('events.show', ['event' => $event->slug]) }}">View all photos</a>
+                                @endif
+                            </div>
                             @if ($photos->isEmpty())
-                                <p class="text-muted mb-0">No photos are currently available.</p>
+                                @if ($bibNumber)
+                                    <p class="text-muted mt-3 mb-0">No photos were found for bib #{{ $bibNumber }} yet.</p>
+                                @else
+                                    <p class="text-muted mt-3 mb-0">No photos are currently available.</p>
+                                @endif
                             @else
                                 <div class="row g-3 mt-1">
                                     @foreach ($photos as $photo)

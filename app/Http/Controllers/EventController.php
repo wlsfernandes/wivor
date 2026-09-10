@@ -107,6 +107,13 @@ class EventController extends Controller
     {
         abort_unless($event->status === Event::STATUS_PUBLISHED, 404);
 
+        $validated = $request->validate([
+            'bib' => ['nullable', 'string', 'regex:/^(?!0+$)\d{1,5}$/'],
+        ], [
+            'bib.regex' => 'Enter a bib number using 1 to 5 digits.',
+        ]);
+        $bibNumber = $validated['bib'] ?? null;
+
         $photosLiveLabel = $event->photos_live_at
             ? $event->photos_live_at->timezone($event->timezone)->format('F j, Y \a\t g:i A T')
             : null;
@@ -120,7 +127,11 @@ class EventController extends Controller
 
         $photos = $event->photos()->with('photographer')->where('status', Photo::STATUS_PUBLISHED)
             ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'))
-            ->latest('published_at')->paginate(48);
+            ->when($bibNumber, fn ($query) => $query->whereHas(
+                'bibNumbers',
+                fn ($bibQuery) => $bibQuery->where('bib_number', $bibNumber),
+            ))
+            ->latest('published_at')->paginate(48)->withQueryString();
 
         $canonicalUrl = route('events.show', ['event' => $event->slug]);
         if ($request->integer('page') > 1) {
@@ -136,6 +147,7 @@ class EventController extends Controller
             'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
             'canonicalUrl' => $canonicalUrl,
             'availabilityMessage' => $availabilityMessage,
+            'bibNumber' => $bibNumber,
             'photos' => $photos,
             'cartPhotoUuids' => $cartEvent?->is($event) ? $this->cart->photos()->pluck('uuid') : collect(),
             'cartCount' => $cartCount,

@@ -132,6 +132,7 @@ class ProcessPhoto implements ShouldQueue
 
         MediaActivityLog::create(['event_id' => $photo->event_id, 'photo_id' => $photo->id, 'action' => 'processing_ready']);
         $photo->batch->recalculate();
+        DetectPhotoBibNumbers::dispatch($photo->id);
     }
 
     private function orient(\GdImage $image, string $path): \GdImage

@@ -25,6 +25,7 @@ class Photo extends Model
         'detected_mime', 'file_size', 'width', 'height', 'color_mode', 'checksum',
         'status', 'rejection_code', 'rejection_reason', 'sale_count', 'uploaded_at',
         'processing_started_at', 'processed_at', 'published_at', 'expires_at',
+        'bib_scanned_at',
         'most_recent_purchase_at', 'deleted_at', 'deletion_reason',
     ];
 
@@ -34,6 +35,7 @@ class Photo extends Model
             'file_size' => 'integer', 'width' => 'integer', 'height' => 'integer', 'sale_count' => 'integer',
             'uploaded_at' => 'datetime', 'processing_started_at' => 'datetime',
             'processed_at' => 'datetime', 'published_at' => 'datetime',
+            'bib_scanned_at' => 'datetime',
             'expires_at' => 'datetime', 'most_recent_purchase_at' => 'datetime',
             'deleted_at' => 'datetime', 'people' => 'array',
             'people_publication_confirmed_at' => 'datetime',
@@ -50,6 +52,7 @@ class Photo extends Model
     public function photographer(): BelongsTo { return $this->belongsTo(Photographer::class); }
     public function batch(): BelongsTo { return $this->belongsTo(UploadBatch::class, 'upload_batch_id'); }
     public function holds(): HasMany { return $this->hasMany(MediaRetentionHold::class); }
+    public function bibNumbers(): HasMany { return $this->hasMany(PhotoBibNumber::class); }
 
     /** Return only names approved for public display and structured data. */
     public function getPublicPeopleAttribute(): Collection

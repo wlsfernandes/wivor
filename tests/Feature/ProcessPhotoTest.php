@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\DetectPhotoBibNumbers;
 use App\Jobs\ProcessPhoto;
 use App\Models\Event;
 use App\Models\EventAssignment;
@@ -10,6 +11,7 @@ use App\Models\Photographer;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -19,6 +21,7 @@ class ProcessPhotoTest extends TestCase
 
     public function test_real_jpeg_is_validated_and_private_derivatives_are_created(): void
     {
+        Queue::fake();
         Storage::fake('media');
         config(['photo_uploads.disk' => 'media']);
         [$photo] = $this->processingPhoto();
@@ -39,10 +42,12 @@ class ProcessPhotoTest extends TestCase
         Storage::disk('media')->assertExists($photo->preview_key);
         Storage::disk('media')->assertExists($photo->thumbnail_key);
         Storage::disk('media')->assertExists($photo->original_key);
+        Queue::assertPushed(DetectPhotoBibNumbers::class, fn ($job) => $job->photoId === $photo->id);
     }
 
     public function test_renamed_non_jpeg_is_rejected_and_deleted(): void
     {
+        Queue::fake();
         Storage::fake('media');
         config(['photo_uploads.disk' => 'media']);
         [$photo] = $this->processingPhoto();
@@ -53,6 +58,7 @@ class ProcessPhotoTest extends TestCase
         $this->assertSame(Photo::STATUS_REJECTED, $photo->fresh()->status);
         $this->assertSame('unsupported_format', $photo->fresh()->rejection_code);
         Storage::disk('media')->assertMissing($photo->original_key);
+        Queue::assertNotPushed(DetectPhotoBibNumbers::class);
     }
 
     private function processingPhoto(): array
