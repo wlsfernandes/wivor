@@ -99,7 +99,7 @@
                                     </div>
                                     <div class="form-check">
                                         <input id="accepts_terms" class="form-check-input @error('accepts_terms') is-invalid @enderror" type="checkbox" name="accepts_terms" value="1" @checked(old('accepts_terms')) required>
-                                        <label class="form-check-label" for="accepts_terms">I accept the WivorPhotos photographer terms.</label>
+                                        <label class="form-check-label" for="accepts_terms">I accept the <a href="{{ route('terms') }}">WivorPhotos photographer terms</a>.</label>
                                         @error('accepts_terms')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
                                 </div>

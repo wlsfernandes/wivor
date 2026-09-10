@@ -19,6 +19,14 @@ class PhotographerApprovalTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_photographer_registration_form_links_to_the_terms_page(): void
+    {
+        $this->get(route('photographers'))
+            ->assertOk()
+            ->assertSee('href="'.route('terms').'"', false)
+            ->assertSee('WivorPhotos photographer terms');
+    }
+
     public function test_photographer_registers_with_their_own_password_and_starts_pending(): void
     {
         Mail::fake();
