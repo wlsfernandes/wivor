@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Wivor | Home')
+@section('title', 'Find Event Photos | WivorPhotos')
 
 @section('meta-description', 'Find and purchase professional sports and fitness photos from events across the United States, or join WivorPhotos as a photographer.')
 
@@ -194,7 +194,7 @@
                     <div class="content_block_two">
                         <div class="content-box ml_40">
                             <div class="sec-title mb_60">
-                                <span class="sub-title">About WiVor</span>
+                                <span class="sub-title">About WivorPhotos</span>
                                 <h2>@lang('messages.who_we_are')</h2>
                             </div>
                             <div class="text mb_40">
@@ -217,7 +217,7 @@
                     <div class="content_block_two">
                         <div class="content-box mr_40"> <!-- Changed ml_40 to mr_40 for spacing adjustment -->
                             <div class="sec-title mb_60">
-                                <span class="sub-title">About WiVor</span>
+                                <span class="sub-title">About WivorPhotos</span>
                                 <h2>@lang('messages.what_we_do')</h2>
                             </div>
                             <div class="text mb_40">

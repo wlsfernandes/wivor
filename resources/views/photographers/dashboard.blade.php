@@ -23,7 +23,8 @@
             <div class="card-body">
                 <h2 class="h5">{{ $payoutSetup['title'] }}</h2>
                 <p>{{ $payoutSetup['message'] }}</p>
-                <p class="small text-muted">During the MVP, payout setup is optional and does not prevent photo publishing or customer sales.</p>
+                <p class="small text-muted">You can publish photos and record customer sales before payout setup is
+                    complete. Complete Stripe setup to prepare your account to receive earnings.</p>
                 <form method="POST" action="{{ route($payoutSetup['route']) }}">
                     @csrf
                     <button class="btn btn-{{ $payoutSetup['color'] }}" type="submit">{{ $payoutSetup['action'] }}</button>
@@ -34,15 +35,15 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h2 class="h5">Your account is approved</h2>
-                <p class="text-muted mb-0">Available events, assignments, and uploads will appear here as the remaining MVP
-                    workflows are enabled.</p>
+                <p class="text-muted mb-0">Use the workspace navigation to create or manage events and upload photos.
+                    Your sales and payout status appear below.</p>
             </div>
         </div>
 
         <h2 class="h4">Sales</h2>
 
         <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="text-muted small mb-1">Gross sales</p>
@@ -50,27 +51,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-4">
                 <div class="card h-100">
                     <div class="card-body">
                         <p class="text-muted small mb-1">WivorPhotos commission</p>
                         <p class="h5 mb-0">{{ $salesSummary['commissionLabel'] }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <p class="text-muted small mb-1">Payment-processing fees</p>
-                        <p class="h5 mb-0">{{ $salesSummary['processingFeesLabel'] }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <p class="text-muted small mb-1">Refunds</p>
-                        <p class="h5 mb-0">{{ $salesSummary['refundsLabel'] }}</p>
                     </div>
                 </div>
             </div>
@@ -155,7 +140,7 @@
                             <th>Event</th>
                             <th>Photos</th>
                             <th>Gross</th>
-                            <th>Fees</th>
+                            <th>WivorPhotos commission</th>
                             <th>Net</th>
                             <th>Payment status</th>
                             <th>Payout status</th>
@@ -169,7 +154,7 @@
                                 <td>{{ $sale->event->title }}</td>
                                 <td>{{ $sale->photo_count }}</td>
                                 <td>{{ $sale->gross_amount_label }}</td>
-                                <td>{{ $sale->fees_label }}</td>
+                                <td>{{ $sale->commission_label }}</td>
                                 <td>{{ $sale->net_amount_label }}</td>
                                 <td>{{ $sale->payment_status_label }}</td>
                                 <td>{{ $sale->payout_status_label }}</td>

@@ -87,8 +87,8 @@
                             <summary class="card-header bg-white p-4 fw-semibold">Do I need an account to purchase
                                 photos?</summary>
                             <div class="card-body px-4 pb-4">
-                                No. The current MVP supports guest selection, checkout, and secure delivery without a
-                                WivorPhotos customer account.
+                                No. You can select photos, complete checkout, and use the protected delivery link
+                                without creating a WivorPhotos customer account.
                             </div>
                         </details>
 
@@ -173,8 +173,7 @@
                             <summary class="card-header bg-white p-4 fw-semibold">What happens after I apply?</summary>
                             <div class="card-body px-4 pb-4">
                                 The WivorPhotos team reviews your application. Approved and email-verified photographers
-                                can sign in to the photographer dashboard to access events, assignments, uploads, and
-                                sales information.
+                                can sign in to create or manage events, upload photos, review sales, and set up payouts.
                             </div>
                         </details>
 
@@ -219,8 +218,8 @@
                             <summary class="card-header bg-white p-4 fw-semibold">How do I track sales and earnings?
                             </summary>
                             <div class="card-body px-4 pb-4">
-                                The photographer dashboard shows gross sales, WivorPhotos commission,
-                                payment-processing fees, refunds, net earnings, pending payouts, and paid amounts.
+                                The photographer dashboard shows gross sales, WivorPhotos commission, net earnings,
+                                pending payouts, and paid amounts.
                             </div>
                         </details>
 
@@ -228,8 +227,8 @@
                             <summary class="card-header bg-white p-4 fw-semibold">Is Stripe payout setup required before
                                 publishing?</summary>
                             <div class="card-body px-4 pb-4">
-                                No. During the MVP, payout setup is optional and does not prevent photo publishing or
-                                customer sales. Your dashboard still records earnings and payout status.
+                                No. You can publish photos and record customer sales before payout setup is complete.
+                                Complete Stripe payout setup to prepare your account to receive earnings.
                             </div>
                         </details>
                     </section>

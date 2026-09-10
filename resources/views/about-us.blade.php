@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Wivor | Home')
+@section('title', 'About WivorPhotos')
 
 @section('meta-description', 'Learn how WivorPhotos connects athletes with professional photographers so people can find and purchase memorable sports and fitness photos.')
 
@@ -24,7 +24,7 @@
                     <div class="content_block_two">
                         <div class="content-box ml_40">
                             <div class="sec-title mb_60">
-                                <span class="sub-title">About WiVor</span>
+                                <span class="sub-title">About WivorPhotos</span>
                                 <h2>@lang('messages.who_we_are')</h2>
                             </div>
                             <div class="text mb_40">
@@ -45,7 +45,7 @@
                     <div class="content_block_two">
                         <div class="content-box mr_40"> <!-- Changed ml_40 to mr_40 for spacing adjustment -->
                             <div class="sec-title mb_60">
-                                <span class="sub-title">About WiVor</span>
+                                <span class="sub-title">About WivorPhotos</span>
                                 <h2>@lang('messages.what_we_do')</h2>
                             </div>
                             <div class="text mb_40">
@@ -74,12 +74,12 @@
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <h2 style="text-align: center; margin-bottom: 20px;"><i class="bi bi-binoculars"></i>
                         @lang('messages.our_vision')</h2>
-                    <p>@lang('messages.our_vision_p1').</p>
+                    <p>@lang('messages.our_vision_p1')</p>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <h2 style="text-align: center; margin-bottom: 20px;"><i class="bi bi-compass"></i>
                         @lang('messages.our_mission')</h2>
-                    <p>@lang('messages.our_vision_p1')</p>
+                    <p>@lang('messages.our_mission_p1')</p>
                 </div>
             </div>
         </div>

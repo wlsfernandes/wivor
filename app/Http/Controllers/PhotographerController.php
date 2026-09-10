@@ -109,7 +109,7 @@ class PhotographerController extends Controller
             ],
             default => [
                 'title' => 'Set up payouts',
-                'message' => 'Complete secure Stripe setup so WivorPhotos can send your photo earnings to your bank account.',
+                'message' => 'Complete secure Stripe setup to prepare your account to receive photo earnings.',
                 'action' => 'Complete Payout Setup',
                 'route' => 'photographer.payouts.start',
                 'color' => 'warning',
@@ -147,7 +147,7 @@ class PhotographerController extends Controller
             'sale_date_label' => $order->sale_date_label,
             'photo_count' => $items->count(),
             'gross_amount_label' => '$'.number_format($items->sum('unit_price_cents') / 100, 2),
-            'fees_label' => '$'.number_format($items->sum('commission_cents') / 100, 2),
+            'commission_label' => '$'.number_format($items->sum('commission_cents') / 100, 2),
             'net_amount_label' => '$'.number_format($items->sum('photographer_allocation_cents') / 100, 2),
             'payment_status_label' => $order->payment_status_label,
             'payout_status_label' => ! $isPaid ? 'Not applicable' : ($allTransferred ? 'Paid out' : 'Pending payout'),
@@ -157,9 +157,8 @@ class PhotographerController extends Controller
     /**
      * Summarize the photographer's own paid items as display-ready dollar amounts.
      *
-     * Refunds are not implemented for this MVP (no refund workflow), so that figure is
-     * fixed at $0.00. Processing fees are charged to WivorPhotos' commission, not the
-     * photographer, and are not attributed per photographer here.
+     * Processing fees are not attributed per photographer, so this summary reports only
+     * amounts directly represented by the photographer's order items.
      */
     private function salesSummary(Builder $itemsQuery): array
     {
@@ -175,8 +174,6 @@ class PhotographerController extends Controller
         return [
             'grossSalesLabel' => '$'.number_format($totals->gross_cents / 100, 2),
             'commissionLabel' => '$'.number_format($totals->commission_cents / 100, 2),
-            'processingFeesLabel' => '$0.00',
-            'refundsLabel' => '$0.00',
             'netEarningsLabel' => '$'.number_format($totals->net_cents / 100, 2),
             'pendingPayoutLabel' => '$'.number_format(($totals->net_cents - $paidOutCents) / 100, 2),
             'paidAmountLabel' => '$'.number_format($paidOutCents / 100, 2),

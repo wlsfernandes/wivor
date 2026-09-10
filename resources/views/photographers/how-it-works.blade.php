@@ -24,8 +24,8 @@
                     <div class="card-body p-4">
                         <span class="badge rounded-pill bg-dark mb-3">Step 2</span>
                         <h3 class="h5">Get approved</h3>
-                        <p class="mb-0">Once approved, sign in to your photographer dashboard to see available work,
-                            your event assignments, and your sales.</p>
+                        <p class="mb-0">Once approved, sign in to create or manage events, upload photos, review
+                            sales, and set up payouts.</p>
                     </div>
                 </article>
             </div>
@@ -35,8 +35,8 @@
                     <div class="card-body p-4">
                         <span class="badge rounded-pill bg-dark mb-3">Step 3</span>
                         <h3 class="h5">Cover your event</h3>
-                        <p class="mb-0">After you are assigned to an event, capture the athletes and moments customers
-                            will want to remember.</p>
+                        <p class="mb-0">For events you create or are assigned to, capture the athletes and moments
+                            customers will want to remember.</p>
                     </div>
                 </article>
             </div>
@@ -68,8 +68,8 @@
                     <div class="card-body p-4">
                         <span class="badge rounded-pill bg-dark mb-3">Step 6</span>
                         <h3 class="h5">Track your earnings</h3>
-                        <p class="mb-0">Your dashboard shows gross sales, WivorPhotos commission, processing fees, net
-                            earnings, and payout status in one place.</p>
+                        <p class="mb-0">Your dashboard shows gross sales, WivorPhotos commission, net earnings, and
+                            payout status in one place.</p>
                     </div>
                 </article>
             </div>
@@ -97,7 +97,7 @@
                             <li class="mb-2">Event galleries and customer discovery.</li>
                             <li class="mb-2">Watermarked previews and protected originals.</li>
                             <li class="mb-2">Customer checkout and order records.</li>
-                            <li>Sales, fees, earnings, and payout-status reporting.</li>
+                            <li>Sales, commission, earnings, and payout-status reporting.</li>
                         </ul>
                     </div>
                 </div>

@@ -51,7 +51,7 @@ class EventMvpTest extends TestCase
                 'Recently Published Events',
                 $publishedEvent->title,
                 'Find your moment in four simple steps',
-                'About WiVor',
+                'About WivorPhotos',
             ])
             ->assertSee('action="'.route('events.listEvents').'"', false)
             ->assertSee('name="search"', false)
