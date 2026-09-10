@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Mail\ContactMessage;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class PublicPolicyPagesTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_policy_pages_show_only_the_requested_placeholder_structure(): void
     {
         $pages = [

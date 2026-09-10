@@ -62,6 +62,17 @@
                             <span>Photographers</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="fa fa-globe"></i>
+                            <span>Website</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'privacy']) }}">Privacy Policy</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'terms']) }}">Terms of Use</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'refund']) }}">Refund Policy</a></li>
+                        </ul>
+                    </li>
 
 
                 @endcan

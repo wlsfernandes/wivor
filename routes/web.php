@@ -23,7 +23,10 @@ use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerContro
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PhotoRemovalRequestController as AdminPhotoRemovalRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\WebsitePolicyController as AdminWebsitePolicyController;
+use App\Http\Controllers\Frontend\PolicyController;
 use App\Http\Controllers\Frontend\PhotographerRegistrationController;
+use App\Models\WebsitePolicy;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Aws\S3\S3Client;
@@ -88,9 +91,15 @@ Route::get('/sitemaps/events-{page}.xml', [SitemapController::class, 'events'])-
 Route::get('/sitemaps/photos-{page}.xml', [SitemapController::class, 'photos'])->whereNumber('page')->name('sitemap.photos');
 
 /********************** Public policies and support ********************************************/
-Route::view('/privacy', 'policies.privacy')->name('privacy');
-Route::view('/terms', 'policies.terms')->name('terms');
-Route::view('/refund-policy', 'policies.refund')->name('refund-policy');
+Route::get('/privacy', [PolicyController::class, 'show'])
+    ->defaults('policy', WebsitePolicy::PRIVACY)
+    ->name('privacy');
+Route::get('/terms', [PolicyController::class, 'show'])
+    ->defaults('policy', WebsitePolicy::TERMS)
+    ->name('terms');
+Route::get('/refund-policy', [PolicyController::class, 'show'])
+    ->defaults('policy', WebsitePolicy::REFUND)
+    ->name('refund-policy');
 Route::get('/photo-removal', [PhotoRemovalRequestController::class, 'general'])->name('photo-removal.create');
 Route::post('/photo-removal', [PhotoRemovalRequestController::class, 'storeGeneral'])->name('photo-removal.store');
 Route::view('/contact', 'contact')->name('contact_us');
@@ -155,6 +164,11 @@ Route::middleware('auth')->group(function () {
         Route::patch('/admin/removal-requests/{removalRequest}/resolve', [AdminPhotoRemovalRequestController::class, 'resolve'])->name('admin.removal-requests.resolve');
 
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+
+        Route::get('/admin/website/{policy}/edit', [AdminWebsitePolicyController::class, 'edit'])
+            ->name('admin.website.policies.edit');
+        Route::put('/admin/website/{policy}', [AdminWebsitePolicyController::class, 'update'])
+            ->name('admin.website.policies.update');
     });
 
     Route::middleware('can:photographer-account')->group(function () {
