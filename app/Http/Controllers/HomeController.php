@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Session;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
@@ -43,12 +44,15 @@ class HomeController extends Controller
         }
         return response()->view('errors.404', [], 404); // Custom error view
     }
-    public function welcome()
+    /** Display the customer-focused public homepage with recently published events. */
+    public function welcome(): View
     {
-        $events = Event::published()
+        $homepageEvents = Event::published()
             ->orderBy('published_at', 'desc')
+            ->limit(3)
             ->get();
-        return view('site.welcome', compact('events'));
+
+        return view('site.welcome', compact('homepageEvents'));
     }
     /*
     public function root()

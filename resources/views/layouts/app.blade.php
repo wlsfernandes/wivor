@@ -50,6 +50,7 @@
 
     @yield('structured-data')
 
+    @yield('styles')
     @include('partials.head-assets')
 </head>
 

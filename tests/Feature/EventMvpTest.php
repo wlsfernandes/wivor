@@ -15,6 +15,65 @@ class EventMvpTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_homepage_prioritizes_existing_event_search_and_recent_published_events(): void
+    {
+        $oldestPublishedEvent = $this->createEvent([
+            'title' => 'Homepage Old Published Race',
+            'status' => Event::STATUS_PUBLISHED,
+            'published' => true,
+            'published_at' => now()->subDays(3),
+        ]);
+        $this->createEvent([
+            'title' => 'Homepage Second Published Race',
+            'status' => Event::STATUS_PUBLISHED,
+            'published' => true,
+            'published_at' => now()->subDays(2),
+        ]);
+        $this->createEvent([
+            'title' => 'Homepage Third Published Race',
+            'status' => Event::STATUS_PUBLISHED,
+            'published' => true,
+            'published_at' => now()->subDay(),
+        ]);
+        $publishedEvent = $this->createEvent([
+            'title' => 'Homepage Published Race',
+            'status' => Event::STATUS_PUBLISHED,
+            'published' => true,
+            'published_at' => now(),
+        ]);
+        $this->createEvent(['title' => 'Homepage Draft Race']);
+
+        $response = $this->get(route('welcome'));
+
+        $response->assertOk()
+            ->assertSeeInOrder([
+                'Find Your Event Photos',
+                'Recently Published Events',
+                $publishedEvent->title,
+                'Find your moment in four simple steps',
+                'About WiVor',
+            ])
+            ->assertSee('action="'.route('events.listEvents').'"', false)
+            ->assertSee('name="search"', false)
+            ->assertSee('name="city"', false)
+            ->assertSee('name="state"', false)
+            ->assertSee('name="sport"', false)
+            ->assertSee('name="date_from"', false)
+            ->assertSee('name="date_to"', false)
+            ->assertSee('Search Events')
+            ->assertSee('Browse All Events')
+            ->assertDontSee($oldestPublishedEvent->title)
+            ->assertDontSee('Homepage Draft Race');
+    }
+
+    public function test_homepage_explains_when_no_published_events_are_available(): void
+    {
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertSee('No published events yet')
+            ->assertSee('Browse All Events');
+    }
+
     public function test_public_directory_filters_published_events(): void
     {
         $matchingEvent = $this->createEvent([
