@@ -38,6 +38,7 @@ class PhotographerUploadTest extends TestCase
 
         $response->assertOk()->assertSee('Add Photos');
         $this->assertMatchesRegularExpression('/id="drop-zone"[^>]*disabled/', $response->getContent());
+        $this->actingAs($user)->get(route('events.index'))->assertOk()->assertSee('Upload photos');
     }
 
     public function test_publish_controls_are_disabled_when_no_photos_are_ready(): void

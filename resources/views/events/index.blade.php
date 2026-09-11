@@ -81,7 +81,7 @@
                                         @if (auth()->user()->hasRole('admin'))
                                             <a class="btn btn-sm btn-outline-dark" href="{{ route('admin.media.show', $event) }}">Media</a>
                                         @endif
-                                        @if (! auth()->user()->hasRole('admin') && ($event->pivot?->status ?? null) === 'approved' && ! $event->is_archived && $event->uploadDeadlineFor(auth()->user()->photographer)->isFuture())
+                                        @if (! auth()->user()->hasRole('admin') && ($event->pivot?->status ?? null) === 'approved' && ! $event->is_archived)
                                             <a class="btn btn-sm btn-primary" href="{{ route('photographer.uploads.show', $event) }}">Upload photos</a>
                                         @endif
                                         <a class="btn btn-sm btn-outline-secondary" href="{{ route('events.edit', ['event' => $event->id]) }}">Edit</a>

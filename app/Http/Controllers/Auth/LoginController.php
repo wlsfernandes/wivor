@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -48,6 +49,20 @@ class LoginController extends Controller
 
         // Fallback
         return '/home';
+    }
+
+    /** Keep the stale admin dashboard URL from overriding the photographer redirect. */
+    protected function authenticated(Request $request, $user)
+    {
+        $intendedUrl = $request->session()->get('url.intended');
+
+        if ($user->hasRole('photographer')
+            && ! $user->hasRole('admin')
+            && $intendedUrl === url('/index')) {
+            $request->session()->forget('url.intended');
+
+            return redirect($this->redirectTo());
+        }
     }
 
     /**

@@ -82,12 +82,50 @@ class PhotographerApprovalTest extends TestCase
             ->assertOk()
             ->assertSee('id="photographer-sidebar"', false)
             ->assertSee('data-photographer-sidebar-toggle', false)
-            ->assertSee('My events');
+            ->assertDontSee('My events')
+            ->assertSee('href="'.route('events.index').'"', false)
+            ->assertSee('Upload Photos');
 
         $pendingUser->forceFill(['email_verified_at' => null])->save();
         $this->actingAs($pendingUser)
             ->get(route('photographer.dashboard'))
             ->assertRedirect(route('verification.notice'));
+    }
+
+    public function test_photographer_login_ignores_a_stale_admin_intended_url(): void
+    {
+        [$user] = $this->createPhotographer(Photographer::STATUS_APPROVED);
+
+        $this->withSession(['url.intended' => url('/index')])
+            ->post(route('login'), [
+                'email' => $user->email,
+                'password' => 'password',
+            ])
+            ->assertRedirect(route('photographer.dashboard'));
+    }
+
+    public function test_photographer_login_still_honors_a_valid_intended_url(): void
+    {
+        [$user] = $this->createPhotographer(Photographer::STATUS_APPROVED);
+
+        $this->withSession(['url.intended' => route('events.index')])
+            ->post(route('login'), [
+                'email' => $user->email,
+                'password' => 'password',
+            ])
+            ->assertRedirect(route('events.index'));
+    }
+
+    public function test_admin_login_still_honors_an_intended_url(): void
+    {
+        [$admin] = $this->createAdmin();
+
+        $this->withSession(['url.intended' => route('users.index')])
+            ->post(route('login'), [
+                'email' => $admin->email,
+                'password' => 'password',
+            ])
+            ->assertRedirect(route('users.index'));
     }
 
     public function test_pending_photographer_can_view_application_status(): void

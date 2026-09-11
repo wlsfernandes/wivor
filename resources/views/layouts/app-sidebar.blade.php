@@ -139,6 +139,12 @@
             box-shadow: inset 3px 0 0 var(--photographer-accent);
         }
 
+        .photographer-nav a.photographer-upload-link {
+            background: var(--photographer-accent);
+            color: #fff;
+            font-weight: 700;
+        }
+
         .photographer-nav i,
         .photographer-sidebar-footer i {
             width: 1.25rem;
@@ -152,6 +158,10 @@
         .photographer-sidebar-footer a:hover i,
         .photographer-logout:hover i {
             color: var(--photographer-accent);
+        }
+
+        .photographer-nav a.photographer-upload-link i {
+            color: #fff;
         }
 
         .photographer-sidebar-footer {
@@ -387,9 +397,9 @@
                         <span>Dashboard</span>
                     </a>
                     <a href="{{ route('events.index') }}"
-                        class="{{ request()->routeIs('events.index', 'events.edit', 'photographer.myEvents', 'photographer.uploads.*') ? 'active' : '' }}">
-                        <i class="bi bi-calendar3" aria-hidden="true"></i>
-                        <span>My events</span>
+                        class="photographer-upload-link {{ request()->routeIs('photographer.uploads.*') ? 'active' : '' }}">
+                        <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+                        <span>Upload Photos</span>
                     </a>
                     <a href="{{ route('events.create') }}"
                         class="{{ request()->routeIs('events.create', 'photographer.newEvent') ? 'active' : '' }}">
