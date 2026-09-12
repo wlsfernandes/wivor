@@ -416,6 +416,11 @@
                         <i class="bi bi-images" aria-hidden="true"></i>
                         <span>Browse galleries</span>
                     </a>
+                    <a href="{{ route('how-to-upload-photos') }}"
+                        class="{{ request()->routeIs('how-to-upload-photos') ? 'active' : '' }}">
+                        <i class="bi bi-journal-image" aria-hidden="true"></i>
+                        <span>How to Upload Photos</span>
+                    </a>
                 @else
                     <a href="{{ route('photographer.application-status') }}"
                         class="{{ request()->routeIs('photographer.application-status') ? 'active' : '' }}">

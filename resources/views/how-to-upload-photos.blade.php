@@ -1,52 +1,68 @@
-@extends('layouts.app')
+@extends($layout)
 
 @section('title', 'How to Upload Photos | WivorPhotos')
+@section('workspace-title', 'How to Upload Photos')
 @section('meta-description', 'A simple guide for approved WivorPhotos photographers to find an event and upload JPEG photos.')
 
 @section('content')
     <main class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-xl-10">
                 <header class="text-center mb-5">
                     <h1>How to Upload Photos</h1>
-                    <p class="lead text-muted mb-0">Upload your event photos in a few simple steps.</p>
+                    <p class="lead text-muted mb-0">Follow these six steps to add photos to an event gallery.</p>
                 </header>
 
-                <ol class="list-group list-group-numbered shadow-sm mb-4">
+                <ol class="list-group list-group-numbered shadow-sm">
                     <li class="list-group-item p-4">
                         <h2 class="h5">Go to Login</h2>
-                        <p class="mb-2">Sign in with your approved photographer account.</p>
+                        <p>Click <strong>Login</strong> and sign in with your approved photographer account.</p>
                         <a href="{{ route('login') }}">Open Login</a>
+                        <img class="img-fluid rounded border mt-3" src="{{ asset('assets/images/manual/1.png') }}"
+                            alt="WivorPhotos home page showing the Login button" loading="lazy">
                     </li>
+
                     <li class="list-group-item p-4">
                         <h2 class="h5">Search your events</h2>
-                        <p class="mb-2">Open My Events and search by event name, city, or sport.</p>
+                        <p>Open <strong>Upload Photos</strong>, then search by event name, city, or sport. Find your assigned event and click <strong>Upload photos</strong>.</p>
                         <a href="{{ route('events.index') }}">Search Events</a>
+                        <img class="img-fluid rounded border mt-3" src="{{ asset('assets/images/manual/2.png') }}"
+                            alt="My Events page showing event search and the Upload photos button" loading="lazy">
                     </li>
-                    <li class="list-group-item p-4">
-                        <h2 class="h5">Open the uploader</h2>
-                        <p class="mb-0">Find the event you are assigned to and click <strong>Upload photos</strong>.</p>
-                    </li>
+
                     <li class="list-group-item p-4">
                         <h2 class="h5">Review the photo recommendations</h2>
-                        <ul class="mb-0">
-                            <li>Upload JPG or JPEG files only.</li>
-                            <li>Each photo must be 40 MB or smaller.</li>
-                            <li>The longest side must be at least 2,400 pixels, and neither side may exceed 12,000 pixels.</li>
-                            <li>Use RGB/sRGB; CMYK is not accepted.</li>
-                            <li>Do not add your own watermark, logo, or border.</li>
-                            <li>Upload only photos you have the right to sell, and keep your own backup.</li>
+                        <p>Read the requirements and confirm that you own or control the photo rights and have kept your own backup.</p>
+                        <ul>
+                            <li>JPG or JPEG only, up to 40 MB per photo.</li>
+                            <li>The longest side must be at least 2,400 pixels; neither side may exceed 12,000 pixels.</li>
+                            <li>Use RGB/sRGB, with no photographer watermark, logo, or border.</li>
                         </ul>
+                        <img class="img-fluid rounded border mt-3" src="{{ asset('assets/images/manual/3.png') }}"
+                            alt="Photo requirements and the Drop JPEG photos here area" loading="lazy">
                     </li>
+
                     <li class="list-group-item p-4">
-                        <h2 class="h5">Drop JPEGs and add photos</h2>
-                        <p class="mb-0">Confirm the rights-and-backup notice, drop your JPEG photos into <strong>Drop JPEG photos here</strong>, then click <strong>Add Photos</strong>.</p>
+                        <h2 class="h5">Drop JPEGs and click Add Photos</h2>
+                        <p>Drop your JPEG files into <strong>Drop JPEG photos here</strong>, or click the area to choose files. Check the queued files, then click <strong>Add Photos</strong>.</p>
+                        <img class="img-fluid rounded border mt-3" src="{{ asset('assets/images/manual/4.png') }}"
+                            alt="A queued JPEG beside the Add Photos button" loading="lazy">
+                    </li>
+
+                    <li class="list-group-item p-4">
+                        <h2 class="h5">Review the processed photos</h2>
+                        <p>Wait for processing to finish. Review any rejection messages, then choose each ready photo or use <strong>Select all ready</strong>.</p>
+                        <img class="img-fluid rounded border mt-3" src="{{ asset('assets/images/manual/5.png') }}"
+                            alt="Review photos area with Select all ready checked" loading="lazy">
+                    </li>
+
+                    <li class="list-group-item p-4">
+                        <h2 class="h5">Publish ready photos</h2>
+                        <p class="mb-0">Click <strong>Publish Ready Photos</strong> to make the selected photos available in the event gallery.</p>
+                        <img class="img-fluid rounded border mt-3" src="{{ asset('assets/images/manual/6.png') }}"
+                            alt="Publish Ready Photos button" loading="lazy">
                     </li>
                 </ol>
-
-                <div class="alert alert-info mb-0" role="note">
-                    After processing finishes, review the results and click <strong>Publish Ready Photos</strong> when you are ready to make them available in the event gallery.
-                </div>
             </div>
         </div>
     </main>

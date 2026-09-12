@@ -77,7 +77,7 @@ class PhotographerApprovalTest extends TestCase
             ->assertForbidden();
 
         $pendingPhotographer->forceFill(['status' => Photographer::STATUS_APPROVED])->save();
-        $this->actingAs($pendingUser)
+        $dashboard = $this->actingAs($pendingUser)
             ->get(route('photographer.dashboard'))
             ->assertOk()
             ->assertSee('id="photographer-sidebar"', false)
@@ -87,6 +87,16 @@ class PhotographerApprovalTest extends TestCase
             ->assertSee('href="'.route('how-to-upload-photos').'"', false)
             ->assertSee('href="'.route('photographer-terms').'"', false)
             ->assertSee('Upload Photos');
+
+        $dashboard->assertSeeInOrder([
+            'Browse galleries',
+            'How to Upload Photos',
+        ]);
+
+        $this->get(route('how-to-upload-photos'))
+            ->assertOk()
+            ->assertSee('id="photographer-sidebar"', false)
+            ->assertSee('class="active"', false);
 
         $pendingUser->forceFill(['email_verified_at' => null])->save();
         $this->actingAs($pendingUser)

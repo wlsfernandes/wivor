@@ -38,6 +38,16 @@ class PhotographerController extends Controller
         return view('photographers.page');
     }
 
+    /** Display the photographer upload guide in the appropriate public or workspace layout. */
+    public function howToUploadPhotos(Request $request): View
+    {
+        return view('how-to-upload-photos', [
+            'layout' => $request->user()?->canAccessPhotographerArea()
+                ? 'layouts.app-sidebar'
+                : 'layouts.app',
+        ]);
+    }
+
     /** Display the approved photographer dashboard with a filterable sales panel. */
     public function dashboard(Request $request): View
     {
