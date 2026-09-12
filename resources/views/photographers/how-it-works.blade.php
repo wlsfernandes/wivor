@@ -107,6 +107,7 @@
         <div class="text-center mt-5">
             <p class="mb-3">Ready to photograph with WivorPhotos? You must be at least 18 years old to apply.</p>
             <a href="#register_section" class="theme-btn-one"><span>Start your application</span></a>
+            <a href="{{ route('how-to-upload-photos') }}" class="theme-btn-one ms-2"><span>How to Upload Photos</span></a>
         </div>
     </div>
 </section>

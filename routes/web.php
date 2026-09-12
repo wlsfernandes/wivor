@@ -119,6 +119,7 @@ Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name(
 Route::get('/victor', [HomeController::class, 'victor'])->name('victor');
 Route::get('/carlos', [HomeController::class, 'carlos'])->name('carlos');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
+Route::view('/how-to-upload-photos', 'how-to-upload-photos')->name('how-to-upload-photos');
 Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('testimonials');
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/photobook', [PhotographerController::class, 'photobook'])->name('photobook');
