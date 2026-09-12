@@ -185,17 +185,19 @@ class PhotographerUploadController extends Controller
         });
         $photos->pluck('upload_batch_id')->unique()->each(fn ($id) => UploadBatch::find($id)?->recalculate());
 
-        $photos->each(function (Photo $photo) use ($event): void {
-            try {
-                IndexPhotoFaces::dispatch($photo->id);
-            } catch (Throwable $exception) {
-                Log::error('Face indexing could not be queued.', [
-                    'photo_uuid' => $photo->uuid,
-                    'event_uuid' => $event->uuid,
-                    'exception' => $exception->getMessage(),
-                ]);
-            }
-        });
+        if (config('face_recognition.enabled')) {
+            $photos->each(function (Photo $photo) use ($event): void {
+                try {
+                    IndexPhotoFaces::dispatch($photo->id);
+                } catch (Throwable $exception) {
+                    Log::error('Face indexing could not be queued.', [
+                        'photo_uuid' => $photo->uuid,
+                        'event_uuid' => $event->uuid,
+                        'exception' => $exception->getMessage(),
+                    ]);
+                }
+            });
+        }
 
         return back()->with('success', $photos->count().' photo(s) published.');
     }

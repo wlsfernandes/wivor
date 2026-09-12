@@ -105,6 +105,7 @@ class PhotographerUploadTest extends TestCase
     public function test_ready_photos_can_be_published_incrementally(): void
     {
         Queue::fake();
+        config(['face_recognition.enabled' => true]);
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
         $photographer->forceFill([
             'stripe_account_id' => 'acct_ready',
@@ -129,9 +130,36 @@ class PhotographerUploadTest extends TestCase
         Queue::assertPushed(IndexPhotoFaces::class, fn ($job) => $job->photoId === $photo->id);
     }
 
+    public function test_publishing_succeeds_without_face_indexing_when_feature_is_disabled(): void
+    {
+        Queue::fake();
+        config(['face_recognition.enabled' => false]);
+        [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $batch = UploadBatch::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
+            'selected_count' => 1, 'status' => 'in_progress',
+        ]);
+        $photo = Photo::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
+            'upload_batch_id' => $batch->id, 'original_filename' => 'race.jpg',
+            'original_key' => 'private/original.jpg', 'preview_key' => 'private/preview.jpg',
+            'thumbnail_key' => 'private/thumb.jpg', 'status' => Photo::STATUS_READY,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('photographer.uploads.publish', $event), ['photo_ids' => [$photo->uuid]])
+            ->assertRedirect()
+            ->assertSessionDoesntHaveErrors();
+
+        $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
+        $this->assertNotNull($event->fresh()->gallery_published_at);
+        Queue::assertNotPushed(IndexPhotoFaces::class);
+    }
+
     public function test_ready_photos_can_be_published_before_payout_setup_is_ready(): void
     {
         Queue::fake();
+        config(['face_recognition.enabled' => true]);
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
         $batch = UploadBatch::create([
             'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
@@ -156,6 +184,7 @@ class PhotographerUploadTest extends TestCase
 
     public function test_face_indexing_failure_does_not_fail_photo_publication(): void
     {
+        config(['face_recognition.enabled' => true]);
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
         $batch = UploadBatch::create([
             'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,

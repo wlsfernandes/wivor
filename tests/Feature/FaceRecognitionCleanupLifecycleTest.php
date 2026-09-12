@@ -28,9 +28,10 @@ class FaceRecognitionCleanupLifecycleTest extends TestCase
         config(['photo_uploads.disk' => 'media']);
     }
 
-    public function test_admin_unpublish_dispatches_face_cleanup(): void
+    public function test_admin_unpublish_dispatches_face_cleanup_when_public_feature_is_disabled(): void
     {
         Queue::fake();
+        config(['face_recognition.enabled' => false]);
         [$admin, $event, $photo] = $this->fixture();
 
         $this->actingAs($admin)
