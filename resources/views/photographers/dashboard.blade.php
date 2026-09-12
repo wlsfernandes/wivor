@@ -37,7 +37,10 @@
                 <h2 class="h5">Your account is approved</h2>
                 <p class="text-muted">Use the workspace navigation to create or manage events and upload photos.
                     Your sales and payout status appear below.</p>
-                <a href="{{ route('photographer-terms') }}">Review the Photographer Terms</a>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ route('how-to-upload-photos') }}">How to Upload Photos</a>
+                    <a href="{{ route('photographer-terms') }}">Review the Photographer Terms</a>
+                </div>
             </div>
         </div>
 

@@ -84,6 +84,7 @@ class PhotographerApprovalTest extends TestCase
             ->assertSee('data-photographer-sidebar-toggle', false)
             ->assertDontSee('My events')
             ->assertSee('href="'.route('events.index').'"', false)
+            ->assertSee('href="'.route('how-to-upload-photos').'"', false)
             ->assertSee('href="'.route('photographer-terms').'"', false)
             ->assertSee('Upload Photos');
 
