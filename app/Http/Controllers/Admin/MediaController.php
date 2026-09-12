@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\DeletePhotoFaces;
 use App\Jobs\ProcessPhoto;
 use App\Models\Event;
 use App\Models\EventAssignment;
@@ -12,9 +13,11 @@ use App\Models\Photo;
 use App\Models\Photographer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Throwable;
 
 class MediaController extends Controller
 {
@@ -67,6 +70,7 @@ class MediaController extends Controller
         abort_unless($photo->status === Photo::STATUS_PUBLISHED, 409);
         $photo->update(['status' => Photo::STATUS_READY, 'published_at' => null]);
         MediaActivityLog::create(['event_id' => $event->id, 'photo_id' => $photo->id, 'actor_id' => $request->user()->id, 'action' => 'unpublished']);
+        $this->queueFaceCleanup($photo);
         return back()->with('success', 'Photo unpublished.');
     }
 
@@ -77,6 +81,7 @@ class MediaController extends Controller
         Storage::disk(config('photo_uploads.disk'))->delete(array_filter([$photo->original_key, $photo->preview_key, $photo->thumbnail_key]));
         $photo->update(['status' => Photo::STATUS_REMOVED, 'deleted_at' => now(), 'deletion_reason' => $validated['reason']]);
         MediaActivityLog::create(['event_id' => $event->id, 'photo_id' => $photo->id, 'actor_id' => $request->user()->id, 'action' => 'admin_removed', 'details' => ['reason' => $validated['reason']]]);
+        $this->queueFaceCleanup($photo);
         return back()->with('success', 'Photo media removed; its tombstone was retained.');
     }
 
@@ -110,5 +115,18 @@ class MediaController extends Controller
     private function assertEventPhoto(Event $event, Photo $photo): void
     {
         abort_unless($photo->event_id === $event->id, 404);
+    }
+
+    private function queueFaceCleanup(Photo $photo): void
+    {
+        try {
+            DeletePhotoFaces::dispatch($photo->id);
+        } catch (Throwable $exception) {
+            Log::error('Face index cleanup could not be queued.', [
+                'photo_uuid' => $photo->uuid,
+                'event_uuid' => $photo->event->uuid,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
     }
 }

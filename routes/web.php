@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventFaceSearchController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\ContactController;
@@ -66,6 +67,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
+Route::post('/events/{event:slug}/face-search', EventFaceSearchController::class)->name('events.face-search');
 Route::get('/events/{event:slug}/photos/{photo}', [PhotoDeliveryController::class, 'gallery'])->name('events.photos.show');
 Route::get('/events/{event:slug}/photos/{photo}/image.jpg', [PhotoDeliveryController::class, 'image'])->name('events.photos.image');
 Route::get('/events/{event:slug}/photos/{photo}/report', [PhotoRemovalRequestController::class, 'create'])->name('photos.removal-requests.create');

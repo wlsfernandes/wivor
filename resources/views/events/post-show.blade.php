@@ -66,6 +66,56 @@
                                     <button class="btn btn-primary w-100" type="submit">Search</button>
                                 </div>
                             </form>
+
+                            @if (config('face_recognition.enabled') && ! $event->sales_close_at?->isPast())
+                                <div class="d-flex align-items-center gap-3 my-4" aria-hidden="true">
+                                    <hr class="flex-grow-1 my-0">
+                                    <span class="small text-muted text-uppercase">or</span>
+                                    <hr class="flex-grow-1 my-0">
+                                </div>
+
+                                <h3 class="h5">Find me with a selfie</h3>
+                                <p class="text-muted mb-2">For best results, upload a photo showing one person clearly.</p>
+                                <p class="small text-muted">
+                                    Your selfie is used only to search this event and is processed by Amazon Rekognition for face matching. WivorPhotos does not save your selfie.
+                                </p>
+
+                                <form method="POST" action="{{ route('events.face-search', ['event' => $event->slug]) }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label class="form-label" for="selfie">JPEG or PNG selfie</label>
+                                        <input class="form-control" id="selfie" name="selfie" type="file" accept="image/jpeg,image/png" required>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" id="face_search_consent" name="face_search_consent" type="checkbox" value="1" required>
+                                        <label class="form-check-label" for="face_search_consent">
+                                            I agree to use this photo only to search for matching photos in this event.
+                                        </label>
+                                    </div>
+                                    <button class="btn btn-outline-primary" type="submit">Find my photos</button>
+                                </form>
+
+                                @if (($faceSearchStatus ?? null) === 'matches')
+                                    <div class="alert alert-success mt-4 mb-0" role="status">
+                                        We found {{ $faceSearchCount }} {{ $faceSearchCount === 1 ? 'photo' : 'photos' }} that may include you.
+                                    </div>
+                                @elseif (($faceSearchStatus ?? null) === 'no_matches')
+                                    <div class="alert alert-info mt-4 mb-0" role="status">
+                                        <strong>We couldn't find a strong match in this event.</strong><br>
+                                        Try another clear photo of yourself, or search using your bib number.
+                                    </div>
+                                @elseif (($faceSearchStatus ?? null) === 'no_face')
+                                    <div class="alert alert-info mt-4 mb-0" role="status">
+                                        <strong>We couldn't clearly detect a face in that photo.</strong><br>
+                                        Try a photo showing one person clearly, facing the camera when possible.
+                                    </div>
+                                @elseif (($faceSearchStatus ?? null) === 'unavailable')
+                                    <div class="alert alert-warning mt-4 mb-0" role="status">
+                                        <strong>Face search is temporarily unavailable.</strong><br>
+                                        You can still browse the event or search by bib number.
+                                    </div>
+                                @endif
+                            @endif
                         </div>
                     </section>
 
@@ -73,9 +123,9 @@
                         <div class="card-body py-4">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                 <h2 id="event-photos" class="h4 mb-0">
-                                    {{ $bibNumber ? 'Photos matching bib #'.$bibNumber : 'Event photos' }}
+                                    {{ ($faceSearchStatus ?? null) === 'matches' ? 'Possible face matches' : ($bibNumber ? 'Photos matching bib #'.$bibNumber : 'Event photos') }}
                                 </h2>
-                                @if ($bibNumber)
+                                @if ($bibNumber || ($faceSearchStatus ?? null) === 'matches')
                                     <a href="{{ route('events.show', ['event' => $event->slug]) }}">View all photos</a>
                                 @endif
                             </div>

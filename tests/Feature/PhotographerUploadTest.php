@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\IndexPhotoFaces;
 use App\Jobs\ProcessPhoto;
 use App\Models\Event;
 use App\Models\EventAssignment;
@@ -10,9 +11,11 @@ use App\Models\Photographer;
 use App\Models\Role;
 use App\Models\UploadBatch;
 use App\Models\User;
+use App\Services\FaceRecognitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 use Tests\TestCase;
 
 class PhotographerUploadTest extends TestCase
@@ -101,6 +104,7 @@ class PhotographerUploadTest extends TestCase
 
     public function test_ready_photos_can_be_published_incrementally(): void
     {
+        Queue::fake();
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
         $photographer->forceFill([
             'stripe_account_id' => 'acct_ready',
@@ -122,10 +126,12 @@ class PhotographerUploadTest extends TestCase
         $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
         $this->assertNotNull($event->fresh()->gallery_published_at);
         $this->assertNotNull($event->fresh()->sales_close_at);
+        Queue::assertPushed(IndexPhotoFaces::class, fn ($job) => $job->photoId === $photo->id);
     }
 
     public function test_ready_photos_can_be_published_before_payout_setup_is_ready(): void
     {
+        Queue::fake();
         [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
         $batch = UploadBatch::create([
             'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
@@ -145,6 +151,32 @@ class PhotographerUploadTest extends TestCase
 
         $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
         $this->assertNotNull($event->fresh()->gallery_published_at);
+        Queue::assertPushed(IndexPhotoFaces::class, fn ($job) => $job->photoId === $photo->id);
+    }
+
+    public function test_face_indexing_failure_does_not_fail_photo_publication(): void
+    {
+        [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $batch = UploadBatch::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
+            'selected_count' => 1, 'status' => 'in_progress',
+        ]);
+        $photo = Photo::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id, 'assignment_id' => $assignment->id,
+            'upload_batch_id' => $batch->id, 'original_filename' => 'race.jpg',
+            'original_key' => 'private/original.jpg', 'preview_key' => 'private/preview.jpg',
+            'thumbnail_key' => 'private/thumb.jpg', 'status' => Photo::STATUS_READY,
+        ]);
+        $service = $this->createMock(FaceRecognitionService::class);
+        $service->method('indexPhoto')->willThrowException(new RuntimeException('AWS unavailable.'));
+        $this->app->instance(FaceRecognitionService::class, $service);
+
+        $this->actingAs($user)
+            ->post(route('photographer.uploads.publish', $event), ['photo_ids' => [$photo->uuid]])
+            ->assertRedirect()
+            ->assertSessionDoesntHaveErrors();
+
+        $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
     }
 
     private function approvedAssignment(): array

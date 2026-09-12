@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\DeletePhotoFaces;
 use App\Models\Event;
 use App\Models\MediaActivityLog;
 use App\Models\Photo;
@@ -110,6 +111,7 @@ class EnforceMediaRetention extends Command
                             $photo->thumbnail_key = null;
                             $photo->update(['expires_at' => $protectedUntil]);
                             MediaActivityLog::create(['event_id' => $photo->event_id, 'photo_id' => $photo->id, 'action' => 'sold_derivatives_deleted']);
+                            $this->queueFaceCleanup($photo);
                         } catch (Throwable $exception) {
                             Log::error('Scheduled derivative deletion failed.', ['photo_id' => $photo->id, 'exception' => $exception->getMessage()]);
                             MediaActivityLog::create(['event_id' => $photo->event_id, 'photo_id' => $photo->id, 'action' => 'deletion_failed']);
@@ -130,11 +132,25 @@ class EnforceMediaRetention extends Command
                             'deletion_reason' => $photo->sale_count > 0 ? 'sold_original_protection_expired' : 'unsold_gallery_expired',
                         ]);
                         MediaActivityLog::create(['event_id' => $photo->event_id, 'photo_id' => $photo->id, 'action' => 'retention_deleted']);
+                        $this->queueFaceCleanup($photo);
                     } catch (Throwable $exception) {
                         Log::error('Scheduled media deletion failed.', ['photo_id' => $photo->id, 'exception' => $exception->getMessage()]);
                         MediaActivityLog::create(['event_id' => $photo->event_id, 'photo_id' => $photo->id, 'action' => 'deletion_failed']);
                     }
                 }
             });
+    }
+
+    private function queueFaceCleanup(Photo $photo): void
+    {
+        try {
+            DeletePhotoFaces::dispatch($photo->id);
+        } catch (Throwable $exception) {
+            Log::error('Face index cleanup could not be queued.', [
+                'photo_uuid' => $photo->uuid,
+                'event_uuid' => $photo->event->uuid,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
     }
 }

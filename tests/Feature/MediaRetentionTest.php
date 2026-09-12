@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\DeletePhotoFaces;
 use App\Models\Event;
 use App\Models\EventAssignment;
 use App\Models\Photo;
@@ -9,6 +10,7 @@ use App\Models\Photographer;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -18,6 +20,7 @@ class MediaRetentionTest extends TestCase
 
     public function test_expired_unsold_media_is_deleted_but_tombstone_remains(): void
     {
+        Queue::fake();
         Storage::fake('media');
         config(['photo_uploads.disk' => 'media']);
         $user = User::factory()->create();
@@ -43,10 +46,12 @@ class MediaRetentionTest extends TestCase
         Storage::disk('media')->assertMissing('original.jpg');
         $this->assertSame(Photo::STATUS_REMOVED, $photo->fresh()->status);
         $this->assertNotNull($photo->fresh()->deleted_at);
+        Queue::assertPushed(DeletePhotoFaces::class, fn ($job) => $job->photoId === $photo->id);
     }
 
     public function test_sold_original_is_protected_while_closed_gallery_derivatives_are_removed(): void
     {
+        Queue::fake();
         Storage::fake('media');
         config(['photo_uploads.disk' => 'media']);
         $user = User::factory()->create();
@@ -74,5 +79,6 @@ class MediaRetentionTest extends TestCase
         $this->assertSame(Photo::STATUS_PUBLISHED, $photo->fresh()->status);
         $this->assertNull($photo->fresh()->preview_key);
         $this->assertTrue($photo->fresh()->expires_at->isFuture());
+        Queue::assertPushed(DeletePhotoFaces::class, fn ($job) => $job->photoId === $photo->id);
     }
 }
