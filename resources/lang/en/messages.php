@@ -91,7 +91,7 @@ return [
     'our_vision' => 'Our Vision',
     'our_mission' => 'Our Mission',
     'our_vision_p1' => 'Make professional event photography easy to find and accessible to sports and fitness communities across the United States.',
-    'our_mission_p1' => 'Connect customers with memorable event photos while giving approved photographers a clear way to publish their work, track sales, and receive earnings.',
+    'our_mission_p1' => 'Connect customers with memorable event photos while giving approved photographers a clear way to publish their work, track sales, and view payout status.',
     'core_values' => 'WivorPhotos Core Values',
     'values' => 'Values',
     'values_p1' => '<b>Passion for Sports:</b> We value the effort and perseverance behind every event moment.',

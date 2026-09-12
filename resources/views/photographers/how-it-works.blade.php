@@ -25,7 +25,7 @@
                         <span class="badge rounded-pill bg-dark mb-3">Step 2</span>
                         <h3 class="h5">Get approved</h3>
                         <p class="mb-0">Once approved, sign in to create or manage events, upload photos, review
-                            sales, and set up payouts.</p>
+                            sales, and complete Stripe account setup.</p>
                     </div>
                 </article>
             </div>

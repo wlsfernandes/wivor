@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Wivor | Portal')
+@section('title', 'Photographer and Admin Login | WivorPhotos')
 
-@section('meta-description', 'Sign in to your WivorPhotos account to manage event photos, photographer uploads, purchases, and marketplace activity.')
-@section('meta-keywords', 'WivorPhotos login, photographer login, sports photo account, event photo marketplace')
+@section('meta-description', 'Photographers and administrators can sign in to manage WivorPhotos events, uploads, sales, and marketplace operations.')
+@section('meta-keywords', 'WivorPhotos login, photographer login, event photo marketplace')
 
 @section('content')
     <section class="h-100 gradient-form" style="background-color: #eee;">
@@ -60,48 +60,33 @@
                                 </div>
                             </div>
 
-                            <!-- Registration Redirect -->
+                            <!-- Customer and photographer guidance -->
                             <div class="col-lg-6 d-flex align-items-center gradient-custom-2">
                                 <div class="text-white px-3 py-4 p-md-5 mx-md-4">
-                                    <h2 class="mb-3" style="color:#1a1a1a">@lang('header.sign_up')</h2>
-                                    <p class="small mb-0" style="color:#1a1a1a; margin-top:25px;">@lang('header.sign_up_p1')</p>
-                                    <h3 style="color:#1a1a1a; margin-top:25px;">@lang('header.fast')</h3>
-                                    <div class="text-center pt-1 mb-5 pb-1" style="margin-top:25px;">
-                                        <form id="registerForm" method="GET" action="{{ route('signUp') }}">
-                                            <button id="registerButton" data-mdb-button-init data-mdb-ripple-init
-                                                    class="btn btn-success btn-block w-100 fa-lg gradient-custom-2 mb-3" type="submit">
-                                                Register
-                                            </button>
-                                        </form>
+                                    <h2 class="mb-3" style="color:#1a1a1a">Looking for your event photos?</h2>
+                                    <p class="small mb-0" style="color:#1a1a1a; margin-top:25px;">
+                                        No customer account is required. Browse published event galleries, select your
+                                        photos, and check out as a guest.
+                                    </p>
+                                    <div class="text-center pt-1" style="margin-top:25px;">
+                                        <a class="btn btn-success btn-block w-100 fa-lg gradient-custom-2 mb-3"
+                                            href="{{ route('events.listEvents') }}">Browse Event Photos</a>
                                     </div>
+
+                                    <h3 class="h5" style="color:#1a1a1a; margin-top:25px;">Photographers</h3>
+                                    <p class="small" style="color:#1a1a1a;">
+                                        Approved photographers sign in here. New photographers can submit an application.
+                                    </p>
+                                    <a class="btn btn-outline-dark w-100" href="{{ route('photographers') }}#register_section">
+                                        Apply as a Photographer
+                                    </a>
                                 </div>
                             </div>
-                            <!-- End Registration Redirect -->
+                            <!-- End customer and photographer guidance -->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- JavaScript to handle each button's action -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // For the login form, we simply let it submit normally (POST)
-            var loginButton = document.getElementById('loginButton');
-            loginButton.addEventListener('click', function(event) {
-                // Additional JavaScript for login can be added here if needed.
-                // The form submission will continue as defined.
-            });
-
-            // For the registration button, intercept and redirect manually.
-            var registerButton = document.getElementById('registerButton');
-            registerButton.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent the form from submitting
-                var registerForm = document.getElementById('registerForm');
-                // Redirect using the form's action attribute (GET request)
-                window.location.href = registerForm.getAttribute('action');
-            });
-        });
-    </script>
 @endsection

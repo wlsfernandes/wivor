@@ -1022,7 +1022,6 @@
                             <li><a href="service.html"><i class="fas fa-arrow-right"></i> Ui Design</a></li>
                             <li><a href="service.html"><i class="fas fa-arrow-right"></i> Web design</a></li>
                             <li><a href="service.html"><i class="fas fa-arrow-right"></i> Digital marketing </a></li>
-                            <li><a href="service.html"><i class="fas fa-arrow-right"></i> Video Editing</a></li>
                             <li><a href="service.html"><i class="fas fa-arrow-right"></i> Pc Repairs</a></li>
                         </ul>
                     </div>

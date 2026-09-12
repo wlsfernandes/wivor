@@ -16,6 +16,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Exception;
 
 class UserController extends Controller
@@ -83,13 +84,12 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            DB::transaction(function () use ($request) {
-                // Exclude 'role_ids' from mass assignment
-                $user = new User($request->except('role_ids'));
+            $user = DB::transaction(function () use ($request) {
+                // Password setup is completed through Laravel's signed reset flow.
+                $user = new User($request->except(['role_ids', 'password']));
 
-                // Generate and hash a random password
-                $plainPassword = Str::random(8);
-                $user->password = Hash::make('adminWivor');
+                // Keep the account unusable with any known credential until setup completes.
+                $user->password = Hash::make(Str::random(64));
                 $user->save();
 
                 $roleIds = $request->input('role_ids'); // This could be a single value or an array
@@ -98,27 +98,19 @@ class UserController extends Controller
                     $user->roles()->syncWithoutDetaching($roleIds);
                 }
 
-                /* Prepare email content
-                $emailContent = "
-                <h1>Hello, {$user->name}</h1>
-                <p>Your account on Wivor was created. Here are your new login details:</p>
-                <p><strong>Email:</strong> {$user->email}</p>
-                <p><strong>Password:</strong> {$plainPassword}</p>
-                <p>Please use these credentials to log in to your account. It is strongly recommended that you change your password after your first login.</p>
-                <p>If you did not request this account creation, please contact our support team immediately.</p>
-                <p>Best regards,<br>AETH</p>";
-
-                // Send email (handled outside the transaction to prevent rollback issues)
-                Mail::html($emailContent, function ($message) use ($user) {
-                    $message->to($user->email);
-                    $message->subject('Your new account and password');
-                });
-*/
                 // Log success message
                 Log::info('User created successfully: ', ['user_id' => $user->id, 'email' => $user->email]);
 
-                session()->flash('success', 'User created successfully, and an email was sent with the login information.');
+                return $user;
             });
+
+            $status = Password::sendResetLink(['email' => $user->email]);
+
+            if ($status === Password::RESET_LINK_SENT) {
+                session()->flash('success', 'User created successfully. A secure password setup link was sent.');
+            } else {
+                session()->flash('error', 'User created successfully, but the password setup link could not be sent. Use the password reset flow to try again.');
+            }
 
             return redirect()->route('users.index');
 

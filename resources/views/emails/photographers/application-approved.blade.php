@@ -1,7 +1,7 @@
 <x-email.layout title="Welcome to WivorPhotos">
     <h1>Welcome to WivorPhotos</h1>
     <p>Hello {{ $user->name }},</p>
-    <p>Your WivorPhotos photographer profile is approved. Complete secure Stripe payout setup to prepare your account to receive photo earnings.</p>
+    <p>Your WivorPhotos photographer profile is approved. Complete secure Stripe account setup so WivorPhotos can track your payout readiness and you can access Stripe account tools.</p>
     <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
         <tr>
             <td align="center" style="padding: 10px 0 28px;">

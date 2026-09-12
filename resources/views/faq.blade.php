@@ -173,7 +173,8 @@
                             <summary class="card-header bg-white p-4 fw-semibold">What happens after I apply?</summary>
                             <div class="card-body px-4 pb-4">
                                 The WivorPhotos team reviews your application. Approved and email-verified photographers
-                                can sign in to create or manage events, upload photos, review sales, and set up payouts.
+                                can sign in to create or manage events, upload photos, review sales, complete Stripe
+                                account setup, and view payout status.
                             </div>
                         </details>
 
@@ -227,8 +228,9 @@
                             <summary class="card-header bg-white p-4 fw-semibold">Is Stripe payout setup required before
                                 publishing?</summary>
                             <div class="card-body px-4 pb-4">
-                                No. You can publish photos and record customer sales before payout setup is complete.
-                                Complete Stripe payout setup to prepare your account to receive earnings.
+                                No. You can publish photos and record customer sales before Stripe account setup is
+                                complete. Setup records payout readiness and does not automatically send a transfer
+                                after each sale.
                             </div>
                         </details>
                     </section>

@@ -1,92 +1,36 @@
 @extends('layouts.app')
 
-@section('title', 'Wivor | Home')
+@section('title', 'Guest Checkout | WivorPhotos')
 
-@section('meta-description', 'Create a WivorPhotos account to discover professional sports and fitness event photos and access marketplace features.')
+@section('meta-description', 'No customer account is required to browse and purchase event photos from WivorPhotos.')
+@section('meta-keywords', 'WivorPhotos guest checkout, sports event photos, athlete photos, event photography marketplace')
 
-@section('meta-keywords', 'WivorPhotos sign up, create WivorPhotos account, sports event photos, athlete photos, fitness photography marketplace')
-
-
-<!-- Content here -->
-<style>
-    input[type="password"] {
-        border: 1px solid #ced4da;
-        padding: 10px;
-        width: 100%;
-        background: #F7F5F1;
-        position: relative;
-        display: block;
-        width: 100%;
-        height: 60px;
-        background: #F7F5F1;
-        border-radius: 5px;
-        border: 1px solid #F7F5F1;
-        font-size: 16px;
-        font-family: 'Poppins', sans-serif;
-        color: #6E6E6E;
-        padding: 10px 30px;
-        transition: all 500ms ease;
-    }
-
-    /* Optional: Add focus effect for better UI */
-    input[type="password"]:focus {
-        border-color: 1px solid #F7F5F1;
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-</style>
 @section('content')
-
-
-    <section id="signup_section" class="contact-section sec-pad" style="margin-bottom:150px;">
+    <section class="contact-section sec-pad" style="margin-bottom:150px;" aria-labelledby="guest-checkout-title">
         <div class="auto-container">
-            <div class="sec-title centred mb_55">
-                <span class="sub-title calendar">@lang('messages.register_now')</span>
-            </div>
-            <div class="row clearfix">
-                <div class="col-lg-12 col-md-12 col-sm-12 form-column">
-                    <div class="form-inner">
-                        <form method="post" action="{{route('registerUser')}}" id="register-form"
-                            autocomplete="off">
-                            @csrf
-                            <div class="row clearfix">
-                                <!-- Name, Last Name, Phone -->
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="first_name" class="form-control"
-                                        placeholder="@lang('messages.your_name')" required autocomplete="off">
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="last_name" class="form-control"
-                                        placeholder="@lang('messages.last_name')" required autocomplete="off">
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12 form-group">
-                                    <input type="text" name="phone" class="form-control"
-                                        placeholder="@lang('messages.your_phone')" required autocomplete="off">
-                                </div>
-                               
-                                <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                                    <input type="email" name="email" class="form-control"
-                                        placeholder="@lang('messages.your_email')" required autocomplete="off">
-                                </div>
-
-                                <!-- Centered Submit Button -->
-                                <div class="col-lg-12 col-md-12 col-sm-12 form-group text-center">
-                                    <button class="theme-btn-one btn btn-primary" type="submit" name="submit-form">
-                                        <i class="bi bi-person-plus-fill"></i> <span>@lang('messages.register_now')</span>
-                                    </button>
-                                    <p style="margin-top:50px;">@lang('header.by_click')</p>
-                                    
-                                    <p><input class="form-check-input" type="checkbox" id="consentCheckbox" required> @lang('header.authorization')</p>
-                                </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4 p-lg-5 text-center">
+                            <span class="sub-title calendar">Customer purchases</span>
+                            <h1 id="guest-checkout-title" class="h2 mt-3">No customer account is required</h1>
+                            <p class="lead text-muted mt-3">
+                                Browse published event galleries, choose your photos, and complete your purchase as a guest.
+                                Your confirmation page and email receipt provide protected access to purchased originals.
+                            </p>
+                            <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                                <a class="theme-btn-one" href="{{ route('events.listEvents') }}">Browse Event Photos</a>
+                                <a class="btn btn-outline-primary" href="{{ route('photographers') }}#register_section">
+                                    Apply as a Photographer
+                                </a>
                             </div>
-                        </form>
+                            <p class="small text-muted mt-4 mb-0">
+                                Already an approved photographer? <a href="{{ route('login') }}">Sign in here</a>.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-
-
-
 @endsection

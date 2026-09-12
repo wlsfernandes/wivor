@@ -88,14 +88,14 @@ class PhotographerController extends Controller
             ],
             Photographer::STRIPE_ACTION_REQUIRED => [
                 'title' => 'Payout information required',
-                'message' => 'Stripe needs additional or updated information before you can receive earnings.',
+                'message' => 'Stripe needs additional or updated information before it can mark your connected account ready for payouts.',
                 'action' => 'Update Payout Information',
                 'route' => 'photographer.payouts.start',
                 'color' => 'warning',
             ],
             Photographer::STRIPE_READY => [
                 'title' => 'Payout setup complete',
-                'message' => 'Your account is ready to receive WivorPhotos earnings.',
+                'message' => 'Stripe has marked your connected account ready for payouts. WivorPhotos tracks transfers separately.',
                 'action' => 'Open Stripe Dashboard',
                 'route' => 'photographer.payouts.dashboard',
                 'color' => 'success',
@@ -109,7 +109,7 @@ class PhotographerController extends Controller
             ],
             default => [
                 'title' => 'Set up payouts',
-                'message' => 'Complete secure Stripe setup to prepare your account to receive photo earnings.',
+                'message' => 'Complete secure Stripe setup so your connected account payout readiness can be tracked.',
                 'action' => 'Complete Payout Setup',
                 'route' => 'photographer.payouts.start',
                 'color' => 'warning',

@@ -91,7 +91,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 align-self-center">
-                        <p>© devpromaster  <span id="currentYear"></span> | All Rights Reserved</p>
+                        <p>&copy; <span id="currentYear"></span> WivorPhotos. All rights reserved.</p>
                     </div>
                     <div class="col-lg-6 text-lg-end">
                         <a href="#">Terms & Condition</a>

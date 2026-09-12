@@ -67,7 +67,7 @@ return [
     'our_vision' => 'Nuestra Visión',
     'our_vision_p1' => 'Facilitar que las comunidades deportivas y de fitness de todo Estados Unidos encuentren y obtengan fotografía profesional de eventos.',
     'our_mission' => 'Nuestra Misión',
-    'our_mission_p1' => 'Conectar a los clientes con fotos memorables de sus eventos y ofrecer a los fotógrafos aprobados una forma clara de publicar su trabajo, seguir sus ventas y recibir sus ganancias.',
+    'our_mission_p1' => 'Conectar a los clientes con fotos memorables de sus eventos y ofrecer a los fotógrafos aprobados una forma clara de publicar su trabajo, seguir sus ventas y consultar el estado de sus pagos.',
     'open_positions' => 'Posiciones Abiertas',
     'open_positions_p1' => 'Descubra oportunidades inspiradoras en la Asociación para la Educación Teológica Hispana. Buscamos personas apasionadas y comprometidas que deseen formar parte de nuestro equipo dedicado a avanzar en la excelencia en la educación teológica. Explore las posiciones abiertas a continuación y únase a nosotros en el camino de enriquecer la educación teológica hispana.',
     'our_team' => 'Nuestro Equipo',

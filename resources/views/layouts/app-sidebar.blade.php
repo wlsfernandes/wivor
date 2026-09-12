@@ -454,7 +454,7 @@
                 </button>
                 <div class="photographer-topbar-title">
                     <strong>@yield('workspace-title', 'Photographer workspace')</strong>
-                    <span>Manage events, uploads, sales, and payouts</span>
+                    <span>Manage events and uploads; review sales and payout status</span>
                 </div>
                 <a class="btn btn-sm btn-outline-secondary photographer-topbar-action" href="{{ url('/') }}">
                     <i class="bi bi-box-arrow-up-right me-sm-1" aria-hidden="true"></i>

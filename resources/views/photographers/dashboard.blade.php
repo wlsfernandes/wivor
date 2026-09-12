@@ -23,8 +23,8 @@
             <div class="card-body">
                 <h2 class="h5">{{ $payoutSetup['title'] }}</h2>
                 <p>{{ $payoutSetup['message'] }}</p>
-                <p class="small text-muted">You can publish photos and record customer sales before payout setup is
-                    complete. Complete Stripe setup to prepare your account to receive earnings.</p>
+                <p class="small text-muted">You can publish photos and record customer sales before Stripe account
+                    setup is complete. Setup and payout-status tracking do not automatically send a transfer after each sale.</p>
                 <form method="POST" action="{{ route($payoutSetup['route']) }}">
                     @csrf
                     <button class="btn btn-{{ $payoutSetup['color'] }}" type="submit">{{ $payoutSetup['action'] }}</button>

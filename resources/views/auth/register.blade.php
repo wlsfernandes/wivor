@@ -131,7 +131,7 @@
                             <script>
                                 document.write(new Date().getFullYear())
 
-                            </script> Created <i class="mdi mdi-heart text-danger"></i> by devpromaster
+                            </script> WivorPhotos. All rights reserved.
                         </p>
                     </div>
 

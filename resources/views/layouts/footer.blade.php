@@ -2,7 +2,7 @@
     <div class="container-fluid">
     <div class="footer-bottom centred">
             <div class="copyright">
-                <p><small>Copyright <span id="currentYear"></span> by <a href="#">devpromaster</a> All Right Reserved.</small>
+                <p><small>&copy; <span id="currentYear"></span> WivorPhotos. All rights reserved.</small>
                 </p>
             </div>
         </div>
