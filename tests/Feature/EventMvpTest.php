@@ -168,6 +168,62 @@ class EventMvpTest extends TestCase
             ->assertOk();
     }
 
+    public function test_assigned_non_owner_can_upload_but_cannot_manage_the_event(): void
+    {
+        [$owner, $ownerPhotographer] = $this->createPhotographerUser();
+        [$assignedUser, $assignedPhotographer] = $this->createPhotographerUser();
+        $event = $this->createEvent([
+            'title' => 'Owner Only Event',
+            'status' => Event::STATUS_PUBLISHED,
+            'published' => true,
+            'published_at' => now(),
+        ]);
+        $event->photographers()->attach($ownerPhotographer, ['status' => 'approved']);
+        $event->photographers()->attach($assignedPhotographer, ['status' => 'approved']);
+
+        $editUrl = route('events.edit', ['event' => $event->id]);
+        $publishUrl = route('events.publish', ['event' => $event->id]);
+        $archiveUrl = route('events.destroy', ['event' => $event->id]);
+
+        $this->actingAs($owner)
+            ->get(route('events.index'))
+            ->assertOk()
+            ->assertSee('href="'.$editUrl.'"', false)
+            ->assertSee('action="'.$publishUrl.'"', false)
+            ->assertSee('action="'.$archiveUrl.'"', false);
+
+        $this->actingAs($assignedUser)
+            ->get(route('events.index'))
+            ->assertOk()
+            ->assertSee('href="'.route('photographer.uploads.show', $event).'"', false)
+            ->assertDontSee('href="'.$editUrl.'"', false)
+            ->assertDontSee('action="'.$publishUrl.'"', false)
+            ->assertDontSee('action="'.$archiveUrl.'"', false);
+
+        $this->actingAs($assignedUser)
+            ->get($editUrl)
+            ->assertForbidden();
+
+        $this->actingAs($assignedUser)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'title' => 'Unauthorized Edit',
+            ]))
+            ->assertForbidden();
+
+        $this->actingAs($assignedUser)
+            ->patch($publishUrl)
+            ->assertForbidden();
+
+        $this->actingAs($assignedUser)
+            ->delete($archiveUrl)
+            ->assertForbidden();
+
+        $event->refresh();
+        $this->assertSame('Owner Only Event', $event->title);
+        $this->assertSame(Event::STATUS_PUBLISHED, $event->status);
+        $this->assertTrue($event->published);
+    }
+
     public function test_owner_can_publish_and_archive_an_event(): void
     {
         [$owner, $photographer] = $this->createPhotographerUser();

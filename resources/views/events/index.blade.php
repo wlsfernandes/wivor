@@ -84,21 +84,27 @@
                                         @if (! auth()->user()->hasRole('admin') && ($event->pivot?->status ?? null) === 'approved' && ! $event->is_archived)
                                             <a class="btn btn-sm btn-primary" href="{{ route('photographer.uploads.show', $event) }}">Upload photos</a>
                                         @endif
-                                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('events.edit', ['event' => $event->id]) }}">Edit</a>
-                                        @if (! $event->is_archived)
-                                            <form method="POST" action="{{ route('events.publish', ['event' => $event->id]) }}">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button class="btn btn-sm btn-outline-success" type="submit">
-                                                    {{ $event->publish_action_label }}
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('events.destroy', ['event' => $event->id]) }}" onsubmit="return confirm('Archive this event?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-sm btn-outline-danger" type="submit">Archive</button>
-                                            </form>
-                                        @endif
+                                        @can('update', $event)
+                                            <a class="btn btn-sm btn-outline-secondary" href="{{ route('events.edit', ['event' => $event->id]) }}">Edit</a>
+                                            @if (! $event->is_archived)
+                                                <form method="POST" action="{{ route('events.publish', ['event' => $event->id]) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button class="btn btn-sm btn-outline-success" type="submit">
+                                                        {{ $event->publish_action_label }}
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endcan
+                                        @can('delete', $event)
+                                            @if (! $event->is_archived)
+                                                <form method="POST" action="{{ route('events.destroy', ['event' => $event->id]) }}" onsubmit="return confirm('Archive this event?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit">Archive</button>
+                                                </form>
+                                            @endif
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
