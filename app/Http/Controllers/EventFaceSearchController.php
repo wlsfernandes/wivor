@@ -34,13 +34,13 @@ class EventFaceSearchController extends Controller
         }
 
         $validated = $request->validate([
-            'selfie' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:10240'],
+            'selfie' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
             'face_search_consent' => ['accepted'],
         ], [
             'selfie.required' => 'Choose a JPEG or PNG selfie to search this event.',
             'selfie.image' => 'The selfie must be a valid JPEG or PNG image.',
             'selfie.mimes' => 'The selfie must be a JPEG or PNG image.',
-            'selfie.max' => 'The selfie must be 10 MB or smaller.',
+            'selfie.max' => 'The selfie must be 5 MB or smaller.',
             'face_search_consent.accepted' => 'You must agree before using face search.',
         ]);
 
