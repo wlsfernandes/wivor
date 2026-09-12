@@ -35,8 +35,9 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h2 class="h5">Your account is approved</h2>
-                <p class="text-muted mb-0">Use the workspace navigation to create or manage events and upload photos.
+                <p class="text-muted">Use the workspace navigation to create or manage events and upload photos.
                     Your sales and payout status appear below.</p>
+                <a href="{{ route('photographer-terms') }}">Review the Photographer Terms</a>
             </div>
         </div>
 

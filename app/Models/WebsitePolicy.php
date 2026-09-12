@@ -18,12 +18,14 @@ class WebsitePolicy extends Model
     public const PRIVACY = 'privacy';
     public const TERMS = 'terms';
     public const REFUND = 'refund';
+    public const PHOTOGRAPHER_TERMS = 'photographer-terms';
 
     /** @var array<string, string> */
     public const TITLES = [
         self::PRIVACY => 'Privacy Policy',
         self::TERMS => 'Terms of Use',
         self::REFUND => 'Refund Policy',
+        self::PHOTOGRAPHER_TERMS => 'Photographer Terms',
     ];
 
     /**

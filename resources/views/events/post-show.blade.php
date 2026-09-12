@@ -89,7 +89,7 @@
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" id="face_search_consent" name="face_search_consent" type="checkbox" value="1" required>
                                         <label class="form-check-label" for="face_search_consent">
-                                            I agree to use this photo only to search for matching photos in this event.
+                                            I agree to use this photo only to search for matching photos in this event, as described in the <a href="{{ route('privacy') }}">Privacy Policy</a>.
                                         </label>
                                     </div>
                                     <button class="btn btn-outline-primary" type="submit">Find my photos</button>

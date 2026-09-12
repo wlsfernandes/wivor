@@ -27,6 +27,7 @@
                         @if ($canOpenDashboard)
                             <a class="btn btn-primary mt-3" href="{{ route('photographer.dashboard') }}">Open dashboard</a>
                         @endif
+                        <p class="small mt-4 mb-0"><a href="{{ route('photographer-terms') }}">Review the Photographer Terms</a></p>
                     </div>
                 </div>
             </div>

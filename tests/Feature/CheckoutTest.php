@@ -29,6 +29,11 @@ class CheckoutTest extends TestCase
 
         $this->post(route('cart.items.store'), ['photo' => $photo->uuid])->assertRedirect();
 
+        $this->get(route('cart.show'))
+            ->assertOk()
+            ->assertSee('href="'.route('terms').'"', false)
+            ->assertSee('href="'.route('refund-policy').'"', false);
+
         $response = $this->startCheckout();
         $response->assertRedirect('https://checkout.stripe.com/test-session');
 

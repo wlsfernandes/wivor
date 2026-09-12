@@ -11,20 +11,24 @@ class PublicPolicyPagesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_policy_pages_show_only_the_requested_placeholder_structure(): void
+    public function test_policy_pages_have_real_mvp_aligned_fallback_content_without_database_rows(): void
     {
         $pages = [
             'privacy' => [
                 'heading' => 'Privacy Policy',
-                'placeholder' => 'WivorPhotos is preparing its full Privacy Policy.',
+                'content' => 'WivorPhotos does not intentionally save the search selfie',
             ],
             'terms' => [
                 'heading' => 'Terms of Use',
-                'placeholder' => 'WivorPhotos is preparing its full Terms of Use.',
+                'content' => 'purchase available photographs as guests',
             ],
             'refund-policy' => [
                 'heading' => 'Refund Policy',
-                'placeholder' => 'WivorPhotos is preparing its full Refund Policy.',
+                'content' => 'does not provide an automated in-app refund-request',
+            ],
+            'photographer-terms' => [
+                'heading' => 'Photographer Terms',
+                'content' => 'it does not currently promise an automatic transfer after each sale',
             ],
         ];
 
@@ -32,8 +36,9 @@ class PublicPolicyPagesTest extends TestCase
             $this->get(route($routeName))
                 ->assertOk()
                 ->assertSee($content['heading'])
-                ->assertSee($content['placeholder'])
-                ->assertSee('Last updated: To be published');
+                ->assertSee($content['content'])
+                ->assertSee('Last updated: September 12, 2026')
+                ->assertDontSee('Policy content pending');
         }
     }
 
@@ -41,7 +46,7 @@ class PublicPolicyPagesTest extends TestCase
     {
         $response = $this->get(route('privacy'))->assertOk();
 
-        foreach (['privacy', 'terms', 'refund-policy', 'photo-removal.create', 'contact_us'] as $routeName) {
+        foreach (['privacy', 'terms', 'refund-policy', 'photographer-terms', 'photo-removal.create', 'contact_us'] as $routeName) {
             $response->assertSee('href="'.route($routeName).'"', false);
         }
     }

@@ -11,19 +11,23 @@ use Illuminate\View\View;
  */
 class PolicyController extends Controller
 {
-    /** @var array<string, array{meta_description: string, placeholder: string}> */
+    /** @var array<string, array{meta_description: string, default_view: string}> */
     private const PRESENTATION = [
         WebsitePolicy::PRIVACY => [
-            'meta_description' => 'Placeholder for the forthcoming WivorPhotos Privacy Policy.',
-            'placeholder' => 'WivorPhotos is preparing its full Privacy Policy. This page will be updated with information regarding how personal information, photographs, transaction information, and related data are collected, used, stored, and protected.',
+            'meta_description' => 'How WivorPhotos handles customer, photographer, payment, event-photo, and recognition data.',
+            'default_view' => 'policies.privacy',
         ],
         WebsitePolicy::TERMS => [
-            'meta_description' => 'Placeholder for the forthcoming WivorPhotos Terms of Use.',
-            'placeholder' => 'WivorPhotos is preparing its full Terms of Use. This page will be updated with the terms governing use of the WivorPhotos website, event galleries, purchases, photographer participation, and related services.',
+            'meta_description' => 'Terms for browsing WivorPhotos event galleries and purchasing digital event photographs.',
+            'default_view' => 'policies.terms',
         ],
         WebsitePolicy::REFUND => [
-            'meta_description' => 'Placeholder for the forthcoming WivorPhotos Refund Policy.',
-            'placeholder' => 'WivorPhotos is preparing its full Refund Policy. This page will be updated with information regarding eligibility, requests, exceptions, and the handling of digital-photo purchases.',
+            'meta_description' => 'How to request support and how WivorPhotos handles refunds for digital photograph purchases.',
+            'default_view' => 'policies.refund',
+        ],
+        WebsitePolicy::PHOTOGRAPHER_TERMS => [
+            'meta_description' => 'Terms for photographers who apply, publish event photographs, and earn through WivorPhotos.',
+            'default_view' => 'policies.photographer-terms',
         ],
     ];
 
@@ -40,12 +44,14 @@ class PolicyController extends Controller
         $websitePolicy = WebsitePolicy::query()->where('slug', $policy)->first();
         $content = $websitePolicy?->content;
 
+        if ($content === null || trim($content) === '') {
+            return view($presentation['default_view']);
+        }
+
         return view('policies.show', [
             'title' => $title,
             'metaDescription' => $presentation['meta_description'],
-            'placeholder' => $presentation['placeholder'],
             'content' => $content,
-            'hasContent' => $content !== null && trim($content) !== '',
             'lastUpdated' => $websitePolicy?->updated_at?->format('F j, Y'),
         ]);
     }

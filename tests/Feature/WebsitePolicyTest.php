@@ -24,6 +24,7 @@ class WebsitePolicyTest extends TestCase
                 ->assertSee('Privacy Policy')
                 ->assertSee('Terms of Use')
                 ->assertSee('Refund Policy')
+                ->assertSee('Photographer Terms')
                 ->assertSee($title)
                 ->assertSee('name="content"', false);
         }
@@ -66,12 +67,12 @@ class WebsitePolicyTest extends TestCase
         $this->assertDatabaseCount('website_policies', 0);
     }
 
-    public function test_public_policy_page_keeps_its_placeholder_until_content_is_saved(): void
+    public function test_public_policy_page_uses_real_fallback_until_admin_content_is_saved(): void
     {
         $this->get(route('refund-policy'))
             ->assertOk()
-            ->assertSee('Policy content pending')
-            ->assertSee('WivorPhotos is preparing its full Refund Policy.');
+            ->assertSee('does not provide an automated in-app refund-request')
+            ->assertDontSee('Policy content pending');
     }
 
     public function test_non_admin_cannot_manage_website_policies(): void

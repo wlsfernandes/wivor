@@ -30,6 +30,7 @@
                 <li><a class="text-white" href="{{ route('privacy') }}">@lang('header.privacy_policy')</a></li>
                 <li><a class="text-white" href="{{ route('terms') }}">@lang('header.terms_of_use')</a></li>
                 <li><a class="text-white" href="{{ route('refund-policy') }}">@lang('header.refund_policy')</a></li>
+                <li><a class="text-white" href="{{ route('photographer-terms') }}">Photographer Terms</a></li>
                 <li><a class="text-white" href="{{ route('photo-removal.create') }}">@lang('header.photo_removal_request')</a></li>
                 <li><a class="text-white" href="{{ route('contact_us') }}">@lang('header.contact_us')</a></li>
             </ul>

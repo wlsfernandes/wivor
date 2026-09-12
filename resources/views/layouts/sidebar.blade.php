@@ -71,6 +71,7 @@
                             <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'privacy']) }}">Privacy Policy</a></li>
                             <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'terms']) }}">Terms of Use</a></li>
                             <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'refund']) }}">Refund Policy</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'photographer-terms']) }}">Photographer Terms</a></li>
                         </ul>
                     </li>
 

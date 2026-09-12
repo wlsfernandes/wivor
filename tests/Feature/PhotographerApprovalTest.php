@@ -19,12 +19,12 @@ class PhotographerApprovalTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_photographer_registration_form_links_to_the_terms_page(): void
+    public function test_photographer_registration_form_links_to_distinct_photographer_terms(): void
     {
         $this->get(route('photographers'))
             ->assertOk()
-            ->assertSee('href="'.route('terms').'"', false)
-            ->assertSee('WivorPhotos photographer terms');
+            ->assertSee('href="'.route('photographer-terms').'"', false)
+            ->assertSee('WivorPhotos Photographer Terms');
     }
 
     public function test_photographer_registers_with_their_own_password_and_starts_pending(): void
@@ -84,6 +84,7 @@ class PhotographerApprovalTest extends TestCase
             ->assertSee('data-photographer-sidebar-toggle', false)
             ->assertDontSee('My events')
             ->assertSee('href="'.route('events.index').'"', false)
+            ->assertSee('href="'.route('photographer-terms').'"', false)
             ->assertSee('Upload Photos');
 
         $pendingUser->forceFill(['email_verified_at' => null])->save();

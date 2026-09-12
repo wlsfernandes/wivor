@@ -47,6 +47,7 @@ class EventFaceSearchTest extends TestCase
             ->assertSee('Amazon Rekognition')
             ->assertSee('WivorPhotos does not save your selfie.')
             ->assertSee(route('events.face-search', $event), false)
+            ->assertSee('href="'.route('privacy').'"', false)
             ->assertSee('accept="image/jpeg,image/png"', false)
             ->assertSee('name="face_search_consent"', false);
     }

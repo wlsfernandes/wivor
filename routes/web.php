@@ -102,6 +102,9 @@ Route::get('/terms', [PolicyController::class, 'show'])
 Route::get('/refund-policy', [PolicyController::class, 'show'])
     ->defaults('policy', WebsitePolicy::REFUND)
     ->name('refund-policy');
+Route::get('/photographer-terms', [PolicyController::class, 'show'])
+    ->defaults('policy', WebsitePolicy::PHOTOGRAPHER_TERMS)
+    ->name('photographer-terms');
 Route::get('/photo-removal', [PhotoRemovalRequestController::class, 'general'])->name('photo-removal.create');
 Route::post('/photo-removal', [PhotoRemovalRequestController::class, 'storeGeneral'])->name('photo-removal.store');
 Route::view('/contact', 'contact')->name('contact_us');

@@ -57,6 +57,7 @@
                             @csrf
                             <input type="hidden" name="checkout_token" value="{{ $checkoutToken }}">
                             <button class="btn btn-primary" type="submit" data-checkout-button>Continue to Secure Checkout</button>
+                            <p class="small text-muted mt-2 mb-0">By continuing, you agree to the <a href="{{ route('terms') }}">Terms of Use</a>. See the <a href="{{ route('refund-policy') }}">Refund Policy</a>.</p>
                         </form>
                     </div>
                 </div>
