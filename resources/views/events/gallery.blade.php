@@ -19,6 +19,77 @@
             max-height: 240px;
             object-fit: cover;
         }
+
+        .event-gallery-pagination .pagination {
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 0;
+        }
+
+        .event-gallery-pagination .page-item {
+            margin: 0;
+        }
+
+        .event-gallery-pagination .page-link {
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--bs-border-color, #dee2e6);
+            border-radius: 6px !important;
+            box-sizing: border-box;
+            color: var(--bs-primary);
+            display: inline-flex;
+            height: 40px;
+            justify-content: center;
+            line-height: 1;
+            margin: 0 !important;
+            min-width: 40px;
+            padding: 0;
+            width: 40px;
+        }
+
+        .event-gallery-pagination .page-link:hover {
+            background: var(--bs-light);
+            border-color: var(--bs-primary);
+            color: var(--bs-primary);
+        }
+
+        .event-gallery-pagination .page-link:focus {
+            box-shadow: 0 0 0 .2rem rgba(var(--bs-primary-rgb), .2);
+        }
+
+        .event-gallery-pagination .page-item.active .page-link {
+            background: var(--bs-primary);
+            border-color: var(--bs-primary);
+            color: #fff;
+        }
+
+        .event-gallery-pagination .page-item.disabled .page-link {
+            background: var(--bs-light);
+            border-color: var(--bs-border-color, #dee2e6);
+            color: var(--bs-secondary-color, #6c757d);
+            opacity: .7;
+        }
+
+        .event-gallery-pagination .d-sm-none {
+            justify-content: center !important;
+        }
+
+        .event-gallery-pagination .d-sm-none .page-link {
+            font-size: 0;
+        }
+
+        .event-gallery-pagination .d-sm-none .page-item:first-child .page-link::before,
+        .event-gallery-pagination .d-sm-none .page-item:last-child .page-link::before {
+            font-size: 1.25rem;
+        }
+
+        .event-gallery-pagination .d-sm-none .page-item:first-child .page-link::before {
+            content: '‹';
+        }
+
+        .event-gallery-pagination .d-sm-none .page-item:last-child .page-link::before {
+            content: '›';
+        }
     </style>
 @endsection
 
@@ -132,7 +203,7 @@
                             </div>
                         @endforeach
                     </div>
-                    <div class="mt-4">{{ $photos->onEachSide(1)->links('pagination::bootstrap-5') }}</div>
+                    <div class="event-gallery-pagination mt-4">{{ $photos->onEachSide(1)->links('pagination::bootstrap-5') }}</div>
                 @endif
             </div>
         </section>
