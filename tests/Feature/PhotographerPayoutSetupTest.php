@@ -8,6 +8,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -42,6 +44,12 @@ class PhotographerPayoutSetupTest extends TestCase
                 {
                     public int $createCount = 0;
 
+                    public array $createParams = [];
+
+                    public array $createOptions = [];
+
+                    public ?\Throwable $createException = null;
+
                     public object $account;
 
                     public function __construct()
@@ -51,7 +59,13 @@ class PhotographerPayoutSetupTest extends TestCase
 
                     public function create(array $params, array $options = []): object
                     {
+                        if ($this->createException) {
+                            throw $this->createException;
+                        }
+
                         $this->createCount++;
+                        $this->createParams = $params;
+                        $this->createOptions = $options;
 
                         return $this->account;
                     }
@@ -104,9 +118,12 @@ class PhotographerPayoutSetupTest extends TestCase
                 {
                     public int $createCount = 0;
 
+                    public array $createParams = [];
+
                     public function create(array $params): object
                     {
                         $this->createCount++;
+                        $this->createParams = $params;
 
                         return (object) ['url' => 'https://connect.stripe.test/onboarding'];
                     }
@@ -135,6 +152,15 @@ class PhotographerPayoutSetupTest extends TestCase
 
         $this->assertSame(1, $this->fakeStripe->accounts->createCount);
         $this->assertSame(2, $this->fakeStripe->accountLinks->createCount);
+        $this->assertTrue($this->fakeStripe->accounts->createParams['configuration']['merchant']['capabilities']['card_payments']['requested']);
+        $this->assertTrue($this->fakeStripe->accounts->createParams['configuration']['recipient']['capabilities']['stripe_balance']['stripe_transfers']['requested']);
+        $this->assertSame('full', $this->fakeStripe->accounts->createParams['dashboard']);
+        $this->assertSame([
+            'fees_collector' => 'stripe',
+            'losses_collector' => 'stripe',
+        ], $this->fakeStripe->accounts->createParams['defaults']['responsibilities']);
+        $this->assertSame('wivor-v2-photographer-'.$photographer->id, $this->fakeStripe->accounts->createOptions['idempotency_key']);
+        $this->assertSame(['merchant', 'recipient'], $this->fakeStripe->accountLinks->createParams['use_case']['account_onboarding']['configurations']);
         $this->assertSame('acct_connect_test', $photographer->fresh()->stripe_account_id);
         $this->assertSame(Photographer::STRIPE_INCOMPLETE, $photographer->fresh()->stripe_onboarding_status);
     }
@@ -157,7 +183,38 @@ class PhotographerPayoutSetupTest extends TestCase
         $this->assertNotNull($photographer->stripe_last_synced_at);
 
         $this->actingAs($user)->post(route('photographer.payouts.dashboard'))
-            ->assertRedirect('https://connect.stripe.test/dashboard');
+            ->assertRedirect('https://dashboard.stripe.com');
+    }
+
+    public function test_starting_onboarding_logs_safe_stripe_error_details(): void
+    {
+        Log::spy();
+        [$user, $photographer] = $this->approvedPhotographer();
+        $this->fakeStripe->accounts->createException = InvalidRequestException::factory(
+            'The connected account configuration is invalid.',
+            400,
+            null,
+            null,
+            ['Request-Id' => 'req_connect_test'],
+            'invalid_fields',
+        );
+
+        $this->actingAs($user)->post(route('photographer.payouts.start'))
+            ->assertRedirect(route('photographer.dashboard'))
+            ->assertSessionHasErrors('payouts');
+
+        Log::shouldHaveReceived('error')->once()->with(
+            'Stripe payout onboarding could not start.',
+            \Mockery::on(fn (array $context): bool => $context === [
+                'event' => 'photographers.payouts.start',
+                'photographer_id' => $photographer->id,
+                'exception_class' => InvalidRequestException::class,
+                'exception_message' => 'The connected account configuration is invalid.',
+                'stripe_error_code' => 'invalid_fields',
+                'stripe_request_id' => 'req_connect_test',
+                'http_status' => 400,
+            ]),
+        );
     }
 
     public function test_account_updated_webhook_is_idempotent_and_notifies_when_ready(): void

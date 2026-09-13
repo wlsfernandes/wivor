@@ -20,11 +20,16 @@ class StripeConnectService
                 $account = $this->stripe->v2->core->accounts->create([
                     'contact_email' => $locked->user->email,
                     'display_name' => trim("{$locked->first_name} {$locked->last_name}"),
-                    'dashboard' => 'express',
+                    'dashboard' => 'full',
                     'identity' => [
                         'country' => 'us',
                     ],
                     'configuration' => [
+                        'merchant' => [
+                            'capabilities' => [
+                                'card_payments' => ['requested' => true],
+                            ],
+                        ],
                         'recipient' => [
                             'capabilities' => [
                                 'stripe_balance' => [
@@ -38,8 +43,8 @@ class StripeConnectService
                             'product_description' => 'Event photography sold through WivorPhotos',
                         ],
                         'responsibilities' => [
-                            'fees_collector' => 'application',
-                            'losses_collector' => 'application',
+                            'fees_collector' => 'stripe',
+                            'losses_collector' => 'stripe',
                         ],
                     ],
                     'metadata' => [
@@ -64,7 +69,7 @@ class StripeConnectService
             'use_case' => [
                 'type' => 'account_onboarding',
                 'account_onboarding' => [
-                    'configurations' => ['recipient'],
+                    'configurations' => ['merchant', 'recipient'],
                     'refresh_url' => route('photographer.payouts.refresh'),
                     'return_url' => route('photographer.payouts.return'),
                     'collection_options' => [
@@ -134,9 +139,9 @@ class StripeConnectService
         return $photographer->refresh();
     }
 
-    /** Return a fresh, single-use Express Dashboard login URL. */
+    /** Return the login URL for connected accounts with full Stripe Dashboard access. */
     public function dashboardUrl(Photographer $photographer): string
     {
-        return $this->stripe->accounts->createLoginLink($photographer->stripe_account_id)->url;
+        return 'https://dashboard.stripe.com';
     }
 }

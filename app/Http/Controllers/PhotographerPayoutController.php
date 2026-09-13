@@ -18,10 +18,15 @@ class PhotographerPayoutController extends Controller
     {
         try {
             return redirect()->away($this->connect->onboardingUrl($this->photographer($request)));
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
             Log::error('Stripe payout onboarding could not start.', [
                 'event' => 'photographers.payouts.start',
                 'photographer_id' => $request->user()->photographer->id,
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+                'stripe_error_code' => method_exists($exception, 'getStripeCode') ? $exception->getStripeCode() : null,
+                'stripe_request_id' => method_exists($exception, 'getRequestId') ? $exception->getRequestId() : null,
+                'http_status' => method_exists($exception, 'getHttpStatus') ? $exception->getHttpStatus() : null,
             ]);
 
             return redirect()->route('photographer.dashboard')
@@ -62,7 +67,7 @@ class PhotographerPayoutController extends Controller
         return $this->returned($request);
     }
 
-    /** Open the photographer's Stripe Express Dashboard. */
+    /** Open the photographer's Stripe Dashboard. */
     public function dashboard(Request $request): RedirectResponse
     {
         $photographer = $this->photographer($request);
@@ -71,7 +76,7 @@ class PhotographerPayoutController extends Controller
         try {
             return redirect()->away($this->connect->dashboardUrl($photographer));
         } catch (Throwable) {
-            Log::error('Stripe Express Dashboard link creation failed.', [
+            Log::error('Stripe Dashboard could not open.', [
                 'event' => 'photographers.payouts.dashboard',
                 'photographer_id' => $photographer->id,
             ]);
