@@ -43,7 +43,7 @@ class EventFaceSearchTest extends TestCase
 
         $this->get(route('events.show', $event))
             ->assertOk()
-            ->assertSee('Find me with a selfie')
+            ->assertSee('Find yourself with a selfie')
             ->assertSee('Amazon Rekognition')
             ->assertSee('WivorPhotos does not save your selfie.')
             ->assertSee(route('events.face-search', $event), false)
@@ -62,7 +62,7 @@ class EventFaceSearchTest extends TestCase
 
         $this->get(route('events.show', $event))
             ->assertOk()
-            ->assertDontSee('Find me with a selfie');
+            ->assertDontSee('Find yourself with a selfie');
 
         $this->post(route('events.face-search', $event), [
             'selfie' => $this->selfie(),

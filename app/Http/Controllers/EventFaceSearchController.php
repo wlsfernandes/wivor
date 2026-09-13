@@ -82,7 +82,7 @@ class EventFaceSearchController extends Controller
             ]);
         }
 
-        return view('events.post-show', $this->viewData($event, $matches, $status));
+        return view('events.gallery', $this->viewData($event, $matches, $status));
     }
 
     /**
@@ -109,14 +109,10 @@ class EventFaceSearchController extends Controller
     /** @return array<string, mixed> */
     private function viewData(Event $event, Collection $matches, string $status): array
     {
-        $photosLiveLabel = $event->photos_live_at
-            ? $event->photos_live_at->timezone($event->timezone)->format('F j, Y \a\t g:i A T')
-            : null;
-        $availabilityMessage = match (true) {
-            $event->photos()->where('status', Photo::STATUS_PUBLISHED)->exists() => 'Browse the photographs currently published for this event.',
-            $event->public_availability_label === 'Photos coming soon' => "Photos for this event are not available yet. Please return after {$photosLiveLabel}.",
-            default => 'Event photography is being prepared. Please check back soon.',
-        };
+        $availablePhotosQuery = $event->photos()
+            ->where('status', Photo::STATUS_PUBLISHED)
+            ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'));
+        $availablePhotoCount = (clone $availablePhotosQuery)->count();
 
         $photos = $status === 'matches'
             ? new LengthAwarePaginator(
@@ -124,14 +120,13 @@ class EventFaceSearchController extends Controller
                 $matches->count(),
                 (int) config('face_recognition.max_results'),
                 1,
-                ['path' => route('events.show', ['event' => $event->slug])],
+                ['path' => route('events.photos.index', ['event' => $event->slug])],
             )
-            : $event->photos()
+            : (clone $availablePhotosQuery)
                 ->with('photographer')
-                ->where('status', Photo::STATUS_PUBLISHED)
                 ->latest('published_at')
-                ->paginate(48)
-                ->withPath(route('events.show', ['event' => $event->slug]));
+                ->paginate(24)
+                ->withPath(route('events.photos.index', ['event' => $event->slug]));
         $cartEvent = $this->cart->event();
         $cartCount = $this->cart->count();
 
@@ -139,8 +134,8 @@ class EventFaceSearchController extends Controller
             'event' => $event,
             'seoTitle' => "{$event->title} Photos | WivorPhotos",
             'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
-            'canonicalUrl' => route('events.show', ['event' => $event->slug]),
-            'availabilityMessage' => $availabilityMessage,
+            'canonicalUrl' => route('events.photos.index', ['event' => $event->slug]),
+            'availablePhotoCount' => $availablePhotoCount,
             'bibNumber' => null,
             'photos' => $photos,
             'faceSearchStatus' => $status,

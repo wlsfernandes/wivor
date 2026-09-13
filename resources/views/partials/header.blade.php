@@ -116,7 +116,7 @@
                                 <li class="{{ request()->routeIs('welcome') ? 'current' : '' }}">
                                     <a href="{{ route('welcome') }}">@lang('header.home')</a>
                                 </li>
-                                <li class="{{ request()->routeIs('events.listEvents', 'events.show', 'events.photos.show') ? 'current' : '' }}">
+                                <li class="{{ request()->routeIs('events.listEvents', 'events.show', 'events.photos.index', 'events.photos.show') ? 'current' : '' }}">
                                     <a href="{{ route('events.listEvents') }}">@lang('header.find_events')</a>
                                 </li>
                                 <li class="{{ request()->routeIs('faq') ? 'current' : '' }}">

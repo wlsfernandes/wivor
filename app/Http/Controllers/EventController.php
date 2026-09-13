@@ -103,7 +103,45 @@ class EventController extends Controller
     }
 
     /** Display a published event by its public slug. */
-    public function show(Request $request, Event $event): View
+    public function show(Event $event): View
+    {
+        abort_unless($event->status === Event::STATUS_PUBLISHED, 404);
+
+        $photosLiveLabel = $event->photos_live_at
+            ? $event->photos_live_at->timezone($event->timezone)->format('F j, Y \a\t g:i A T')
+            : null;
+
+        $availablePhotosQuery = $event->photos()
+            ->where('status', Photo::STATUS_PUBLISHED)
+            ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'));
+        $availablePhotoCount = (clone $availablePhotosQuery)->count();
+
+        $availabilityMessage = match (true) {
+            $event->sales_close_at?->isPast() => 'This event gallery is now closed.',
+            $availablePhotoCount > 0 => 'Browse the photographs currently published for this event.',
+            $event->public_availability_label === 'Photos coming soon' => "Photos for this event are not available yet. Please return after {$photosLiveLabel}.",
+            default => 'Event photography is being prepared. Please check back soon.',
+        };
+
+        $canonicalUrl = route('events.show', ['event' => $event->slug]);
+
+        $cartCount = $this->cart->count();
+
+        return view('events.post-show', [
+            'event' => $event,
+            'seoTitle' => "{$event->title} Photos | WivorPhotos",
+            'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
+            'canonicalUrl' => $canonicalUrl,
+            'availabilityMessage' => $availabilityMessage,
+            'availablePhotoCount' => $availablePhotoCount,
+            'bibNumber' => null,
+            'cartCount' => $cartCount,
+            'cartSelectionLabel' => $cartCount.' '.($cartCount === 1 ? 'photo' : 'photos').' selected · $'.number_format($this->cart->subtotalCents() / 100, 2).' · View selection',
+        ]);
+    }
+
+    /** Display the paginated public photo gallery for an event. */
+    public function gallery(Request $request, Event $event): View
     {
         abort_unless($event->status === Event::STATUS_PUBLISHED, 404);
 
@@ -114,26 +152,21 @@ class EventController extends Controller
         ]);
         $bibNumber = $validated['bib'] ?? null;
 
-        $photosLiveLabel = $event->photos_live_at
-            ? $event->photos_live_at->timezone($event->timezone)->format('F j, Y \a\t g:i A T')
-            : null;
-
-        $availabilityMessage = match (true) {
-            $event->sales_close_at?->isPast() => 'This event gallery is now closed.',
-            $event->photos()->where('status', Photo::STATUS_PUBLISHED)->exists() => 'Browse the photographs currently published for this event.',
-            $event->public_availability_label === 'Photos coming soon' => "Photos for this event are not available yet. Please return after {$photosLiveLabel}.",
-            default => 'Event photography is being prepared. Please check back soon.',
-        };
-
-        $photos = $event->photos()->with('photographer')->where('status', Photo::STATUS_PUBLISHED)
-            ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'))
+        $availablePhotosQuery = $event->photos()
+            ->where('status', Photo::STATUS_PUBLISHED)
+            ->when($event->sales_close_at?->isPast(), fn ($query) => $query->whereRaw('1 = 0'));
+        $availablePhotoCount = (clone $availablePhotosQuery)->count();
+        $photos = (clone $availablePhotosQuery)
+            ->with('photographer')
             ->when($bibNumber, fn ($query) => $query->whereHas(
                 'bibNumbers',
                 fn ($bibQuery) => $bibQuery->where('bib_number', $bibNumber),
             ))
-            ->latest('published_at')->paginate(48)->withQueryString();
+            ->latest('published_at')
+            ->paginate(24)
+            ->withQueryString();
 
-        $canonicalUrl = route('events.show', ['event' => $event->slug]);
+        $canonicalUrl = route('events.photos.index', ['event' => $event->slug]);
         if ($request->integer('page') > 1) {
             $canonicalUrl .= '?page='.$request->integer('page');
         }
@@ -141,12 +174,12 @@ class EventController extends Controller
         $cartEvent = $this->cart->event();
         $cartCount = $this->cart->count();
 
-        return view('events.post-show', [
+        return view('events.gallery', [
             'event' => $event,
             'seoTitle' => "{$event->title} Photos | WivorPhotos",
-            'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
+            'seoDescription' => "Browse professional photos from {$event->title} in {$event->location_label}.",
             'canonicalUrl' => $canonicalUrl,
-            'availabilityMessage' => $availabilityMessage,
+            'availablePhotoCount' => $availablePhotoCount,
             'bibNumber' => $bibNumber,
             'photos' => $photos,
             'cartPhotoUuids' => $cartEvent?->is($event) ? $this->cart->photos()->pluck('uuid') : collect(),

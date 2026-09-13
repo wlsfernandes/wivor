@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 Route::post('/events/{event:slug}/face-search', EventFaceSearchController::class)->name('events.face-search');
+Route::get('/events/{event:slug}/photos', [EventController::class, 'gallery'])->name('events.photos.index');
 Route::get('/events/{event:slug}/photos/{photo}', [PhotoDeliveryController::class, 'gallery'])->name('events.photos.show');
 Route::get('/events/{event:slug}/photos/{photo}/image.jpg', [PhotoDeliveryController::class, 'image'])->name('events.photos.image');
 Route::get('/events/{event:slug}/photos/{photo}/report', [PhotoRemovalRequestController::class, 'create'])->name('photos.removal-requests.create');
