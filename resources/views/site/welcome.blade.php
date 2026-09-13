@@ -109,6 +109,57 @@
 
     .home-event-card__sport {
         color: #c44500;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .home-event-card__meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .home-event-card__meta i {
+        color: #c44500;
+        font-size: 1rem;
+    }
+
+    .home-event-card__status {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: #232323;
+        font-weight: 600;
+    }
+
+    .home-event-card__status-dot {
+        width: 9px;
+        height: 9px;
+        flex: 0 0 9px;
+        border-radius: 50%;
+        animation: event-status-pulse 2.2s ease-out infinite;
+    }
+
+    .home-event-card__status-dot.is-live {
+        --event-status-color: 40, 167, 69;
+        background: #28a745;
+    }
+
+    .home-event-card__status-dot.is-pending {
+        --event-status-color: 255, 193, 7;
+        background: #ffc107;
+    }
+
+    @keyframes event-status-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(var(--event-status-color), .24); }
+        50% { box-shadow: 0 0 0 5px rgba(var(--event-status-color), 0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .home-event-card__status-dot {
+            animation: none;
+        }
     }
 
     @media (max-width: 767.98px) {

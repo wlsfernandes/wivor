@@ -14,14 +14,26 @@
                                 alt="Cover for {{ $event->title }}" loading="lazy">
                         </a>
                         <div class="card-body d-flex flex-column">
-                            <span class="home-event-card__sport text-uppercase small fw-semibold">{{ $event->sport_label }}</span>
+                            <span class="home-event-card__sport text-uppercase small fw-semibold">
+                                <i class="bi bi-trophy" aria-hidden="true"></i>
+                                {{ $event->sport_label }}
+                            </span>
                             <h3 class="h5 card-title mt-2">
                                 <a class="text-dark" href="{{ route('events.show', $event->slug) }}">{{ $event->title }}</a>
                             </h3>
-                            <p class="card-text text-muted mb-2">{{ $event->date_label }}</p>
-                            <p class="card-text text-muted mb-3">{{ $event->location_label }}</p>
-                            <p class="fw-semibold mt-auto mb-3">{{ $event->public_availability_label }}</p>
-                            <a href="{{ route('events.show', $event->slug) }}" class="btn btn-outline-dark align-self-start">
+                            <p class="home-event-card__meta card-text text-muted mb-2">
+                                <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                                <span>{{ $event->date_label }}</span>
+                            </p>
+                            <p class="home-event-card__meta card-text text-muted mb-3">
+                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                <span>{{ $event->location_label }}</span>
+                            </p>
+                            <p class="home-event-card__status mt-auto mb-3">
+                                <span class="home-event-card__status-dot {{ $event->public_availability_label === 'Photos are live' ? 'is-live' : 'is-pending' }}" aria-hidden="true"></span>
+                                <span>{{ $event->public_availability_label }}</span>
+                            </p>
+                            <a href="{{ route('events.show', $event->slug) }}" class="btn btn-primary align-self-start">
                                 @lang('messages.home_view_event')
                             </a>
                         </div>
