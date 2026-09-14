@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Photo;
+use App\Models\PromoCode;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -19,7 +20,7 @@ class CheckoutService
     }
 
     /** Revalidate the selection, freeze pricing, and create the pending order and its immutable items. */
-    public function createPendingOrder(Event $event, Collection $photos): Order
+    public function createPendingOrder(Event $event, Collection $photos, ?PromoCode $promoCode = null): Order
     {
         if ($photos->isEmpty() || ! $event->isSellable()) {
             throw ValidationException::withMessages(['cart' => 'Your selection is no longer available for purchase.']);
@@ -32,7 +33,27 @@ class CheckoutService
             throw ValidationException::withMessages(['cart' => 'Your selection is no longer available for purchase.']);
         }
 
-        $unitPriceCents = $event->price_cents;
+        if ($promoCode) {
+            $promoCode = PromoCode::query()
+                ->whereKey($promoCode->id)
+                ->where('is_active', true)
+                ->whereDate('expires_at', '>=', today())
+                ->first();
+
+            if (! $promoCode) {
+                throw ValidationException::withMessages(['cart' => 'Your promo code is no longer valid. Please review your total and try again.']);
+            }
+        }
+
+        $discountPerPhotoCents = $promoCode
+            ? (int) round($event->price_cents * $promoCode->discount_percent / 100)
+            : 0;
+        $unitPriceCents = max($event->price_cents - $discountPerPhotoCents, 0);
+
+        if ($unitPriceCents === 0) {
+            throw ValidationException::withMessages(['cart' => 'This promo code cannot be used for Secure Checkout because the order total would be $0.00.']);
+        }
+
         $photoCount = $photos->count();
         $subtotalCents = $unitPriceCents * $photoCount;
         $commissionPercentage = (float) config('commission.percentage');

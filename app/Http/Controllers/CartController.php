@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Photo;
+use App\Models\PromoCode;
 use App\Services\CartService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -22,12 +24,17 @@ class CartController extends Controller
     {
         $checkoutToken = (string) Str::uuid();
         $request->session()->put('wivor_checkout_token', $checkoutToken);
+        $promoCode = $this->cart->promoCode();
+        $discountAmountCents = $this->cart->discountAmountCents($promoCode);
 
         return view('cart.show', [
             'event' => $this->cart->event(),
             'photos' => $this->cart->photos(),
             'photoCountLabel' => $this->photoCountLabel($this->cart->count()),
             'subtotalLabel' => $this->moneyLabel($this->cart->subtotalCents()),
+            'promoCode' => $promoCode,
+            'discountLabel' => $this->moneyLabel($discountAmountCents),
+            'totalLabel' => $this->moneyLabel($this->cart->totalCents($promoCode)),
             'checkoutToken' => $checkoutToken,
             'layout' => 'layouts.app',
         ]);
@@ -67,6 +74,46 @@ class CartController extends Controller
         return back()->with('success', 'Your selection was cleared.');
     }
 
+    /** Validate and apply a promo code to the current cart. */
+    public function applyPromoCode(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'promo_code' => ['required', 'string', 'max:50'],
+        ]);
+        $promoCodeValue = trim($validated['promo_code']);
+
+        $promoCode = PromoCode::query()
+            ->where('code', $promoCodeValue)
+            ->where('is_active', true)
+            ->whereDate('expires_at', '>=', today())
+            ->first();
+
+        if (! $promoCode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This promo code is invalid or expired.',
+            ], 422);
+        }
+
+        $this->cart->applyPromoCode($promoCode);
+
+        return response()->json($this->promoCodeResponse($promoCode, 'Promo code applied.'));
+    }
+
+    /** Remove the applied promo code from the current cart. */
+    public function removePromoCode(): JsonResponse
+    {
+        $this->cart->removePromoCode();
+
+        return response()->json([
+            'success' => true,
+            'subtotal' => $this->moneyLabel($this->cart->subtotalCents()),
+            'discount' => $this->moneyLabel(0),
+            'total' => $this->moneyLabel($this->cart->subtotalCents()),
+            'message' => 'Promo code removed.',
+        ]);
+    }
+
     /** Return a display-ready photo count. */
     private function photoCountLabel(int $count): string
     {
@@ -77,5 +124,19 @@ class CartController extends Controller
     private function moneyLabel(int $amountCents): string
     {
         return '$'.number_format($amountCents / 100, 2);
+    }
+
+    /** Return display-ready promo and cart totals for the cart AJAX response. */
+    private function promoCodeResponse(PromoCode $promoCode, string $message): array
+    {
+        return [
+            'success' => true,
+            'code' => $promoCode->code,
+            'discount_percent' => $promoCode->discount_percent,
+            'subtotal' => $this->moneyLabel($this->cart->subtotalCents()),
+            'discount' => $this->moneyLabel($this->cart->discountAmountCents($promoCode)),
+            'total' => $this->moneyLabel($this->cart->totalCents($promoCode)),
+            'message' => $message,
+        ];
     }
 }

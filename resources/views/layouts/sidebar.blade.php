@@ -63,6 +63,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('admin.promo-codes.index') }}" class="waves-effect">
+                            <i class="fa fa-tag"></i>
+                            <span>Promo Codes</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="fa fa-globe"></i>
                             <span>Website</span>

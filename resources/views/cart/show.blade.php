@@ -43,9 +43,40 @@
 
             <div class="card mt-4">
                 <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <div>
+                    <div class="flex-grow-1" style="max-width: 420px;">
                         <p class="mb-0">{{ $photoCountLabel }}</p>
-                        <p class="h4 mb-0">Subtotal: {{ $subtotalLabel }}</p>
+                        <div class="mt-2">
+                            <div class="d-flex justify-content-between gap-3">
+                                <span>Subtotal</span>
+                                <span data-cart-subtotal>{{ $subtotalLabel }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between gap-3 {{ $promoCode ? '' : 'd-none' }}" data-discount-row>
+                                <span>Promo <span data-discount-code>{{ $promoCode?->code }}</span></span>
+                                <span class="text-success">-<span data-cart-discount>{{ $discountLabel }}</span></span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between gap-3 fw-bold">
+                                <span>Total</span>
+                                <span data-cart-total>{{ $totalLabel }}</span>
+                            </div>
+                        </div>
+
+                        <form class="mt-3" data-promo-form action="{{ route('cart.promo-code.store') }}" method="POST">
+                            @csrf
+                            <label for="promo-code" class="form-label">Promo code</label>
+                            <div class="input-group">
+                                <input class="form-control" id="promo-code" name="promo_code" type="text" maxlength="50"
+                                    value="{{ $promoCode?->code }}">
+                                <button class="btn btn-outline-primary" type="submit" data-promo-apply>Apply</button>
+                            </div>
+                        </form>
+                        <div class="small mt-2 {{ $promoCode ? 'text-success' : '' }}" role="status" data-promo-message>
+                            @if ($promoCode)
+                                {{ $promoCode->code }} applied - {{ $promoCode->discount_percent }}% off
+                            @endif
+                        </div>
+                        <button type="button" class="btn btn-link btn-sm px-0 {{ $promoCode ? '' : 'd-none' }}"
+                            data-promo-remove data-url="{{ route('cart.promo-code.destroy') }}">Remove promo code</button>
                     </div>
                     <div class="d-flex gap-2">
                         <form method="POST" action="{{ route('cart.clear') }}">
@@ -68,6 +99,84 @@
 
 @section('scripts')
     <script>
+        const promoForm = document.querySelector('[data-promo-form]');
+        const promoMessage = document.querySelector('[data-promo-message]');
+        const promoRemoveButton = document.querySelector('[data-promo-remove]');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+        function updateCartTotals(response) {
+            document.querySelector('[data-cart-subtotal]').textContent = response.subtotal;
+            document.querySelector('[data-cart-discount]').textContent = response.discount;
+            document.querySelector('[data-cart-total]').textContent = response.total;
+        }
+
+        promoForm?.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const applyButton = this.querySelector('[data-promo-apply]');
+            applyButton.disabled = true;
+            applyButton.textContent = 'Applying...';
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: new FormData(this),
+                });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'This promo code could not be applied.');
+                }
+
+                updateCartTotals(result);
+                document.querySelector('[data-discount-code]').textContent = result.code;
+                document.querySelector('[data-discount-row]').classList.remove('d-none');
+                promoMessage.textContent = `${result.code} applied - ${result.discount_percent}% off`;
+                promoMessage.className = 'small mt-2 text-success';
+                promoRemoveButton.classList.remove('d-none');
+            } catch (error) {
+                promoMessage.textContent = error.message;
+                promoMessage.className = 'small mt-2 text-danger';
+            } finally {
+                applyButton.disabled = false;
+                applyButton.textContent = 'Apply';
+            }
+        });
+
+        promoRemoveButton?.addEventListener('click', async function () {
+            this.disabled = true;
+
+            try {
+                const response = await fetch(this.dataset.url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'The promo code could not be removed.');
+                }
+
+                updateCartTotals(result);
+                document.querySelector('[data-discount-row]').classList.add('d-none');
+                promoMessage.textContent = result.message;
+                promoMessage.className = 'small mt-2 text-muted';
+                promoForm.querySelector('[name="promo_code"]').value = '';
+                this.classList.add('d-none');
+            } catch (error) {
+                promoMessage.textContent = error.message;
+                promoMessage.className = 'small mt-2 text-danger';
+            } finally {
+                this.disabled = false;
+            }
+        });
+
         document.querySelector('[data-checkout-form]')?.addEventListener('submit', function () {
             const button = this.querySelector('[data-checkout-button]');
             if (button) {

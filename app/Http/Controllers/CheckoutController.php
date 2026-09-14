@@ -31,13 +31,19 @@ class CheckoutController extends Controller
 
         $event = $this->cart->event();
         $photos = $this->cart->photos();
+        $hadPromoCode = $this->cart->hasPromoCode();
+        $promoCode = $this->cart->promoCode();
 
         if (! $event || $photos->isEmpty()) {
             return redirect()->route('cart.show')->withErrors(['cart' => 'Your selection is empty.']);
         }
 
+        if ($hadPromoCode && ! $promoCode) {
+            return redirect()->route('cart.show')->withErrors(['cart' => 'Your promo code is no longer valid. Please review your total and try again.']);
+        }
+
         try {
-            $order = $this->checkout->createPendingOrder($event, $photos);
+            $order = $this->checkout->createPendingOrder($event, $photos, $promoCode);
             $session = $this->checkout->createCheckoutSession($order);
         } catch (ValidationException $exception) {
             return redirect()->route('cart.show')->withErrors($exception->errors());

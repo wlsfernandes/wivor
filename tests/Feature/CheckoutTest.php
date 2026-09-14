@@ -7,6 +7,7 @@ use App\Models\EventAssignment;
 use App\Models\Order;
 use App\Models\Photo;
 use App\Models\Photographer;
+use App\Models\PromoCode;
 use App\Models\UploadBatch;
 use App\Models\User;
 use App\Services\CheckoutService;
@@ -205,6 +206,100 @@ class CheckoutTest extends TestCase
             ->assertSessionHasErrors('cart');
 
         $this->get(route('cart.show'))->assertSee('1 photo selected');
+    }
+
+    public function test_valid_promo_discount_is_frozen_into_the_order_and_sent_to_stripe(): void
+    {
+        $stripe = $this->fakeStripe();
+        config(['commission.percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+        PromoCode::create([
+            'code' => 'SUMMER20',
+            'discount_percent' => 20,
+            'is_active' => true,
+            'expires_at' => today()->addDay(),
+        ]);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'SUMMER20'])->assertOk();
+        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $order = Order::firstOrFail();
+        $item = $order->items()->firstOrFail();
+        $this->assertSame(800, $order->unit_price_cents);
+        $this->assertSame(800, $order->subtotal_cents);
+        $this->assertSame(800, $order->total_cents);
+        $this->assertSame(800, $item->unit_price_cents);
+        $this->assertSame(160, $item->commission_cents);
+        $this->assertSame(640, $item->photographer_allocation_cents);
+        $this->assertSame(800, $stripe->checkout->sessions->lastParams['line_items'][0]['price_data']['unit_amount']);
+    }
+
+    public function test_checkout_revalidates_a_promo_code_before_creating_an_order(): void
+    {
+        $this->fakeStripe();
+        $event = $this->publishedEvent();
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+        $promoCode = PromoCode::create([
+            'code' => 'SUMMER20',
+            'discount_percent' => 20,
+            'is_active' => true,
+            'expires_at' => today()->addDay(),
+        ]);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->get(route('cart.show'));
+        $checkoutToken = (string) session('wivor_checkout_token');
+        $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'SUMMER20'])->assertOk();
+        $promoCode->update(['is_active' => false]);
+
+        $this->post(route('checkout.store'), ['checkout_token' => $checkoutToken])
+            ->assertRedirect(route('cart.show'))
+            ->assertSessionHasErrors('cart');
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_checkout_ignores_browser_supplied_discount_amounts(): void
+    {
+        $stripe = $this->fakeStripe();
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->get(route('cart.show'));
+        $this->post(route('checkout.store'), [
+            'checkout_token' => (string) session('wivor_checkout_token'),
+            'discount_percent' => 100,
+            'discount_amount' => 1000,
+            'total' => 0,
+        ])->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $this->assertSame(1000, Order::firstOrFail()->total_cents);
+        $this->assertSame(1000, $stripe->checkout->sessions->lastParams['line_items'][0]['price_data']['unit_amount']);
+    }
+
+    public function test_checkout_rejects_a_promo_that_would_create_a_zero_dollar_order(): void
+    {
+        $this->fakeStripe();
+        $event = $this->publishedEvent();
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+        PromoCode::create([
+            'code' => 'FREE100',
+            'discount_percent' => 100,
+            'is_active' => true,
+            'expires_at' => today()->addDay(),
+        ]);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'FREE100'])
+            ->assertOk()
+            ->assertJson(['total' => '$0.00']);
+
+        $this->startCheckout()
+            ->assertRedirect(route('cart.show'))
+            ->assertSessionHasErrors('cart');
+        $this->assertDatabaseCount('orders', 0);
     }
 
     private function startCheckout(): TestResponse

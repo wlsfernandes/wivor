@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\EventAssignment;
 use App\Models\Photo;
 use App\Models\Photographer;
+use App\Models\PromoCode;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,7 +26,7 @@ class CartTest extends TestCase
             ->assertSee('1 photo selected')
             ->assertSee('View cart with 1 selected photo')
             ->assertSee('cart-count-badge', false)
-            ->assertSee('Subtotal: $10.00');
+            ->assertSeeInOrder(['Subtotal', '$10.00', 'Total', '$10.00']);
 
         $this->delete(route('cart.items.destroy', ['photo' => $photo->uuid]))->assertRedirect();
         $this->get(route('cart.show'))
@@ -75,7 +76,71 @@ class CartTest extends TestCase
 
         $event->update(['price_cents' => 1500]);
 
-        $this->get(route('cart.show'))->assertSee('Subtotal: $15.00');
+        $this->get(route('cart.show'))->assertSeeInOrder(['Subtotal', '$15.00', 'Total', '$15.00']);
+    }
+
+    public function test_guest_can_apply_and_remove_a_valid_promo_code(): void
+    {
+        [, $photo] = $this->publishedPhoto();
+        $promoCode = PromoCode::create([
+            'code' => 'SUMMER20',
+            'discount_percent' => 20,
+            'is_active' => true,
+            'expires_at' => today(),
+        ]);
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+
+        $this->postJson(route('cart.promo-code.store'), ['promo_code' => ' SUMMER20 '])
+            ->assertOk()
+            ->assertJson([
+                'success' => true,
+                'code' => 'SUMMER20',
+                'discount_percent' => 20,
+                'subtotal' => '$10.00',
+                'discount' => '$2.00',
+                'total' => '$8.00',
+            ]);
+
+        $this->assertSame($promoCode->id, session('wivor_promo_code_id'));
+        $this->get(route('cart.show'))
+            ->assertSee('SUMMER20 applied - 20% off')
+            ->assertSeeInOrder(['Subtotal', '$10.00', 'Promo', 'SUMMER20', '$2.00', 'Total', '$8.00']);
+
+        $this->deleteJson(route('cart.promo-code.destroy'))
+            ->assertOk()
+            ->assertJson([
+                'success' => true,
+                'discount' => '$0.00',
+                'total' => '$10.00',
+            ]);
+        $this->assertNull(session('wivor_promo_code_id'));
+    }
+
+    public function test_invalid_inactive_and_expired_promo_codes_are_rejected(): void
+    {
+        PromoCode::create([
+            'code' => 'INACTIVE',
+            'discount_percent' => 20,
+            'is_active' => false,
+            'expires_at' => today()->addDay(),
+        ]);
+        PromoCode::create([
+            'code' => 'EXPIRED',
+            'discount_percent' => 20,
+            'is_active' => true,
+            'expires_at' => today()->subDay(),
+        ]);
+
+        foreach (['UNKNOWN', 'INACTIVE', 'EXPIRED'] as $promoCodeValue) {
+            $this->postJson(route('cart.promo-code.store'), ['promo_code' => $promoCodeValue])
+                ->assertUnprocessable()
+                ->assertJson([
+                    'success' => false,
+                    'message' => 'This promo code is invalid or expired.',
+                ]);
+        }
+
+        $this->assertNull(session('wivor_promo_code_id'));
     }
 
     /** @return array{Event, Photo} */

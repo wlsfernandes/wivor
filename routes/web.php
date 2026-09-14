@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerContro
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PhotoRemovalRequestController as AdminPhotoRemovalRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 use App\Http\Controllers\Admin\WebsitePolicyController as AdminWebsitePolicyController;
 use App\Http\Controllers\Frontend\PolicyController;
 use App\Http\Controllers\Frontend\PhotographerRegistrationController;
@@ -78,6 +79,8 @@ Route::post('/events/{event:slug}/photos/{photo}/report', [PhotoRemovalRequestCo
 Route::get('/cart', [CartController::class, 'index'])->name('cart.show');
 Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
 Route::delete('/cart/items/{photo}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+Route::post('/cart/promo-code', [CartController::class, 'applyPromoCode'])->name('cart.promo-code.store');
+Route::delete('/cart/promo-code', [CartController::class, 'removePromoCode'])->name('cart.promo-code.destroy');
 Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
 
 /********************** Checkout (guest, Stripe-hosted) *****************************************/
@@ -171,6 +174,10 @@ Route::middleware('auth')->group(function () {
         Route::patch('/admin/removal-requests/{removalRequest}/resolve', [AdminPhotoRemovalRequestController::class, 'resolve'])->name('admin.removal-requests.resolve');
 
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+
+        Route::resource('/admin/promo-codes', AdminPromoCodeController::class)
+            ->names('admin.promo-codes')
+            ->except('show');
 
         Route::get('/admin/website/{policy}/edit', [AdminWebsitePolicyController::class, 'edit'])
             ->name('admin.website.policies.edit');
