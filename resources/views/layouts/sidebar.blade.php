@@ -3,7 +3,7 @@
 
     <!-- LOGO -->
     <div class="navbar-brand-box">
-        <a href="{{url('index')}}" class="logo logo-dark">
+        <a href="{{ url('index') }}" class="logo logo-dark">
             <span class="logo-sm">
                 <img src="{{ asset('/assets/images/logo/wivor.png') }}" alt="">
             </span>
@@ -12,7 +12,7 @@
             </span>
         </a>
 
-        <a href="{{url('index')}}" class="logo logo-light">
+        <a href="{{ url('index') }}" class="logo logo-light">
             <span class="logo-sm">
                 <img src="{{ asset('/assets/images/logo/wivor.png') }}" alt="">
             </span>
@@ -37,7 +37,7 @@
 
 
                 <li>
-                    <a href="{{url('index')}}">
+                    <a href="{{ url('index') }}">
                         <i class="fa fa-tachometer-alt"></i><span
                             class="badge rounded-pill bg-primary float-end">01</span>
                         <span>@lang('translation.Dashboard')</span>
@@ -45,19 +45,19 @@
                 </li>
                 @can('access-admin')
                     <li>
-                        <a href="{{url('users')}}" class="waves-effect">
+                        <a href="{{ url('users') }}" class="waves-effect">
                             <i class="fa fa-user"></i>
                             <span>System Users</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{url('events')}}" class="waves-effect">
+                        <a href="{{ url('events') }}" class="waves-effect">
                             <i class="fa fa-calendar"></i>
                             <span>Events</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{url('list-photographers')}}" class="waves-effect">
+                        <a href="{{ url('list-photographers') }}" class="waves-effect">
                             <i class="fa fa-camera"></i>
                             <span>Photographers</span>
                         </a>
@@ -74,14 +74,16 @@
                             <span>Website</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'privacy']) }}">Privacy Policy</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'terms']) }}">Terms of Use</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'refund']) }}">Refund Policy</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'photographer-terms']) }}">Photographer Terms</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'privacy']) }}">Privacy
+                                    Policy</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'terms']) }}">Terms of
+                                    Use</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'refund']) }}">Refund
+                                    Policy</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'photographer-terms']) }}">Photographer
+                                    Terms</a></li>
                         </ul>
                     </li>
-
-
                 @endcan
                 <li class="menu-title">@lang('translation.Apps')</li>
 

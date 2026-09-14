@@ -50,7 +50,8 @@
                                 <span>Subtotal</span>
                                 <span data-cart-subtotal>{{ $subtotalLabel }}</span>
                             </div>
-                            <div class="d-flex justify-content-between gap-3 {{ $promoCode ? '' : 'd-none' }}" data-discount-row>
+                            <div class="d-flex justify-content-between gap-3 {{ $promoCode ? '' : 'd-none' }}"
+                                data-discount-row>
                                 <span>Promo <span data-discount-code>{{ $promoCode?->code }}</span></span>
                                 <span class="text-success">-<span data-cart-discount>{{ $discountLabel }}</span></span>
                             </div>
@@ -87,8 +88,11 @@
                         <form method="POST" action="{{ route('checkout.store') }}" data-checkout-form>
                             @csrf
                             <input type="hidden" name="checkout_token" value="{{ $checkoutToken }}">
-                            <button class="btn btn-primary" type="submit" data-checkout-button>Continue to Secure Checkout</button>
-                            <p class="small text-muted mt-2 mb-0">By continuing, you agree to the <a href="{{ route('terms') }}">Terms of Use</a>. See the <a href="{{ route('refund-policy') }}">Refund Policy</a>.</p>
+                            <button class="btn btn-primary" type="submit" data-checkout-button>Continue to Secure
+                                Checkout</button>
+                            <p class="small text-muted mt-2 mb-0">By continuing, you agree to the <a
+                                    href="{{ route('terms') }}">Terms of Use</a>. See the <a
+                                    href="{{ route('refund-policy') }}">Refund Policy</a>.</p>
                         </form>
                     </div>
                 </div>
@@ -110,7 +114,7 @@
             document.querySelector('[data-cart-total]').textContent = response.total;
         }
 
-        promoForm?.addEventListener('submit', async function (event) {
+        promoForm?.addEventListener('submit', async function(event) {
             event.preventDefault();
             const applyButton = this.querySelector('[data-promo-apply]');
             applyButton.disabled = true;
@@ -146,7 +150,7 @@
             }
         });
 
-        promoRemoveButton?.addEventListener('click', async function () {
+        promoRemoveButton?.addEventListener('click', async function() {
             this.disabled = true;
 
             try {
@@ -177,7 +181,7 @@
             }
         });
 
-        document.querySelector('[data-checkout-form]')?.addEventListener('submit', function () {
+        document.querySelector('[data-checkout-form]')?.addEventListener('submit', function() {
             const button = this.querySelector('[data-checkout-button]');
             if (button) {
                 button.disabled = true;

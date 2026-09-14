@@ -10,8 +10,7 @@
 
 <div class="mb-3">
     <label for="code" class="form-label">Promo Code</label>
-    <input type="text" id="code" name="code"
-        class="form-control @error('code') is-invalid @enderror"
+    <input type="text" id="code" name="code" class="form-control @error('code') is-invalid @enderror"
         value="{{ old('code', $promoCode->code ?? '') }}" maxlength="50" required>
     @error('code')
         <div class="invalid-feedback">{{ $message }}</div>
@@ -22,7 +21,8 @@
     <label for="discount_percent" class="form-label">Discount %</label>
     <input type="number" id="discount_percent" name="discount_percent"
         class="form-control @error('discount_percent') is-invalid @enderror"
-        value="{{ old('discount_percent', $promoCode->discount_percent ?? '') }}" min="1" max="100" required>
+        value="{{ old('discount_percent', $promoCode->discount_percent ?? '') }}" min="1" max="100"
+        required>
     @error('discount_percent')
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
