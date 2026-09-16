@@ -21,6 +21,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\PhotographerController as AdminPhotographerController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PhotoRemovalRequestController as AdminPhotoRemovalRequestController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -138,7 +139,8 @@ Route::middleware('auth')->group(function () {
 
 
     Route::middleware('can:access-admin')->group(function () {
-        
+
+        Route::get('/index', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
       
         //User
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
