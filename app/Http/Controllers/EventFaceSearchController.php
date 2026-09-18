@@ -82,7 +82,7 @@ class EventFaceSearchController extends Controller
             ]);
         }
 
-        return view('events.gallery', $this->viewData($event, $matches, $status));
+        return view('frontend.v1.events.gallery', $this->viewData($event, $matches, $status));
     }
 
     /**

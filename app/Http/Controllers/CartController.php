@@ -27,7 +27,7 @@ class CartController extends Controller
         $promoCode = $this->cart->promoCode();
         $discountAmountCents = $this->cart->discountAmountCents($promoCode);
 
-        return view('cart.show', [
+        return view('frontend.v1.cart.show', [
             'event' => $this->cart->event(),
             'photos' => $this->cart->photos(),
             'photoCountLabel' => $this->photoCountLabel($this->cart->count()),
@@ -36,7 +36,7 @@ class CartController extends Controller
             'discountLabel' => $this->moneyLabel($discountAmountCents),
             'totalLabel' => $this->moneyLabel($this->cart->totalCents($promoCode)),
             'checkoutToken' => $checkoutToken,
-            'layout' => 'layouts.app',
+            'layout' => 'frontend.v1.layouts.app',
         ]);
     }
 

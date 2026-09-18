@@ -89,7 +89,7 @@ class PhotoDeliveryController extends Controller
             ]))->all(),
         ], fn ($value) => $value !== null && $value !== '');
 
-        return view('photos.show', [
+        return view('frontend.v1.photos.show', [
             'event' => $event,
             'photo' => $photo,
             'people' => $people,

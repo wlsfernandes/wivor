@@ -60,7 +60,7 @@ class EventController extends Controller
                 Event::STATUS_PUBLISHED => 'Published',
                 Event::STATUS_ARCHIVED => 'Archived',
             ],
-            'layout' => $isAdmin ? 'layouts.master' : 'layouts.app-sidebar',
+            'layout' => $isAdmin ? 'layouts.master' : 'portal.layouts.app-sidebar',
         ]);
     }
 
@@ -94,11 +94,11 @@ class EventController extends Controller
             'sports' => Event::published()->whereNotNull('sport')->distinct()->orderBy('sport')->pluck('sport'),
         ];
 
-        return view('events.list-events', [
+        return view('frontend.v1.events.index', [
             'events' => $events,
             'filters' => $filters,
             'filterOptions' => $filterOptions,
-            'layout' => 'layouts.app',
+            'layout' => 'frontend.v1.layouts.app',
         ]);
     }
 
@@ -127,7 +127,7 @@ class EventController extends Controller
 
         $cartCount = $this->cart->count();
 
-        return view('events.post-show', [
+        return view('frontend.v1.events.show', [
             'event' => $event,
             'seoTitle' => "{$event->title} Photos | WivorPhotos",
             'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
@@ -174,7 +174,7 @@ class EventController extends Controller
         $cartEvent = $this->cart->event();
         $cartCount = $this->cart->count();
 
-        return view('events.gallery', [
+        return view('frontend.v1.events.gallery', [
             'event' => $event,
             'seoTitle' => "{$event->title} Photos | WivorPhotos",
             'seoDescription' => "Browse professional photos from {$event->title} in {$event->location_label}.",
@@ -358,7 +358,7 @@ class EventController extends Controller
 
         return [
             'event' => $event,
-            'layout' => $request->user()->hasRole('admin') ? 'layouts.master' : 'layouts.app-sidebar',
+            'layout' => $request->user()->hasRole('admin') ? 'layouts.master' : 'portal.layouts.app-sidebar',
             'statuses' => [
                 Event::STATUS_DRAFT => 'Draft — only managers can see this event',
                 Event::STATUS_PUBLISHED => 'Published — the public event page is visible',

@@ -50,7 +50,7 @@ class DashboardController extends Controller
             ->whereIn('payment_status', [Order::PAYMENT_PENDING, Order::PAYMENT_CANCELLED])
             ->count();
 
-        return view('index', [
+        return view('admin.dashboard.index', [
             'events' => Event::orderByDesc('date_of_event')->orderBy('title')->get(['id', 'title', 'date_of_event']),
             'selectedEvent' => $selectedEvent,
             'summary' => [

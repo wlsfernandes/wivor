@@ -52,15 +52,8 @@ class HomeController extends Controller
             ->limit(3)
             ->get();
 
-        return view('site.welcome', compact('homepageEvents'));
+        return view('frontend.v1.home.index', compact('homepageEvents'));
     }
-    /*
-    public function root()
-    {
-        return view('layouts.site.welcome');
-        //  return view('index');
-    }
-*/
     /*Language Translation*/
     public function lang($locale)
     {
@@ -81,32 +74,32 @@ class HomeController extends Controller
 
     public function aboutUs()
     {
-        return view('about-us');
+        return view('frontend.v1.pages.about');
     }
 
     public function signUp()
     {
-        return view('signup');
+        return view('frontend.v1.pages.signup');
     }
 
     public function ourTeam()
     {
-        return view('our-team');
+        return view('frontend.v1.pages.team.index');
     }
 
     public function junior()
     {
-        return view('wilson-fernandes-junior');
+        return view('frontend.v1.pages.team.wilson-fernandes-junior');
     }
 
     public function victor()
     {
-        return view('victor');
+        return view('frontend.v1.pages.team.victor');
     }
 
     public function carlos()
     {
-        return view('carlos');
+        return view('frontend.v1.pages.team.carlos');
     }
 
     public function photobook()

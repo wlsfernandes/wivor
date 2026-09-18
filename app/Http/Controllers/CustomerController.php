@@ -12,6 +12,6 @@ class CustomerController extends Controller
             ->orderBy('published_at', 'desc')
             ->paginate(3);
 
-        return view('customers.dashboard', compact('events'));
+        return view('portal.customers.dashboard', compact('events'));
     }
 }

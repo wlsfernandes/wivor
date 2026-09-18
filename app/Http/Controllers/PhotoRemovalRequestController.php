@@ -20,7 +20,7 @@ class PhotoRemovalRequestController extends Controller
     /** Display the general public removal-request form. */
     public function general(): View
     {
-        return view('photos.removal-request-general', [
+        return view('frontend.v1.photos.removal-request-general', [
             'reasons' => PhotoRemovalRequest::reasons(),
             'contactEmail' => config('contact.email'),
         ]);
@@ -80,11 +80,11 @@ class PhotoRemovalRequestController extends Controller
     {
         abort_unless($photo->event_id === $event->id && $photo->status === Photo::STATUS_PUBLISHED, 404);
 
-        return view('photos.removal-request', [
+        return view('frontend.v1.photos.removal-request', [
             'event' => $event,
             'photo' => $photo,
             'reasons' => PhotoRemovalRequest::reasons(),
-            'layout' => 'layouts.app',
+            'layout' => 'frontend.v1.layouts.app',
         ]);
     }
 

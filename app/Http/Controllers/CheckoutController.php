@@ -87,7 +87,7 @@ class CheckoutController extends Controller
         $isPaid = $order->payment_status === Order::PAYMENT_PAID;
         $confirmationAttempt = min(max((int) $request->query('confirmation_attempt', 0), 0), 10);
 
-        return view('checkout.success', [
+        return view('frontend.v1.checkout.success', [
             'order' => $order,
             'isPaid' => $isPaid,
             'confirmationUnavailable' => $confirmationUnavailable,
@@ -98,16 +98,16 @@ class CheckoutController extends Controller
                 'confirmation_attempt' => $confirmationAttempt + 1,
             ]),
             'shouldAutoRefresh' => ! $isPaid && $confirmationAttempt < 10,
-            'layout' => 'layouts.app',
+            'layout' => 'frontend.v1.layouts.app',
         ]);
     }
 
     /** Display a read-only cancellation page while preserving the customer's cart. */
     public function cancel(Order $order): View
     {
-        return view('checkout.cancel', [
+        return view('frontend.v1.checkout.cancel', [
             'order' => $order,
-            'layout' => 'layouts.app',
+            'layout' => 'frontend.v1.layouts.app',
         ]);
     }
 }

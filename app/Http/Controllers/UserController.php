@@ -41,7 +41,7 @@ class UserController extends Controller
     {
         try {
             $users = User::all();
-            return view('users.index', compact('users'));
+            return view('admin.users.index', compact('users'));
         } catch (Exception $e) {
             Log::error('Error fetching users: ' . $e->getMessage());
             session()->now('error', 'An error occurred while fetching users.');
@@ -54,7 +54,7 @@ class UserController extends Controller
     {
         try {
             $roles = Role::all();
-            return view('users.create', compact('roles'));
+            return view('admin.users.create', compact('roles'));
         } catch (Exception $e) {
             Log::error('Error creating user: ' . $e->getMessage());
             session()->now('error', 'An error occurred while creating user.');
@@ -130,7 +130,7 @@ class UserController extends Controller
         try {
             $user = User::find($id);
             $roles = Role::all();
-            return view('users.edit', compact('user', 'roles'));
+            return view('admin.users.edit', compact('user', 'roles'));
         } catch (Exception $e) {
             Log::error('Error fetching user details: ' . $e->getMessage());
             session()->now('error', 'An error occurred while fetching user details.');

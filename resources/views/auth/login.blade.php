@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('frontend.v1.layouts.app')
 
 @section('title', 'Photographer and Admin Login | WivorPhotos')
 

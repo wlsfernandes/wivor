@@ -31,12 +31,12 @@ class OrderController extends Controller
                 && ! $item->download_expires_at->isPast())
             ->pluck('id');
 
-        return view('orders.show', [
+        return view('frontend.v1.orders.show', [
             'order' => $order,
             'isPaid' => $order->payment_status === Order::PAYMENT_PAID,
             'thumbnailUrls' => $thumbnailUrls,
             'downloadableItemIds' => $downloadableItemIds,
-            'layout' => 'layouts.app',
+            'layout' => 'frontend.v1.layouts.app',
         ]);
     }
 

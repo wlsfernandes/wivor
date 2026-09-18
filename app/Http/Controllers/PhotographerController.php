@@ -35,16 +35,16 @@ class PhotographerController extends Controller
     /** Display the existing public photographer application page. */
     public function photographers(): View
     {
-        return view('photographers.page');
+        return view('frontend.v1.photographers.index');
     }
 
     /** Display the photographer upload guide in the appropriate public or workspace layout. */
     public function howToUploadPhotos(Request $request): View
     {
-        return view('how-to-upload-photos', [
+        return view('frontend.v1.pages.how-to-upload-photos', [
             'layout' => $request->user()?->canAccessPhotographerArea()
-                ? 'layouts.app-sidebar'
-                : 'layouts.app',
+                ? 'portal.layouts.app-sidebar'
+                : 'frontend.v1.layouts.app',
         ]);
     }
 
@@ -68,7 +68,7 @@ class PhotographerController extends Controller
             ->latest()->paginate(20)->withQueryString()
             ->through(fn (Order $order) => $this->salesRow($order));
 
-        return view('photographers.dashboard', [
+        return view('portal.photographers.dashboard', [
             'photographerName' => $photographer->first_name,
             'payoutSetup' => $this->payoutSetupCard($photographer),
             'salesFilters' => $filters,
@@ -203,7 +203,7 @@ class PhotographerController extends Controller
             default => 'Your account is ready.',
         };
 
-        return view('photographers.application-status', [
+        return view('portal.photographers.application-status', [
             'statusLabel' => $photographer->statusLabel(),
             'statusMessage' => $statusMessage,
             'showVerificationResend' => ! $isEmailVerified,

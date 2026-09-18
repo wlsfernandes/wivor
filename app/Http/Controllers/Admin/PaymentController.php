@@ -28,6 +28,6 @@ class PaymentController extends Controller
                 'createdAtLabel' => $order->created_at->format('M j, Y g:i A'),
             ]);
 
-        return view('payments.index', ['orders' => $orders]);
+        return view('admin.payments.index', ['orders' => $orders]);
     }
 }

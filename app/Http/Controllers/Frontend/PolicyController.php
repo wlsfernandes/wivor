@@ -15,19 +15,19 @@ class PolicyController extends Controller
     private const PRESENTATION = [
         WebsitePolicy::PRIVACY => [
             'meta_description' => 'How WivorPhotos handles customer, photographer, payment, event-photo, and recognition data.',
-            'default_view' => 'policies.privacy',
+            'default_view' => 'frontend.v1.policies.privacy',
         ],
         WebsitePolicy::TERMS => [
             'meta_description' => 'Terms for browsing WivorPhotos event galleries and purchasing digital event photographs.',
-            'default_view' => 'policies.terms',
+            'default_view' => 'frontend.v1.policies.terms',
         ],
         WebsitePolicy::REFUND => [
             'meta_description' => 'How to request support and how WivorPhotos handles refunds for digital photograph purchases.',
-            'default_view' => 'policies.refund',
+            'default_view' => 'frontend.v1.policies.refund',
         ],
         WebsitePolicy::PHOTOGRAPHER_TERMS => [
             'meta_description' => 'Terms for photographers who apply, publish event photographs, and earn through WivorPhotos.',
-            'default_view' => 'policies.photographer-terms',
+            'default_view' => 'frontend.v1.policies.photographer-terms',
         ],
     ];
 
@@ -48,7 +48,7 @@ class PolicyController extends Controller
             return view($presentation['default_view']);
         }
 
-        return view('policies.show', [
+        return view('frontend.v1.policies.show', [
             'title' => $title,
             'metaDescription' => $presentation['meta_description'],
             'content' => $content,

@@ -44,7 +44,7 @@ class PhotographerUploadController extends Controller
             default => 'Published',
         };
 
-        return view('photographers.upload', [
+        return view('portal.photographers.upload', [
             'event' => $event, 'assignment' => $assignment, 'photos' => $photos, 'counts' => $counts,
             'acceptedCount' => $acceptedCount,
             'remainingCount' => max(0, config('photo_uploads.max_event_photos') - $acceptedCount),
