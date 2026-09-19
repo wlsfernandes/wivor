@@ -13,9 +13,14 @@
     @endcomponent
 
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-transparent">
-            <h1 class="h4 mb-1">Photo orders</h1>
-            <p class="text-muted mb-0">Use the local order and Stripe identifiers to reconcile payments in the Stripe Dashboard.</p>
+        <div class="card-header bg-transparent d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+                <h1 class="h4 mb-1">Photo orders</h1>
+                <p class="text-muted mb-0">Use the local order and Stripe identifiers to reconcile payments in the Stripe Dashboard.</p>
+            </div>
+            <a class="btn btn-outline-primary flex-shrink-0" href="{{ route('payments.manual') }}">
+                <i class="fa fa-book-open me-1" aria-hidden="true"></i> Payment Process Manual
+            </a>
         </div>
         <div class="table-responsive">
             <table class="table table-striped align-middle mb-0">

@@ -56,6 +56,7 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
     Route::patch('/admin/removal-requests/{removalRequest}/resolve', [AdminPhotoRemovalRequestController::class, 'resolve'])->name('admin.removal-requests.resolve');
 
     Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+    Route::view('/payments/manual', 'admin.payments.manual')->name('payments.manual');
 
     Route::resource('/admin/promo-codes', AdminPromoCodeController::class)
         ->names('admin.promo-codes')

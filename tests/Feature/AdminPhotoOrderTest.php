@@ -56,4 +56,30 @@ class AdminPhotoOrderTest extends TestCase
     {
         $this->get(route('payments.index'))->assertRedirect(route('login'));
     }
+
+    public function test_admin_can_open_the_payment_process_manual(): void
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::create(['name' => 'admin']));
+
+        $this->actingAs($admin)
+            ->get(route('payments.manual'))
+            ->assertOk()
+            ->assertSee('How customer payments and photographer payouts work')
+            ->assertSee('Automatic photographer transfers')
+            ->assertSee('Important refund limitation')
+            ->assertSee('Payment Process Manual');
+    }
+
+    public function test_guest_cannot_open_the_payment_process_manual(): void
+    {
+        $this->get(route('payments.manual'))->assertRedirect(route('login'));
+    }
+
+    public function test_non_admin_cannot_open_the_payment_process_manual(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('payments.manual'))
+            ->assertForbidden();
+    }
 }
