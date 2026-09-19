@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ProcessPhotographerTransfer;
 use App\Models\Event;
 use App\Models\EventAssignment;
 use App\Models\Order;
@@ -11,6 +12,7 @@ use App\Models\Photographer;
 use App\Models\UploadBatch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class StripeWebhookTest extends TestCase
@@ -23,6 +25,7 @@ class StripeWebhookTest extends TestCase
     {
         parent::setUp();
         config(['services.stripe.webhook_secret' => self::WEBHOOK_SECRET]);
+        Queue::fake([ProcessPhotographerTransfer::class]);
     }
 
     public function test_paid_checkout_session_fulfills_the_order_and_protects_the_photo(): void

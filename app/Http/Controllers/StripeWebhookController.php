@@ -6,6 +6,7 @@ use App\Mail\OrderReceiptMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Photo;
+use App\Services\PhotographerTransferService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ use UnexpectedValueException;
 /** Receives verified Stripe payment notifications and fulfills paid orders exactly once. */
 class StripeWebhookController extends Controller
 {
+    public function __construct(private readonly PhotographerTransferService $photographerTransfers) {}
+
     /** Verify the Stripe signature and process only the payment events required by the MVP. */
     public function handle(Request $request): Response
     {
@@ -57,14 +60,15 @@ class StripeWebhookController extends Controller
         return response('OK', 200);
     }
 
-    /** Mark the matching pending order paid, create download entitlements, and record the sale. */
+    /** Mark the order paid once, then prepare idempotent photographer transfers after commit. */
     private function fulfill(object $session): void
     {
         if (($session->payment_status ?? null) !== 'paid') {
             return;
         }
 
-        $order = DB::transaction(function () use ($session): ?Order {
+        $shouldSendReceipt = false;
+        $order = DB::transaction(function () use ($session, &$shouldSendReceipt): ?Order {
             $order = Order::where('stripe_checkout_session_id', $session->id)->lockForUpdate()->first();
 
             if (! $order) {
@@ -72,6 +76,10 @@ class StripeWebhookController extends Controller
             }
 
             $this->assertSessionMatchesOrder($session, $order);
+
+            if ($order->payment_status === Order::PAYMENT_PAID) {
+                return $order;
+            }
 
             if ($order->payment_status !== Order::PAYMENT_PENDING) {
                 return null;
@@ -100,12 +108,18 @@ class StripeWebhookController extends Controller
                 Photo::whereIn('id', $photoIds)->increment('sale_count', 1, ['most_recent_purchase_at' => $paidAt]);
             }
 
+            $shouldSendReceipt = true;
+
             return $order;
         });
 
         // Only the call that transitioned the order sends the receipt, so duplicate events do not resend it.
-        if ($order) {
+        if ($order && $shouldSendReceipt) {
             $this->sendReceipt($order);
+        }
+
+        if ($order) {
+            $this->photographerTransfers->createTransfersForPaidOrder($order);
         }
     }
 

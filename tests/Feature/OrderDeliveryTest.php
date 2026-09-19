@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ProcessPhotographerTransfer;
 use App\Mail\OrderReceiptMail;
 use App\Models\Event;
 use App\Models\EventAssignment;
@@ -14,6 +15,7 @@ use App\Models\User;
 use App\Services\PhotoStorage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -27,6 +29,7 @@ class OrderDeliveryTest extends TestCase
     {
         parent::setUp();
         config(['services.stripe.webhook_secret' => self::WEBHOOK_SECRET]);
+        Queue::fake([ProcessPhotographerTransfer::class]);
         $this->fakeStorage();
         $this->fakeStripe();
     }

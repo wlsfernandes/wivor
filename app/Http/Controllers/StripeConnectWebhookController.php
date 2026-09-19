@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessPhotographerTransfer;
 use App\Mail\PhotographerPayoutStatusChanged;
 use App\Models\Photographer;
+use App\Models\PhotographerTransfer;
 use App\Services\StripeConnectService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -71,6 +73,10 @@ class StripeConnectWebhookController extends Controller
                 ], true)) {
                 $this->notifyPhotographer($photographer);
             }
+
+            if ($statusChanged && $photographer->stripe_onboarding_status === Photographer::STRIPE_READY) {
+                $this->retryFailedTransfers($photographer);
+            }
         } catch (Throwable) {
             Log::error('Stripe Connect account synchronization failed.', [
                 'event' => 'stripe.connect_webhook.sync',
@@ -95,5 +101,14 @@ class StripeConnectWebhookController extends Controller
                 'photographer_id' => $photographer->id,
             ]);
         }
+    }
+
+    /** Re-dispatch unpaid allocations when Stripe first marks the photographer ready. */
+    private function retryFailedTransfers(Photographer $photographer): void
+    {
+        PhotographerTransfer::where('photographer_id', $photographer->id)
+            ->where('status', PhotographerTransfer::STATUS_FAILED)
+            ->pluck('id')
+            ->each(fn (int $photographerTransferId) => ProcessPhotographerTransfer::dispatch($photographerTransferId));
     }
 }
