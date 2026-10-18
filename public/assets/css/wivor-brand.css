@@ -277,3 +277,21 @@ body :is(h1, h2, h3, h4, h5, h6, p, a, li, label, input, select, textarea, butto
     outline: 2px solid var(--wv-orange);
     outline-offset: 2px;
 }
+
+/* Home photos */
+.wv-hero__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--wv-radius);
+}
+
+.wv-card__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center 30%;
+    border-radius: var(--wv-radius);
+    margin-bottom: 16px;
+}

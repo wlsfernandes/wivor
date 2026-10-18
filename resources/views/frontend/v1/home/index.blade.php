@@ -7,20 +7,29 @@
 @section('meta-description', $metaDescription)
 
 @section('content')
-    {{-- 4.1 Hero. Text only until Victor supplies the athlete photo (marketing site plan 4). --}}
+    {{-- 4.1 Hero: text left, athlete photo right (one column on mobile). --}}
     <section class="wv-section wv-section--white">
         <div class="wv-container">
-            <h1 class="wv-h1">Your best moments. Found in seconds.</h1>
-            @if ($isFaceSearchEnabled)
-                <p class="wv-lead">WiVor uses face and bib number recognition to match you with the photos photographers took of you at your event. Browse for free. Pay only for the ones you love.</p>
-            @else
-                <p class="wv-lead">WiVor uses bib number recognition to match you with the photos photographers took of you at your event. Browse for free. Pay only for the ones you love.</p>
-            @endif
-            <div class="wv-button-row">
-                <a href="{{ route('athletes') }}" class="wv-btn wv-btn--primary">Find My Photos</a>
-                <a href="{{ route('photographers') }}" class="wv-btn wv-btn--outline">I'm a Photographer</a>
+            <div class="row g-4 align-items-center">
+                <div class="col-12 col-lg-6">
+                    <h1 class="wv-h1">Your best moments. Found in seconds.</h1>
+                    @if ($isFaceSearchEnabled)
+                        <p class="wv-lead">WiVor uses face and bib number recognition to match you with the photos photographers took of you at your event. Browse for free. Pay only for the ones you love.</p>
+                    @else
+                        <p class="wv-lead">WiVor uses bib number recognition to match you with the photos photographers took of you at your event. Browse for free. Pay only for the ones you love.</p>
+                    @endif
+                    <div class="wv-button-row">
+                        <a href="{{ route('athletes') }}" class="wv-btn wv-btn--primary">Find My Photos</a>
+                        <a href="{{ route('photographers') }}" class="wv-btn wv-btn--outline">I'm a Photographer</a>
+                    </div>
+                    <p class="wv-small">Free for photographers and event organizers. Athletes pay only for the photos they buy.</p>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <img class="wv-hero__image" src="{{ asset('assets/images/site/hero-finish-line.webp') }}"
+                        alt="Runner raising both arms while breaking the finish line tape" width="1192" height="600"
+                        fetchpriority="high">
+                </div>
             </div>
-            <p class="wv-small">Free for athletes, photographers and event organizers.</p>
         </div>
     </section>
 
@@ -80,14 +89,16 @@
         </div>
     </section>
 
-    {{-- 4.4 Three audiences. Icons until audience photos arrive (plan 4). --}}
+    {{-- 4.4 Three audiences --}}
     <section class="wv-section wv-section--light">
         <div class="wv-container">
             <h2 class="wv-h2">Made for everyone at the event</h2>
             <div class="row g-4">
                 <div class="col-12 col-md-4">
                     <div class="wv-card">
-                        <i class="fas fa-running wv-icon" aria-hidden="true"></i>
+                        <img class="wv-card__image" src="{{ asset('assets/images/site/athletes-bib-runners.webp') }}"
+                            alt="Two runners with race bibs celebrating on the course" width="800" height="800"
+                            loading="lazy">
                         <h3 class="wv-h3">Athletes</h3>
                         <p class="wv-body">Find every photo of you, without scrolling through thousands of images.</p>
                         <a class="wv-link" href="{{ route('athletes') }}">Find my photos →</a>
@@ -95,7 +106,9 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="wv-card">
-                        <i class="fas fa-camera wv-icon" aria-hidden="true"></i>
+                        <img class="wv-card__image" src="{{ asset('assets/images/site/photographers-telephoto-lens.webp') }}"
+                            alt="Photographer with a telephoto lens shooting an event crowd" width="900" height="452"
+                            loading="lazy">
                         <h3 class="wv-h3">Photographers</h3>
                         <p class="wv-body">Upload your work, reach more athletes and let WiVor handle payments.</p>
                         <a class="wv-link" href="{{ route('photographers') }}#register_section">Join as a photographer →</a>
@@ -103,7 +116,9 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="wv-card">
-                        <i class="fas fa-flag-checkered wv-icon" aria-hidden="true"></i>
+                        <img class="wv-card__image" src="{{ asset('assets/images/site/organizers-race-crowd.webp') }}"
+                            alt="Crowd of runners on the road at the start of a race" width="900" height="372"
+                            loading="lazy">
                         <h3 class="wv-h3">Event Organizers</h3>
                         <p class="wv-body">Offer your athletes professional photos with zero cost and zero extra work.</p>
                         <a class="wv-link" href="{{ route('organizers') }}">Partner with us →</a>
