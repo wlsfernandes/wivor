@@ -19,7 +19,7 @@
                         aria-label="View cart with {{ $cartCount }} selected {{ $cartCount === 1 ? 'photo' : 'photos' }}">
                         <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                         @if ($cartCount > 0)
-                            <span class="wv-header__cart-count" aria-hidden="true">{{ $cartCount }}</span>
+                            <span class="wv-header__cart-count cart-count-badge" aria-hidden="true">{{ $cartCount }}</span>
                         @endif
                     </a>
                 </li>
