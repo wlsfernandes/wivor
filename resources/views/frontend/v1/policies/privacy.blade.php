@@ -1,6 +1,6 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'Privacy Policy | WivorPhotos')
+@section('title', 'Privacy Policy | WiVor')
 @section('meta-description', 'How WivorPhotos handles customer, photographer, payment, event-photo, and recognition data.')
 
 @section('content')

@@ -129,7 +129,7 @@ class EventController extends Controller
 
         return view('frontend.v1.events.show', [
             'event' => $event,
-            'seoTitle' => "{$event->title} Photos | WivorPhotos",
+            'seoTitle' => "{$event->title} Photos | ".config('seo.brand'),
             'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
             'canonicalUrl' => $canonicalUrl,
             'availabilityMessage' => $availabilityMessage,
@@ -176,7 +176,7 @@ class EventController extends Controller
 
         return view('frontend.v1.events.gallery', [
             'event' => $event,
-            'seoTitle' => "{$event->title} Photos | WivorPhotos",
+            'seoTitle' => "{$event->title} Photos | ".config('seo.brand'),
             'seoDescription' => "Browse professional photos from {$event->title} in {$event->location_label}.",
             'canonicalUrl' => $canonicalUrl,
             'availablePhotoCount' => $availablePhotoCount,

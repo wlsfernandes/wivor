@@ -1,6 +1,6 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', $title . ' | WivorPhotos')
+@section('title', $title . ' | WiVor')
 @section('meta-description', $metaDescription)
 
 @section('content')

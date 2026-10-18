@@ -1,9 +1,8 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'How WivorPhotos Works for Photographers | WivorPhotos')
+@section('title', 'Sell Event Photos Online | WiVor for Photographers')
 
-@section('meta-description', 'Learn how WivorPhotos helps photographers cover events, publish sports photos, track sales, and apply to join the platform.')
-@section('meta-keywords', 'become a sports photographer, sell sports photos, event photography jobs, photographer marketplace, fitness photography, WivorPhotos photographers')
+@section('meta-description', 'Upload your event photos for free. WiVor matches athletes automatically and handles payments.')
 
 @section('content')
     <section class="cta-section home-3 centred">

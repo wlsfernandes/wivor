@@ -5,7 +5,6 @@
 @section('meta-description', 'Meet Victor, co-founder of Wivor, CPA, sports enthusiast, and advocate for professional
     sports photography.')
 
-@section('meta-keywords', 'Victor, Wivor co-founder, WivorPhotos, sports photography, CPA, Brazilian Jiu-Jitsu')
 
 @section('content')
     <section class="team-details">

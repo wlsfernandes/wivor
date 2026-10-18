@@ -1,6 +1,6 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'Contact WivorPhotos')
+@section('title', 'Contact | WiVor')
 @section('meta-description', 'Contact the WivorPhotos team for customer and photographer support.')
 
 @section('content')

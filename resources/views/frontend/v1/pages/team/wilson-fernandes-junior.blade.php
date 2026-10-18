@@ -5,8 +5,6 @@
 @section('meta-description', 'Meet Wilson Fernandes Junior and learn about his role in building WivorPhotos for sports
     photographers, athletes, and event communities.')
 
-@section('meta-keywords', 'Wilson Fernandes Junior, WivorPhotos, sports photography leadership, event photography
-    platform, photographer marketplace')
 
 
     <!-- Content here -->

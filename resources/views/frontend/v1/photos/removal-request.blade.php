@@ -1,6 +1,6 @@
 @extends($layout)
 
-@section('title', 'Report or Request Removal | WivorPhotos')
+@section('title', 'Report or Request Removal | WiVor')
 
 @section('content')
     <main class="container py-5">

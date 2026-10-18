@@ -1,6 +1,6 @@
 @extends($layout)
 
-@section('title', 'Your Order | WivorPhotos')
+@section('title', 'Your Order | WiVor')
 @section('robots', 'noindex,nofollow')
 
 @section('content')

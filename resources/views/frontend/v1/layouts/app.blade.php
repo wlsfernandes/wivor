@@ -11,9 +11,6 @@
     @hasSection('meta-description')
         <meta name="description" content="@yield('meta-description')">
     @endif
-    @hasSection('meta-keywords')
-        <meta name="keywords" content="@yield('meta-keywords')">
-    @endif
     <meta name="robots" content="@yield('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1')">
     @hasSection('author')
         <meta name="author" content="@yield('author')">
@@ -23,7 +20,7 @@
     @endif
     @hasSection('og-image')
         <meta property="og:type" content="@yield('og-type', 'website')">
-        <meta property="og:site_name" content="WivorPhotos">
+        <meta property="og:site_name" content="{{ config('seo.brand') }}">
         <meta property="og:title" content="@yield('title')">
         <meta property="og:description" content="@yield('meta-description')">
         <meta property="og:url" content="@yield('canonical')">
