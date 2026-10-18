@@ -1,6 +1,6 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'Refund Policy | WivorPhotos')
+@section('title', 'Refund Policy | WiVor')
 @section('meta-description', 'How to request support and how WivorPhotos handles refunds for digital photograph purchases.')
 
 @section('content')

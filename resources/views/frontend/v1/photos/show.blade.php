@@ -3,12 +3,6 @@
 @section('title', $seoTitle)
 @section('robots', 'noindex,nofollow')
 @section('meta-description', $seoDescription)
-@section('meta-keywords',
-    e(
-    collect([$photo->display_title, $event->title, $event->sport ? $event->sport . ' photography' : null, $event->city ?
-    $event->city . ' sports photos' : null, $photographerName, 'sports event photo',
-    'WivorPhotos'])->merge($people)->filter()->unique()->implode(', '),
-    ))
 @section('author', $photographerName)
 @section('canonical', $canonicalUrl)
 @section('og-type', 'article')

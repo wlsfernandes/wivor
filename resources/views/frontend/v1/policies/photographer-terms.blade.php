@@ -1,6 +1,6 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'Photographer Terms | WivorPhotos')
+@section('title', 'Photographer Terms | WiVor')
 @section('meta-description', 'Terms for photographers who apply, publish event photographs, and earn through WivorPhotos.')
 
 @section('content')

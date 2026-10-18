@@ -1,6 +1,6 @@
 @extends($layout)
 
-@section('title', 'How to Upload Photos | WivorPhotos')
+@section('title', 'How to Upload Photos | WiVor')
 @section('workspace-title', 'How to Upload Photos')
 @section('meta-description', 'A simple guide for approved WivorPhotos photographers to find an event and upload JPEG photos.')
 

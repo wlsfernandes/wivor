@@ -3,13 +3,6 @@
 @section('title', $seoTitle)
 @section('robots', 'noindex,nofollow')
 @section('meta-description', $seoDescription)
-@section('meta-keywords', e(collect([
-    $event->title,
-    $event->sport ? $event->sport . ' photos' : null,
-    $event->city ? $event->city . ' event photos' : null,
-    'sports event photos',
-    'WivorPhotos',
-])->filter()->unique()->implode(', ')))
 @section('canonical', $canonicalUrl)
 @section('og-image', $event->cover_url)
 

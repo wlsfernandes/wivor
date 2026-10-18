@@ -1,6 +1,6 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'Photo Removal Request | WivorPhotos')
+@section('title', 'Photo Removal Request | WiVor')
 @section('meta-description', 'Submit a WivorPhotos photo removal request for administrative review.')
 
 @section('content')

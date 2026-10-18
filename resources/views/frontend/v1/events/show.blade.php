@@ -2,16 +2,13 @@
 
 @section('title', $seoTitle)
 @section('meta-description', $seoDescription)
-@section('meta-keywords', e(collect([
-    $event->title,
-    $event->sport ? $event->sport . ' photos' : null,
-    $event->city ? $event->city . ' event photos' : null,
-    $event->state ? $event->state . ' sports photography' : null,
-    'sports event photos',
-    'WivorPhotos',
-])->filter()->unique()->implode(', ')))
 @section('canonical', $canonicalUrl)
 @section('og-image', $event->cover_url)
+@if ($eventStructuredData)
+    @section('structured-data')
+        <script type="application/ld+json">{!! json_encode($eventStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+    @endsection
+@endif
 
 @section('styles')
     <style>

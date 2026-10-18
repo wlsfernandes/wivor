@@ -124,13 +124,15 @@ class EventController extends Controller
         };
 
         $canonicalUrl = route('events.show', ['event' => $event->slug]);
+        $seoDescription = "Find professional photos from {$event->title} in {$event->location_label}.";
 
         $cartCount = $this->cart->count();
 
         return view('frontend.v1.events.show', [
             'event' => $event,
-            'seoTitle' => "{$event->title} Photos | WivorPhotos",
-            'seoDescription' => "Find professional photos from {$event->title} in {$event->location_label}.",
+            'seoTitle' => "{$event->title} Photos | ".config('seo.brand'),
+            'seoDescription' => $seoDescription,
+            'eventStructuredData' => $this->sportsEventStructuredData($event, $canonicalUrl, $seoDescription),
             'canonicalUrl' => $canonicalUrl,
             'availabilityMessage' => $availabilityMessage,
             'availablePhotoCount' => $availablePhotoCount,
@@ -176,7 +178,7 @@ class EventController extends Controller
 
         return view('frontend.v1.events.gallery', [
             'event' => $event,
-            'seoTitle' => "{$event->title} Photos | WivorPhotos",
+            'seoTitle' => "{$event->title} Photos | ".config('seo.brand'),
             'seoDescription' => "Browse professional photos from {$event->title} in {$event->location_label}.",
             'canonicalUrl' => $canonicalUrl,
             'availablePhotoCount' => $availablePhotoCount,
@@ -418,5 +420,38 @@ class EventController extends Controller
         }
 
         return $validated;
+    }
+
+    /**
+     * Describe a published event for search engines, or null when it has no date (Google rejects events without one).
+     *
+     * @return array<string, mixed>|null
+     */
+    private function sportsEventStructuredData(Event $event, string $canonicalUrl, string $description): ?array
+    {
+        if ($event->date_of_event === null) {
+            return null;
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'SportsEvent',
+            'name' => $event->title,
+            'description' => $description,
+            'startDate' => $event->starts_at?->toIso8601String() ?? $event->date_of_event->toDateString(),
+            'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+            'url' => $canonicalUrl,
+            'image' => $event->cover_url,
+            'location' => [
+                '@type' => 'Place',
+                'name' => $event->venue_name ?: $event->location_label,
+                'address' => array_filter([
+                    '@type' => 'PostalAddress',
+                    'addressLocality' => $event->city,
+                    'addressRegion' => $event->state,
+                    'addressCountry' => $event->country_code,
+                ]),
+            ],
+        ];
     }
 }

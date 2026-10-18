@@ -1,6 +1,6 @@
 @extends($layout)
 
-@section('title', 'Confirming Your Payment | WivorPhotos')
+@section('title', 'Confirming Your Payment | WiVor')
 @section('robots', 'noindex,nofollow')
 
 @section('content')

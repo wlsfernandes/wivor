@@ -51,3 +51,15 @@ How it works today: the customer pays WiVor through Stripe Checkout (plain platf
 - Lawyer review of the Biometric Notice.
 - Cookie wording for the Privacy Policy. The cookie banner links there, but the policy does not mention cookies yet (essential session cookies today, analytics cookies after plan 4).
 - Hero and audience photos (athlete, photographer, start line).
+
+## SEO foundation (deferred review items, 2026-10-18)
+
+- Production must run with `APP_URL=https://www.wivorphotos.com` and the server must redirect `wivorphotos.com` to `www`. Canonical addresses now follow the request host, so without the redirect both hosts can be indexed.
+- Events with a date but no venue, city or state still get SportsEvent data with an empty address ("Location to be announced"); Google flags it as invalid. Skip the data or the location when all three are empty.
+- SportsEvent `startDate` from `starts_at` is printed in UTC; use the event's timezone. That branch has no test.
+- `og:image:alt` default is double-escaped for titles with `&` or `'` (for example "Tom &amp;amp; Jerry").
+- Pages without a meta description (cart, checkout, orders, removal request) print empty `og:description` and `twitter:description`.
+- `/list-events?page=2` and later point their canonical at page 1.
+- Team pages still use "Wivor | ..." titles and have double blank lines where keywords were removed.
+- Portal layout and customer dashboard still print or set the keywords meta (old code, not deleted).
+- Schema.org validator and Facebook sharing debugger not run yet (needs deploy).

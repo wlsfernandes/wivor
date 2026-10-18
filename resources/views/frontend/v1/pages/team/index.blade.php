@@ -6,9 +6,6 @@
     'Meet the WivorPhotos team building a trusted marketplace that connects sports
     photographers, athletes, and event communities.')
 
-@section('meta-keywords',
-    'WivorPhotos team, sports photography team, event photography marketplace, photographer
-    platform, athlete photo marketplace')
 
     <style>
         /* FontAwesome for working BootSnippet :> */

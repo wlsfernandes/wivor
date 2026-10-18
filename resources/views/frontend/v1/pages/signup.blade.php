@@ -1,9 +1,8 @@
 @extends('frontend.v1.layouts.app')
 
-@section('title', 'Guest Checkout | WivorPhotos')
+@section('title', 'Guest Checkout | WiVor')
 
 @section('meta-description', 'No customer account is required to browse and purchase event photos from WivorPhotos.')
-@section('meta-keywords', 'WivorPhotos guest checkout, sports event photos, athlete photos, event photography marketplace')
 
 @section('content')
     <section class="contact-section sec-pad" style="margin-bottom:150px;" aria-labelledby="guest-checkout-title">

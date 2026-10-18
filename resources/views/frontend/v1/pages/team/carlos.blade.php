@@ -5,8 +5,6 @@
 @section('meta-description', 'Meet Carlos, co-founder of Wivor, engineer, business strategist, athlete, and advocate for
     professional sports photography.')
 
-@section('meta-keywords', 'Carlos, Wivor co-founder, WivorPhotos, sports photography, mechanical engineer, Brazilian
-    Jiu-Jitsu')
 
 @section('content')
     <section class="team-details">

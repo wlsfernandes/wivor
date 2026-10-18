@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'brand' => env('SEO_BRAND', 'WivorPhotos'),
+    'brand' => env('SEO_BRAND', 'WiVor'),
 
     // Set this to the public page that explains the license governing Wivor photos.
     // It is deliberately empty until the business has approved its license terms.
