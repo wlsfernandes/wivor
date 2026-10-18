@@ -15,7 +15,7 @@ use Stripe\StripeClient;
 /** Builds a pending Wivor order and its Stripe-hosted Checkout Session. */
 class CheckoutService
 {
-    public function __construct(private readonly StripeClient $stripe)
+    public function __construct(private readonly StripeClient $stripe, private readonly PhotoPricingService $pricing)
     {
     }
 
@@ -45,33 +45,24 @@ class CheckoutService
             }
         }
 
-        $discountPerPhotoCents = $promoCode
-            ? (int) round($event->price_cents * $promoCode->discount_percent / 100)
-            : 0;
-        $unitPriceCents = max($event->price_cents - $discountPerPhotoCents, 0);
+        $quote = $this->pricing->quote($event, $photos->count(), $promoCode);
 
-        if ($unitPriceCents === 0) {
+        if ($quote->unitPriceCents === 0) {
             throw ValidationException::withMessages(['cart' => 'This promo code cannot be used for Secure Checkout because the order total would be $0.00.']);
         }
 
-        $photoCount = $photos->count();
-        $subtotalCents = $unitPriceCents * $photoCount;
-        $commissionPercentage = (float) config('commission.percentage');
-        $itemCommissionCents = (int) round($unitPriceCents * $commissionPercentage / 100);
-        $itemAllocationCents = $unitPriceCents - $itemCommissionCents;
-
-        return DB::transaction(function () use (
-            $event, $photos, $unitPriceCents, $photoCount,
-            $subtotalCents, $commissionPercentage, $itemCommissionCents, $itemAllocationCents
-        ): Order {
+        return DB::transaction(function () use ($event, $photos, $quote): Order {
             $order = Order::create([
                 'event_id' => $event->id,
                 'currency' => 'usd',
-                'photo_count' => $photoCount,
-                'unit_price_cents' => $unitPriceCents,
-                'subtotal_cents' => $subtotalCents,
-                'commission_percentage' => $commissionPercentage,
-                'total_cents' => $subtotalCents,
+                'photo_count' => $quote->photoCount,
+                'list_unit_price_cents' => $quote->listUnitPriceCents,
+                'discount_source' => $quote->discountSource,
+                'discount_percentage' => $quote->hasDiscount() ? $quote->discountPercentage : null,
+                'unit_price_cents' => $quote->unitPriceCents,
+                'subtotal_cents' => $quote->totalCents(),
+                'commission_percentage' => $quote->commissionPercentage,
+                'total_cents' => $quote->totalCents(),
                 'payment_status' => Order::PAYMENT_PENDING,
                 'fulfillment_status' => Order::FULFILLMENT_PENDING,
             ]);
@@ -83,9 +74,9 @@ class CheckoutService
                     'photographer_id' => $photo->photographer_id,
                     'photo_uuid' => $photo->uuid,
                     'original_key' => $photo->original_key,
-                    'unit_price_cents' => $unitPriceCents,
-                    'commission_cents' => $itemCommissionCents,
-                    'photographer_allocation_cents' => $itemAllocationCents,
+                    'unit_price_cents' => $quote->unitPriceCents,
+                    'commission_cents' => $quote->itemCommissionCents,
+                    'photographer_allocation_cents' => $quote->itemAllocationCents,
                 ]);
             }
 

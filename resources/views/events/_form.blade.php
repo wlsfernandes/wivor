@@ -121,6 +121,34 @@
                 <div class="form-text">Applies to every photo published for this event.</div>
                 @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
+            @if ($canManagePricingOverrides)
+                <div class="col-md-3">
+                    <label class="form-label" for="commission_percentage">WivorPhotos commission (%)</label>
+                    <input class="form-control @error('commission_percentage') is-invalid @enderror" id="commission_percentage"
+                        name="commission_percentage" type="number" step="0.01" min="0" max="100"
+                        value="{{ old('commission_percentage', $formValues['commission_percentage']) }}"
+                        placeholder="Default: {{ $defaultCommissionLabel }}">
+                    <div class="form-text">Leave empty to use the default ({{ $defaultCommissionLabel }}). Applies to new orders only.</div>
+                    @error('commission_percentage')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="packet_discount_percentage">Bundle discount, 3+ photos (%)</label>
+                    <input class="form-control @error('packet_discount_percentage') is-invalid @enderror" id="packet_discount_percentage"
+                        name="packet_discount_percentage" type="number" step="0.01" min="0" max="90"
+                        value="{{ old('packet_discount_percentage', $formValues['packet_discount_percentage']) }}"
+                        placeholder="Default: {{ $defaultPacketDiscountLabel }}">
+                    <div class="form-text">Leave empty to use the default ({{ $defaultPacketDiscountLabel }}). Enter 0 to turn it off. Photographers receive their share of the discounted price.</div>
+                    @error('packet_discount_percentage')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            @else
+                <div class="col-md-6">
+                    <p class="form-text mb-0">
+                        WivorPhotos commission: {{ $effectiveCommissionLabel }}.
+                        Bundle discount: buyers of 3 or more photos save {{ $effectivePacketDiscountLabel }}, and your
+                        earnings are calculated on the discounted price. WivorPhotos sets these values.
+                    </p>
+                </div>
+            @endif
         </div>
     </div>
 </div>

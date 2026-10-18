@@ -156,6 +156,7 @@ class PhotographerController extends Controller
             'event' => $order->event,
             'sale_date_label' => $order->sale_date_label,
             'photo_count' => $items->count(),
+            'discount_label' => $order->discount_label,
             'gross_amount_label' => '$'.number_format($items->sum('unit_price_cents') / 100, 2),
             'commission_label' => '$'.number_format($items->sum('commission_cents') / 100, 2),
             'net_amount_label' => '$'.number_format($items->sum('photographer_allocation_cents') / 100, 2),

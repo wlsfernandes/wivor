@@ -15,6 +15,10 @@ class CartService
     private const SESSION_KEY = 'wivor_cart';
     private const PROMO_CODE_SESSION_KEY = 'wivor_promo_code_id';
 
+    public function __construct(private readonly PhotoPricingService $pricing)
+    {
+    }
+
     /** Add a photo to the cart, enforcing the single-event rule. */
     public function add(Photo $photo): void
     {
@@ -94,9 +98,15 @@ class CartService
     /** Recompute the subtotal from the current event price, never from stored values. */
     public function subtotalCents(): int
     {
+        return $this->quote()?->subtotalCents() ?? 0;
+    }
+
+    /** Price the current selection from current event values, applying the larger of the promo and packet discounts. */
+    public function quote(?PromoCode $promoCode = null): ?PriceQuote
+    {
         $event = $this->event();
 
-        return $event ? $this->count() * $event->price_cents : 0;
+        return $event ? $this->pricing->quote($event, $this->count(), $promoCode) : null;
     }
 
     /** Store only the applied promo code reference in the cart session. */
@@ -142,22 +152,13 @@ class CartService
     /** Calculate the applied discount in cents using the current per-photo price. */
     public function discountAmountCents(?PromoCode $promoCode = null): int
     {
-        $promoCode ??= $this->promoCode();
-        $event = $this->event();
-
-        if (! $promoCode || ! $event) {
-            return 0;
-        }
-
-        $discountPerPhotoCents = (int) round($event->price_cents * $promoCode->discount_percent / 100);
-
-        return $discountPerPhotoCents * $this->count();
+        return $this->quote($promoCode ?? $this->promoCode())?->discountCents() ?? 0;
     }
 
-    /** Calculate the current cart total after the applied promo discount. */
+    /** Calculate the current cart total after the applied discount. */
     public function totalCents(?PromoCode $promoCode = null): int
     {
-        return max($this->subtotalCents() - $this->discountAmountCents($promoCode), 0);
+        return $this->quote($promoCode ?? $this->promoCode())?->totalCents() ?? 0;
     }
 
     private function photoIds(): Collection

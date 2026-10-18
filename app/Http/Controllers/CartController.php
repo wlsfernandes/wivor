@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
+use App\Models\Order;
 use App\Models\Photo;
 use App\Models\PromoCode;
 use App\Services\CartService;
+use App\Services\PhotoPricingService;
+use App\Services\PriceQuote;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +19,9 @@ use Illuminate\View\View;
 /** Handles the guest photo-selection cart used before Stripe checkout. */
 class CartController extends Controller
 {
-    public function __construct(private readonly CartService $cart)
+    private const PACKET_BEATS_PROMO_MESSAGE = 'Your bundle discount is larger than this promo code, so the bundle discount applies.';
+
+    public function __construct(private readonly CartService $cart, private readonly PhotoPricingService $pricing)
     {
     }
 
@@ -25,16 +31,20 @@ class CartController extends Controller
         $checkoutToken = (string) Str::uuid();
         $request->session()->put('wivor_checkout_token', $checkoutToken);
         $promoCode = $this->cart->promoCode();
-        $discountAmountCents = $this->cart->discountAmountCents($promoCode);
+        $event = $this->cart->event();
+        $quote = $this->cart->quote($promoCode);
 
         return view('frontend.v1.cart.show', [
-            'event' => $this->cart->event(),
+            'event' => $event,
             'photos' => $this->cart->photos(),
             'photoCountLabel' => $this->photoCountLabel($this->cart->count()),
-            'subtotalLabel' => $this->moneyLabel($this->cart->subtotalCents()),
+            'subtotalLabel' => $this->moneyLabel($quote?->subtotalCents() ?? 0),
             'promoCode' => $promoCode,
-            'discountLabel' => $this->moneyLabel($discountAmountCents),
-            'totalLabel' => $this->moneyLabel($this->cart->totalCents($promoCode)),
+            'discountRowLabel' => $quote ? $this->discountRowLabel($quote, $promoCode) : null,
+            'promoStatusLabel' => $this->promoStatusLabel($quote, $promoCode),
+            'discountLabel' => $this->moneyLabel($quote?->discountCents() ?? 0),
+            'totalLabel' => $this->moneyLabel($quote?->totalCents() ?? 0),
+            'packetHintLabel' => $event ? $this->packetHintLabel($event) : null,
             'checkoutToken' => $checkoutToken,
             'layout' => 'frontend.v1.layouts.app',
         ]);
@@ -97,19 +107,21 @@ class CartController extends Controller
 
         $this->cart->applyPromoCode($promoCode);
 
-        return response()->json($this->promoCodeResponse($promoCode, 'Promo code applied.'));
+        return response()->json($this->promoCodeResponse($promoCode));
     }
 
     /** Remove the applied promo code from the current cart. */
     public function removePromoCode(): JsonResponse
     {
         $this->cart->removePromoCode();
+        $quote = $this->cart->quote();
 
         return response()->json([
             'success' => true,
-            'subtotal' => $this->moneyLabel($this->cart->subtotalCents()),
-            'discount' => $this->moneyLabel(0),
-            'total' => $this->moneyLabel($this->cart->subtotalCents()),
+            'subtotal' => $this->moneyLabel($quote?->subtotalCents() ?? 0),
+            'discount_label' => $quote ? $this->discountRowLabel($quote, null) : null,
+            'discount' => $this->moneyLabel($quote?->discountCents() ?? 0),
+            'total' => $this->moneyLabel($quote?->totalCents() ?? 0),
             'message' => 'Promo code removed.',
         ]);
     }
@@ -127,16 +139,54 @@ class CartController extends Controller
     }
 
     /** Return display-ready promo and cart totals for the cart AJAX response. */
-    private function promoCodeResponse(PromoCode $promoCode, string $message): array
+    private function promoCodeResponse(PromoCode $promoCode): array
     {
+        $quote = $this->cart->quote($promoCode);
+
         return [
             'success' => true,
             'code' => $promoCode->code,
             'discount_percent' => $promoCode->discount_percent,
-            'subtotal' => $this->moneyLabel($this->cart->subtotalCents()),
-            'discount' => $this->moneyLabel($this->cart->discountAmountCents($promoCode)),
-            'total' => $this->moneyLabel($this->cart->totalCents($promoCode)),
-            'message' => $message,
+            'subtotal' => $this->moneyLabel($quote?->subtotalCents() ?? 0),
+            'discount_label' => $quote ? $this->discountRowLabel($quote, $promoCode) : null,
+            'discount' => $this->moneyLabel($quote?->discountCents() ?? 0),
+            'total' => $this->moneyLabel($quote?->totalCents() ?? 0),
+            'message' => $this->promoStatusLabel($quote, $promoCode),
         ];
+    }
+
+    /** Return the cart row label for the applied discount, or null when no discount applies. */
+    private function discountRowLabel(PriceQuote $quote, ?PromoCode $promoCode): ?string
+    {
+        return match ($quote->discountSource) {
+            Order::DISCOUNT_PACKET => 'Bundle discount ('.PhotoPricingService::percentageLabel($quote->discountPercentage).')',
+            Order::DISCOUNT_PROMO => 'Promo '.$promoCode?->code,
+            default => null,
+        };
+    }
+
+    /** Return the status line shown under the promo code field, or null when no promo code is applied. */
+    private function promoStatusLabel(?PriceQuote $quote, ?PromoCode $promoCode): ?string
+    {
+        if (! $promoCode) {
+            return null;
+        }
+
+        return $quote?->discountSource === Order::DISCOUNT_PACKET
+            ? self::PACKET_BEATS_PROMO_MESSAGE
+            : $promoCode->code.' applied - '.$promoCode->discount_percent.'% off';
+    }
+
+    /** Return the prompt that tells the buyer how many more photos unlock the packet discount, or null. */
+    private function packetHintLabel(Event $event): ?string
+    {
+        $photosNeeded = $this->pricing->photosNeededForPacketDiscount($event, $this->cart->count());
+
+        if ($photosNeeded === 0) {
+            return null;
+        }
+
+        return 'Add '.$photosNeeded.' more '.($photosNeeded === 1 ? 'photo' : 'photos')
+            .' to save '.PhotoPricingService::percentageLabel($event->effectivePacketDiscountPercentage()).'.';
     }
 }

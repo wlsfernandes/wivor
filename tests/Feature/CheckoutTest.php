@@ -238,6 +238,121 @@ class CheckoutTest extends TestCase
         $this->assertSame(800, $stripe->checkout->sessions->lastParams['line_items'][0]['price_data']['unit_amount']);
     }
 
+    public function test_event_commission_override_is_used_instead_of_the_global_default(): void
+    {
+        $this->fakeStripe();
+        config(['commission.percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000, 'commission_percentage' => 10]);
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $order = Order::firstOrFail();
+        $item = $order->items()->firstOrFail();
+        $this->assertEquals(10, $order->commission_percentage);
+        $this->assertSame(100, $item->commission_cents);
+        $this->assertSame(900, $item->photographer_allocation_cents);
+    }
+
+    public function test_event_without_commission_override_follows_the_current_global_default(): void
+    {
+        $this->fakeStripe();
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+        config(['commission.percentage' => 25]);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $item = Order::firstOrFail()->items()->firstOrFail();
+        $this->assertSame(250, $item->commission_cents);
+        $this->assertSame(750, $item->photographer_allocation_cents);
+    }
+
+    public function test_three_photos_get_the_packet_discount_shared_proportionally_with_the_photographer(): void
+    {
+        $stripe = $this->fakeStripe();
+        config(['commission.percentage' => 20, 'commission.packet_percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+
+        foreach (range(1, 3) as $ignored) {
+            [$photo] = $this->publishedPhotoForEvent($event, true);
+            $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        }
+        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $order = Order::firstOrFail();
+        $this->assertSame(1000, $order->list_unit_price_cents);
+        $this->assertSame(800, $order->unit_price_cents);
+        $this->assertSame(Order::DISCOUNT_PACKET, $order->discount_source);
+        $this->assertEquals(20, $order->discount_percentage);
+        $this->assertSame(2400, $order->total_cents);
+        foreach ($order->items as $item) {
+            $this->assertSame(800, $item->unit_price_cents);
+            $this->assertSame(160, $item->commission_cents);
+            $this->assertSame(640, $item->photographer_allocation_cents);
+        }
+        $this->assertSame(800, $stripe->checkout->sessions->lastParams['line_items'][0]['price_data']['unit_amount']);
+        $this->assertSame(3, $stripe->checkout->sessions->lastParams['line_items'][0]['quantity']);
+    }
+
+    public function test_two_photos_do_not_get_the_packet_discount(): void
+    {
+        $this->fakeStripe();
+        config(['commission.packet_percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+
+        foreach (range(1, 2) as $ignored) {
+            [$photo] = $this->publishedPhotoForEvent($event, true);
+            $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        }
+        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $order = Order::firstOrFail();
+        $this->assertSame(1000, $order->unit_price_cents);
+        $this->assertSame(1000, $order->list_unit_price_cents);
+        $this->assertNull($order->discount_source);
+        $this->assertSame(2000, $order->total_cents);
+    }
+
+    public function test_event_packet_discount_override_is_used_instead_of_the_global_default(): void
+    {
+        $this->fakeStripe();
+        config(['commission.packet_percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000, 'packet_discount_percentage' => 30]);
+
+        foreach (range(1, 3) as $ignored) {
+            [$photo] = $this->publishedPhotoForEvent($event, true);
+            $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        }
+        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
+
+        $order = Order::firstOrFail();
+        $this->assertSame(700, $order->unit_price_cents);
+        $this->assertEquals(30, $order->discount_percentage);
+    }
+
+    public function test_only_the_larger_of_the_promo_and_packet_discounts_applies(): void
+    {
+        $this->fakeStripe();
+        config(['commission.packet_percentage' => 20]);
+        $event = $this->publishedEvent(['price_cents' => 1000]);
+        $photos = collect(range(1, 3))->map(fn () => $this->publishedPhotoForEvent($event, true)[0]);
+        $smallPromo = PromoCode::create(['code' => 'SMALL10', 'discount_percent' => 10, 'is_active' => true, 'expires_at' => today()->addDay()]);
+        $bigPromo = PromoCode::create(['code' => 'BIG30', 'discount_percent' => 30, 'is_active' => true, 'expires_at' => today()->addDay()]);
+        $checkout = app(CheckoutService::class);
+
+        $packetOrder = $checkout->createPendingOrder($event, $photos, $smallPromo);
+        $promoOrder = $checkout->createPendingOrder($event, $photos, $bigPromo);
+
+        $this->assertSame(800, $packetOrder->unit_price_cents);
+        $this->assertSame(Order::DISCOUNT_PACKET, $packetOrder->discount_source);
+        $this->assertSame(700, $promoOrder->unit_price_cents);
+        $this->assertSame(Order::DISCOUNT_PROMO, $promoOrder->discount_source);
+        $this->assertEquals(30, $promoOrder->discount_percentage);
+    }
+
     public function test_checkout_revalidates_a_promo_code_before_creating_an_order(): void
     {
         $this->fakeStripe();
