@@ -157,7 +157,7 @@
             @if ($isFaceSearchEnabled)
                 <p class="wv-lead">Search by your name, bib number or a selfie.</p>
             @else
-                <p class="wv-lead">Search by your name or bib number.</p>
+                <p class="wv-lead">Search by event name or bib number.</p>
             @endif
             <div class="wv-button-row">
                 <a href="{{ route('athletes') }}" class="wv-btn wv-btn--inverse">Find My Photos</a>

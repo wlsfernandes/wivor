@@ -268,3 +268,12 @@ body :is(h1, h2, h3, h4, h5, h6, p, a, li, label, input, select, textarea, butto
     font-size: 14px;
     color: var(--wv-white);
 }
+
+/* Keyboard focus: the template CSS removes outlines globally. */
+.wv-header__nav a:focus-visible,
+.wv-header__toggle:focus-visible,
+.wv-footer a:focus-visible,
+.wv-faq summary:focus-visible {
+    outline: 2px solid var(--wv-orange);
+    outline-offset: 2px;
+}

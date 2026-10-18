@@ -23,4 +23,13 @@ class BrandAssetsTest extends TestCase
         }
         $this->assertStringContainsString("'Alata'", $stylesheet);
     }
+
+    public function test_brand_stylesheet_shows_keyboard_focus_on_header_footer_and_faq_controls(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        foreach (['.wv-header__nav a:focus-visible', '.wv-header__toggle:focus-visible', '.wv-footer a:focus-visible', '.wv-faq summary:focus-visible'] as $selector) {
+            $this->assertStringContainsString($selector, $stylesheet);
+        }
+    }
 }

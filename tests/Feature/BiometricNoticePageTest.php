@@ -14,12 +14,24 @@ class BiometricNoticePageTest extends TestCase
 
     public function test_biometric_notice_shows_fallback_content_when_no_admin_text_exists(): void
     {
+        config(['face_recognition.enabled' => true]);
+
         $this->get('/biometric-notice')
             ->assertOk()
             ->assertSee('Biometric Notice')
             ->assertSee('WivorPhotos does not intentionally save the search selfie')
             ->assertSee('href="'.route('privacy').'"', false)
             ->assertDontSee('Policy content pending');
+    }
+
+    public function test_biometric_notice_fallback_does_not_describe_selfie_search_when_face_search_is_disabled(): void
+    {
+        config(['face_recognition.enabled' => false]);
+
+        $this->get(route('biometric-notice'))
+            ->assertOk()
+            ->assertSee('Face matching in event photographs')
+            ->assertDontSee('selfie');
     }
 
     public function test_biometric_notice_shows_admin_saved_content_instead_of_fallback(): void
