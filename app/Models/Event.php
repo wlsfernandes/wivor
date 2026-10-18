@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PhotoPricingService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +42,7 @@ use Illuminate\Support\Str;
  * @property string $publish_action_label
  * @property string $sport_label
  * @property string $photos_live_label
+ * @property string|null $packet_offer_label
  */
 class Event extends Model
 {
@@ -65,6 +67,8 @@ class Event extends Model
         'gallery_published_at',
         'sales_close_at',
         'price_cents',
+        'commission_percentage',
+        'packet_discount_percentage',
         'date_of_event',
         'starts_at',
         'ends_at',
@@ -86,6 +90,8 @@ class Event extends Model
         return [
             'published' => 'boolean',
             'price_cents' => 'integer',
+            'commission_percentage' => 'decimal:2',
+            'packet_discount_percentage' => 'decimal:2',
             'published_at' => 'datetime',
             'gallery_published_at' => 'datetime',
             'sales_close_at' => 'datetime',
@@ -250,6 +256,28 @@ class Event extends Model
     public function getPriceLabelAttribute(): string
     {
         return $this->price_cents ? '$'.number_format($this->price_cents / 100, 2) : 'Not priced';
+    }
+
+    /** Return the event's commission override, or the current global default when none is set. */
+    public function effectiveCommissionPercentage(): float
+    {
+        return (float) ($this->commission_percentage ?? config('commission.percentage'));
+    }
+
+    /** Return the event's packet-discount override, or the current global default when none is set. */
+    public function effectivePacketDiscountPercentage(): float
+    {
+        return (float) ($this->packet_discount_percentage ?? config('commission.packet_percentage'));
+    }
+
+    /** Return the public packet-discount offer, or null when the event has no packet discount. */
+    public function getPacketOfferLabelAttribute(): ?string
+    {
+        $percentage = $this->effectivePacketDiscountPercentage();
+
+        return $percentage > 0
+            ? 'Buy '.PhotoPricingService::PACKET_MINIMUM_PHOTOS.' or more photos and save '.PhotoPricingService::percentageLabel($percentage)
+            : null;
     }
 
     /** Determine whether photos may currently be added to a cart for this event. */

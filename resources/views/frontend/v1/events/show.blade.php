@@ -131,6 +131,10 @@
                                 @if ($event->isSellable())
                                     <span class="text-muted" aria-hidden="true">·</span>
                                     <span>{{ $event->price_label }} per photo</span>
+                                    @if ($event->packet_offer_label)
+                                        <span class="text-muted" aria-hidden="true">·</span>
+                                        <span class="fw-semibold text-success">{{ $event->packet_offer_label }}</span>
+                                    @endif
                                 @endif
                                 @if ($cartCount > 0)
                                     <span class="text-muted" aria-hidden="true">·</span>

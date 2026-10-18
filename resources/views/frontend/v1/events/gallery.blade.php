@@ -119,7 +119,13 @@
 
         @if ($event->isSellable())
             <div class="alert alert-light border d-flex flex-wrap justify-content-between align-items-center gap-2" role="status">
-                <span>{{ $event->price_label }} per photo</span>
+                <span>
+                    {{ $event->price_label }} per photo
+                    @if ($event->packet_offer_label)
+                        <span class="text-muted" aria-hidden="true">·</span>
+                        <span class="fw-semibold text-success">{{ $event->packet_offer_label }}</span>
+                    @endif
+                </span>
                 @if ($cartCount > 0)
                     <a class="btn btn-sm btn-primary" href="{{ route('cart.show') }}">{{ $cartSelectionLabel }}</a>
                 @endif

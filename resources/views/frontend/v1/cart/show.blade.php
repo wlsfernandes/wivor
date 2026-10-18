@@ -46,14 +46,17 @@
                 <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
                     <div class="flex-grow-1" style="max-width: 420px;">
                         <p class="mb-0">{{ $photoCountLabel }}</p>
+                        @if ($packetHintLabel)
+                            <p class="small text-primary mb-0" data-packet-hint>{{ $packetHintLabel }}</p>
+                        @endif
                         <div class="mt-2">
                             <div class="d-flex justify-content-between gap-3">
                                 <span>Subtotal</span>
                                 <span data-cart-subtotal>{{ $subtotalLabel }}</span>
                             </div>
-                            <div class="d-flex justify-content-between gap-3 {{ $promoCode ? '' : 'd-none' }}"
+                            <div class="d-flex justify-content-between gap-3 {{ $discountRowLabel ? '' : 'd-none' }}"
                                 data-discount-row>
-                                <span>Promo <span data-discount-code>{{ $promoCode?->code }}</span></span>
+                                <span data-discount-label>{{ $discountRowLabel }}</span>
                                 <span class="text-success">-<span data-cart-discount>{{ $discountLabel }}</span></span>
                             </div>
                             <hr class="my-2">
@@ -73,9 +76,7 @@
                             </div>
                         </form>
                         <div class="small mt-2 {{ $promoCode ? 'text-success' : '' }}" role="status" data-promo-message>
-                            @if ($promoCode)
-                                {{ $promoCode->code }} applied - {{ $promoCode->discount_percent }}% off
-                            @endif
+                            {{ $promoStatusLabel }}
                         </div>
                         <button type="button" class="btn btn-link btn-sm px-0 {{ $promoCode ? '' : 'd-none' }}"
                             data-promo-remove data-url="{{ route('cart.promo-code.destroy') }}">Remove promo code</button>
@@ -113,6 +114,8 @@
             document.querySelector('[data-cart-subtotal]').textContent = response.subtotal;
             document.querySelector('[data-cart-discount]').textContent = response.discount;
             document.querySelector('[data-cart-total]').textContent = response.total;
+            document.querySelector('[data-discount-label]').textContent = response.discount_label || '';
+            document.querySelector('[data-discount-row]').classList.toggle('d-none', !response.discount_label);
         }
 
         promoForm?.addEventListener('submit', async function(event) {
@@ -137,9 +140,7 @@
                 }
 
                 updateCartTotals(result);
-                document.querySelector('[data-discount-code]').textContent = result.code;
-                document.querySelector('[data-discount-row]').classList.remove('d-none');
-                promoMessage.textContent = `${result.code} applied - ${result.discount_percent}% off`;
+                promoMessage.textContent = result.message;
                 promoMessage.className = 'small mt-2 text-success';
                 promoRemoveButton.classList.remove('d-none');
             } catch (error) {
@@ -169,7 +170,6 @@
                 }
 
                 updateCartTotals(result);
-                document.querySelector('[data-discount-row]').classList.add('d-none');
                 promoMessage.textContent = result.message;
                 promoMessage.className = 'small mt-2 text-muted';
                 promoForm.querySelector('[name="promo_code"]').value = '';

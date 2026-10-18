@@ -41,6 +41,33 @@ class PhotographerSalesPanelTest extends TestCase
             ->assertDontSee('WVR-OTHER001');
     }
 
+    public function test_sales_list_shows_the_discount_applied_to_each_order(): void
+    {
+        [$user, $photographer] = $this->approvedPhotographer();
+        $event = $this->publishedEvent(1000);
+        $this->paidOrder($event, $photographer, 'WVR-BUND0001', 640)->update([
+            'list_unit_price_cents' => 1000,
+            'unit_price_cents' => 800,
+            'discount_source' => Order::DISCOUNT_PACKET,
+            'discount_percentage' => 20,
+        ]);
+        $this->paidOrder($event, $photographer, 'WVR-PROM0001', 680)->update([
+            'list_unit_price_cents' => 1000,
+            'unit_price_cents' => 850,
+            'discount_source' => Order::DISCOUNT_PROMO,
+            'discount_percentage' => 15,
+        ]);
+        $this->paidOrder($event, $photographer, 'WVR-FULL0001', 800);
+
+        $this->actingAs($user)
+            ->get(route('photographer.dashboard'))
+            ->assertOk()
+            ->assertSee('Customer discount')
+            ->assertSeeInOrder(['WVR-BUND0001', 'Bundle 20%'])
+            ->assertSeeInOrder(['WVR-PROM0001', 'Promo 15%'])
+            ->assertSeeInOrder(['WVR-FULL0001', 'None']);
+    }
+
     public function test_payment_status_filter_narrows_the_sales_list(): void
     {
         [$user, $photographer] = $this->approvedPhotographer();

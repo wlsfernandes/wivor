@@ -9,6 +9,9 @@ use Illuminate\Validation\Rule;
 /** Validates creation of a Wivor sports event. */
 class StoreEventRequest extends FormRequest
 {
+    /** Keep packet-discounted photos above $0.00, which Stripe Checkout cannot charge. */
+    private const MAXIMUM_PACKET_DISCOUNT_PERCENTAGE = 90;
+
     /** Allow administrators and photographers to create events. */
     public function authorize(): bool
     {
@@ -18,6 +21,8 @@ class StoreEventRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
+        $isAdmin = $this->user()?->hasRole('admin') ?? false;
+
         return [
             'title' => ['required', 'string', 'max:255'],
             'sport' => ['required', 'string', 'max:100'],
@@ -33,6 +38,11 @@ class StoreEventRequest extends FormRequest
             'state' => ['required', 'string', 'size:2'],
             'country_code' => ['required', Rule::in(['US'])],
             'price' => ['required', 'numeric', 'min:0.50', 'max:999.99'],
+            // Only administrators set pricing overrides; an empty value means the global default applies.
+            'commission_percentage' => $isAdmin ? ['nullable', 'numeric', 'min:0', 'max:100'] : ['prohibited'],
+            'packet_discount_percentage' => $isAdmin
+                ? ['nullable', 'numeric', 'min:0', 'max:'.self::MAXIMUM_PACKET_DISCOUNT_PERCENTAGE]
+                : ['prohibited'],
             'image_url' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'status' => ['required', Rule::in([
                 Event::STATUS_DRAFT,

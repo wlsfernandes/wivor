@@ -245,12 +245,12 @@
                     <tbody>
                         <tr>
                             <td>Frozen unit price</td>
-                            <td>The event's per-photo price after any valid promotional discount.</td>
+                            <td>The event's per-photo price after the larger of a valid promo-code discount or the bundle discount (3 or more photos). The two discounts never stack.</td>
                             <td>Stored on each order item and used to build the customer's total.</td>
                         </tr>
                         <tr>
                             <td>Wivor commission</td>
-                            <td>The configured commission percentage is applied to the frozen unit price and rounded to whole cents.</td>
+                            <td>The event's commission percentage (or the global default when the event has none) is applied to the frozen unit price and rounded to whole cents.</td>
                             <td>Remains with WivorPhotos in the platform balance.</td>
                         </tr>
                         <tr>

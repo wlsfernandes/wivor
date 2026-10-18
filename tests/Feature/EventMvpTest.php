@@ -250,6 +250,134 @@ class EventMvpTest extends TestCase
         $this->assertSame(Event::STATUS_DRAFT, $event->status);
     }
 
+    public function test_admin_can_override_and_clear_the_event_commission_and_packet_discount(): void
+    {
+        $admin = $this->createAdminUser();
+        $event = $this->createEvent(['price_cents' => 1000]);
+
+        $this->actingAs($admin)
+            ->get(route('events.edit', ['event' => $event->id]))
+            ->assertSee('name="commission_percentage"', false)
+            ->assertSee('name="packet_discount_percentage"', false);
+
+        $this->actingAs($admin)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'commission_percentage' => '15',
+                'packet_discount_percentage' => '25',
+            ]))
+            ->assertRedirect(route('events.index'));
+
+        $event->refresh();
+        $this->assertEquals(15, $event->commission_percentage);
+        $this->assertEquals(25, $event->packet_discount_percentage);
+
+        $this->actingAs($admin)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'commission_percentage' => '',
+                'packet_discount_percentage' => '',
+            ]))
+            ->assertRedirect(route('events.index'));
+
+        $event->refresh();
+        $this->assertNull($event->commission_percentage);
+        $this->assertNull($event->packet_discount_percentage);
+    }
+
+    public function test_admin_event_overrides_reject_out_of_range_percentages(): void
+    {
+        $admin = $this->createAdminUser();
+        $event = $this->createEvent(['price_cents' => 1000]);
+
+        $this->actingAs($admin)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'commission_percentage' => '101',
+                'packet_discount_percentage' => '-1',
+            ]))
+            ->assertSessionHasErrors(['commission_percentage', 'packet_discount_percentage']);
+    }
+
+    public function test_admin_event_overrides_accept_the_maximum_percentages(): void
+    {
+        $admin = $this->createAdminUser();
+        $event = $this->createEvent(['price_cents' => 1000]);
+
+        $this->actingAs($admin)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'commission_percentage' => '100',
+                'packet_discount_percentage' => '90',
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $event->refresh();
+        $this->assertEquals(100, $event->commission_percentage);
+        $this->assertEquals(90, $event->packet_discount_percentage);
+    }
+
+    public function test_admin_packet_discount_above_ninety_percent_is_rejected(): void
+    {
+        $admin = $this->createAdminUser();
+        $event = $this->createEvent(['price_cents' => 1000]);
+
+        $this->actingAs($admin)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'packet_discount_percentage' => '90.01',
+            ]))
+            ->assertSessionHasErrors('packet_discount_percentage');
+    }
+
+    public function test_admin_can_set_pricing_overrides_when_creating_an_event(): void
+    {
+        $admin = $this->createAdminUser();
+
+        $this->actingAs($admin)
+            ->post(route('events.store'), $this->validEventPayload([
+                'title' => 'Admin Priced Event',
+                'commission_percentage' => '12.5',
+                'packet_discount_percentage' => '0',
+            ]))
+            ->assertRedirect();
+
+        $event = Event::where('title', 'Admin Priced Event')->firstOrFail();
+        $this->assertEquals(12.5, $event->commission_percentage);
+        $this->assertEquals(0, $event->packet_discount_percentage);
+    }
+
+    public function test_photographer_sees_the_effective_commission_and_packet_discount_read_only(): void
+    {
+        config(['commission.percentage' => 20, 'commission.packet_percentage' => 20]);
+        [$owner, $photographer] = $this->createPhotographerUser();
+        $event = $this->createEvent(['price_cents' => 1000, 'commission_percentage' => 15]);
+        $event->photographers()->attach($photographer);
+
+        $this->actingAs($owner)
+            ->get(route('events.edit', ['event' => $event->id]))
+            ->assertSee('WivorPhotos commission: 15%.')
+            ->assertSee('buyers of 3 or more photos save 20%');
+    }
+
+    public function test_photographer_cannot_see_or_set_the_event_commission_or_packet_discount(): void
+    {
+        [$owner, $photographer] = $this->createPhotographerUser();
+        $event = $this->createEvent(['price_cents' => 1000]);
+        $event->photographers()->attach($photographer);
+
+        $this->actingAs($owner)
+            ->get(route('events.edit', ['event' => $event->id]))
+            ->assertDontSee('name="commission_percentage"', false)
+            ->assertDontSee('name="packet_discount_percentage"', false);
+
+        $this->actingAs($owner)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'commission_percentage' => '1',
+                'packet_discount_percentage' => '90',
+            ]))
+            ->assertSessionHasErrors(['commission_percentage', 'packet_discount_percentage']);
+
+        $event->refresh();
+        $this->assertNull($event->commission_percentage);
+        $this->assertNull($event->packet_discount_percentage);
+    }
+
     public function test_owner_can_replace_a_managed_cover_image(): void
     {
         Storage::fake('public');
@@ -288,6 +416,14 @@ class EventMvpTest extends TestCase
         $photographer->forceFill(['status' => Photographer::STATUS_APPROVED])->save();
 
         return [$user, $photographer];
+    }
+
+    private function createAdminUser(): User
+    {
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin']));
+
+        return $admin;
     }
 
     private function createEvent(array $overrides = []): Event

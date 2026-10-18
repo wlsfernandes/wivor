@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\Photo;
 use App\Models\Photographer;
 use App\Services\CartService;
+use App\Services\PhotoPricingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -358,9 +359,16 @@ class EventController extends Controller
     {
         $eventTimezone = $event?->timezone ?? 'America/New_York';
 
+        $isAdmin = $request->user()->hasRole('admin');
+
         return [
             'event' => $event,
-            'layout' => $request->user()->hasRole('admin') ? 'layouts.master' : 'portal.layouts.app-sidebar',
+            'layout' => $isAdmin ? 'layouts.master' : 'portal.layouts.app-sidebar',
+            'canManagePricingOverrides' => $isAdmin,
+            'defaultCommissionLabel' => PhotoPricingService::percentageLabel(config('commission.percentage')),
+            'defaultPacketDiscountLabel' => PhotoPricingService::percentageLabel(config('commission.packet_percentage')),
+            'effectiveCommissionLabel' => PhotoPricingService::percentageLabel($event?->effectiveCommissionPercentage() ?? config('commission.percentage')),
+            'effectivePacketDiscountLabel' => PhotoPricingService::percentageLabel($event?->effectivePacketDiscountPercentage() ?? config('commission.packet_percentage')),
             'statuses' => [
                 Event::STATUS_DRAFT => 'Draft — only managers can see this event',
                 Event::STATUS_PUBLISHED => 'Published — the public event page is visible',
@@ -388,6 +396,8 @@ class EventController extends Controller
                 'city' => $event?->city ?? '',
                 'state' => $event?->state ?? '',
                 'price' => $event?->price_cents ? number_format($event->price_cents / 100, 2, '.', '') : '',
+                'commission_percentage' => $event?->commission_percentage ?? '',
+                'packet_discount_percentage' => $event?->packet_discount_percentage ?? '',
                 'status' => $event?->status ?? Event::STATUS_DRAFT,
                 'cover_url' => $event?->cover_url,
             ],

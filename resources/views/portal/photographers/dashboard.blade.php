@@ -143,6 +143,7 @@
                             <th>Order number</th>
                             <th>Event</th>
                             <th>Photos</th>
+                            <th>Customer discount</th>
                             <th>Gross</th>
                             <th>WivorPhotos commission</th>
                             <th>Net</th>
@@ -157,6 +158,7 @@
                                 <td>{{ $sale->order_number }}</td>
                                 <td>{{ $sale->event->title }}</td>
                                 <td>{{ $sale->photo_count }}</td>
+                                <td>{{ $sale->discount_label }}</td>
                                 <td>{{ $sale->gross_amount_label }}</td>
                                 <td>{{ $sale->commission_label }}</td>
                                 <td>{{ $sale->net_amount_label }}</td>
@@ -165,7 +167,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-muted text-center py-4">No sales match these filters.</td>
+                                <td colspan="10" class="text-muted text-center py-4">No sales match these filters.</td>
                             </tr>
                         @endforelse
                     </tbody>

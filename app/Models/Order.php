@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PhotoPricingService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,9 +22,12 @@ class Order extends Model
     public const FULFILLMENT_REVOKED = 'revoked';
     public const FULFILLMENT_EXPIRED = 'expired';
 
+    public const DISCOUNT_PACKET = 'packet';
+    public const DISCOUNT_PROMO = 'promo';
+
     protected $fillable = [
         'order_number', 'access_token', 'event_id', 'customer_email',
-        'currency', 'photo_count', 'unit_price_cents', 'subtotal_cents',
+        'currency', 'photo_count', 'unit_price_cents', 'list_unit_price_cents', 'discount_source', 'discount_percentage', 'subtotal_cents',
         'commission_percentage', 'stripe_fee_cents', 'total_cents', 'payment_status', 'fulfillment_status',
         'stripe_checkout_session_id', 'stripe_payment_intent_id', 'stripe_charge_id',
         'paid_at', 'refunded_at', 'disputed_at', 'fulfilled_at', 'cancelled_at', 'download_expires_at',
@@ -34,6 +38,8 @@ class Order extends Model
         return [
             'photo_count' => 'integer',
             'unit_price_cents' => 'integer',
+            'list_unit_price_cents' => 'integer',
+            'discount_percentage' => 'decimal:2',
             'subtotal_cents' => 'integer',
             'commission_percentage' => 'decimal:2',
             'stripe_fee_cents' => 'integer',
@@ -89,5 +95,17 @@ class Order extends Model
     public function getGrossAmountLabelAttribute(): string
     {
         return '$'.number_format($this->subtotal_cents / 100, 2);
+    }
+
+    /** Return the customer discount applied to this order as a short display label. */
+    public function getDiscountLabelAttribute(): string
+    {
+        $sourceLabel = match ($this->discount_source) {
+            self::DISCOUNT_PACKET => 'Bundle',
+            self::DISCOUNT_PROMO => 'Promo',
+            default => null,
+        };
+
+        return $sourceLabel ? $sourceLabel.' '.PhotoPricingService::percentageLabel($this->discount_percentage) : 'None';
     }
 }
