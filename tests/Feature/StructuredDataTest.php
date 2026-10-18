@@ -2,10 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Event;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StructuredDataTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_home_page_describes_the_wivor_organization_and_website(): void
     {
         $data = $this->structuredDataOf($this->get(route('welcome'))->assertOk()->getContent());
@@ -44,6 +48,60 @@ class StructuredDataTest extends TestCase
         $this->assertCount(7, $faq['mainEntity']);
         $this->assertStringNotContainsString('selfie', json_encode($faq));
         $this->assertStringNotContainsString('face data', json_encode($faq));
+    }
+
+    public function test_event_page_describes_the_race_as_a_sports_event(): void
+    {
+        $event = $this->publishedEvent(['title' => 'Peachtree Road Race', 'venue_name' => 'Lenox Square']);
+
+        $data = $this->structuredDataOf($this->get(route('events.show', ['event' => $event->slug]))->assertOk()->getContent());
+        $sportsEvent = $data[array_search('SportsEvent', array_column($data, '@type'), true)];
+
+        $this->assertSame('Peachtree Road Race', $sportsEvent['name']);
+        $this->assertSame('2026-07-04', $sportsEvent['startDate']);
+        $this->assertSame('Lenox Square', $sportsEvent['location']['name']);
+        $this->assertSame('Atlanta', $sportsEvent['location']['address']['addressLocality']);
+        $this->assertSame('GA', $sportsEvent['location']['address']['addressRegion']);
+        $this->assertSame(route('events.show', ['event' => $event->slug]), $sportsEvent['url']);
+        $this->assertSame($event->cover_url, $sportsEvent['image']);
+    }
+
+    public function test_event_without_a_date_has_no_sports_event_data(): void
+    {
+        $event = $this->publishedEvent(['title' => 'Undated Race', 'date_of_event' => null]);
+
+        $html = $this->get(route('events.show', ['event' => $event->slug]))->assertOk()->getContent();
+
+        $this->assertNotContains('SportsEvent', array_column($this->structuredDataOf($html), '@type'));
+    }
+
+    public function test_event_title_with_quotes_and_script_tags_keeps_structured_data_valid(): void
+    {
+        $event = $this->publishedEvent(['title' => 'The "Big" </script><script>alert(1)</script> Run']);
+
+        $html = $this->get(route('events.show', ['event' => $event->slug]))->assertOk()->getContent();
+        $data = $this->structuredDataOf($html);
+        $sportsEvent = $data[array_search('SportsEvent', array_column($data, '@type'), true)];
+
+        $this->assertSame('The "Big" </script><script>alert(1)</script> Run', $sportsEvent['name']);
+        $this->assertStringNotContainsString('<script>alert(1)</script>', $html);
+    }
+
+    private function publishedEvent(array $overrides): Event
+    {
+        return Event::create(array_merge([
+            'slug' => Event::generateUniqueSlug($overrides['title']),
+            'sport' => 'Running',
+            'published' => true,
+            'status' => Event::STATUS_PUBLISHED,
+            'published_at' => now(),
+            'date_of_event' => '2026-07-04',
+            'timezone' => 'America/New_York',
+            'city' => 'Atlanta',
+            'state' => 'GA',
+            'country_code' => 'US',
+            'content' => 'A community race.',
+        ], $overrides));
     }
 
     /** @return list<array<string, mixed>> */
