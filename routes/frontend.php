@@ -105,6 +105,7 @@ Route::get('/about', [HomeController::class, 'aboutUs'])->name('about');
 Route::permanentRedirect('/about-us', '/about')->name('about_us');
 Route::view('/faq', 'frontend.v1.pages.faq')->name('faq');
 Route::view('/how-it-works', 'frontend.v1.pages.how-it-works')->name('how-it-works');
+Route::view('/organizers', 'frontend.v1.pages.organizers')->name('organizers');
 // Temporary until the athlete search page ships (marketing site plan 2).
 Route::redirect('/athletes', '/list-events')->name('athletes');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');

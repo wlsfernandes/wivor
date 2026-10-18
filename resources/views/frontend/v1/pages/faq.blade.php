@@ -54,7 +54,7 @@
 
                 <details>
                     <summary>How can my event partner with WiVor?</summary>
-                    <div class="wv-body">Fill out the form on our <a class="wv-link" href="{{ url('/organizers') }}">Organizers page</a> and we'll get in touch.</div>
+                    <div class="wv-body">Fill out the form on our <a class="wv-link" href="{{ route('organizers') }}">Organizers page</a> and we'll get in touch.</div>
                 </details>
             </div>
         </div>
