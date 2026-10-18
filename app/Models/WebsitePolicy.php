@@ -19,6 +19,7 @@ class WebsitePolicy extends Model
     public const TERMS = 'terms';
     public const REFUND = 'refund';
     public const PHOTOGRAPHER_TERMS = 'photographer-terms';
+    public const BIOMETRIC_NOTICE = 'biometric-notice';
 
     /** @var array<string, string> */
     public const TITLES = [
@@ -26,6 +27,7 @@ class WebsitePolicy extends Model
         self::TERMS => 'Terms of Use',
         self::REFUND => 'Refund Policy',
         self::PHOTOGRAPHER_TERMS => 'Photographer Terms',
+        self::BIOMETRIC_NOTICE => 'Biometric Notice',
     ];
 
     /**

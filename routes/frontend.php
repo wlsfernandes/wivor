@@ -94,6 +94,9 @@ Route::get('/refund-policy', [PolicyController::class, 'show'])
 Route::get('/photographer-terms', [PolicyController::class, 'show'])
     ->defaults('policy', WebsitePolicy::PHOTOGRAPHER_TERMS)
     ->name('photographer-terms');
+Route::get('/biometric-notice', [PolicyController::class, 'show'])
+    ->defaults('policy', WebsitePolicy::BIOMETRIC_NOTICE)
+    ->name('biometric-notice');
 Route::get('/photo-removal', [PhotoRemovalRequestController::class, 'general'])->name('photo-removal.create');
 Route::post('/photo-removal', [PhotoRemovalRequestController::class, 'storeGeneral'])->name('photo-removal.store');
 Route::view('/contact', 'frontend.v1.pages.contact')->name('contact_us');
