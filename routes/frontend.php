@@ -103,6 +103,9 @@ Route::view('/contact', 'frontend.v1.pages.contact')->name('contact_us');
 
 Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
 Route::view('/faq', 'frontend.v1.pages.faq')->name('faq');
+Route::view('/how-it-works', 'frontend.v1.pages.how-it-works')->name('how-it-works');
+// Temporary until the athlete search page ships (marketing site plan 2).
+Route::redirect('/athletes', '/list-events')->name('athletes');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
 Route::get('/photobook', [HomeController::class, 'photobook'])->name('photobook');
 Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name('junior');
