@@ -12,6 +12,7 @@ class EncryptCookies extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        // Written in plain text by public/assets/js/wivor-cookie-consent.js.
+        'wivor_cookie_consent',
     ];
 }

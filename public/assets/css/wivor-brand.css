@@ -295,3 +295,38 @@ body :is(h1, h2, h3, h4, h5, h6, p, a, li, label, input, select, textarea, butto
     border-radius: var(--wv-radius);
     margin-bottom: 16px;
 }
+
+/* Cookie consent (spec section 12): small and out of the way. */
+.wv-cookie {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1100;
+    padding: 16px;
+    background: var(--wv-slate);
+    color: var(--wv-white);
+    border-radius: var(--wv-radius);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+.wv-cookie__text { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--wv-white); }
+
+.wv-cookie__text a { color: var(--wv-white); text-decoration: underline; }
+
+.wv-cookie__actions { display: flex; gap: 8px; }
+
+.wv-cookie__button { flex: 1; padding: 8px 16px; font-size: 14px; }
+
+.wv-cookie__button--reject { background: transparent; border-color: var(--wv-white); color: var(--wv-white); }
+
+.wv-cookie__button--reject:hover,
+.wv-cookie__button--reject:focus-visible { background: var(--wv-white); color: var(--wv-slate); }
+
+.wv-cookie a:focus-visible,
+.wv-cookie__button:focus-visible { outline: 2px solid var(--wv-orange-hover); outline-offset: 2px; }
+
+@media (min-width: 576px) {
+    .wv-cookie { right: auto; max-width: 360px; }
+    .wv-cookie__button { flex: 0 0 auto; }
+}

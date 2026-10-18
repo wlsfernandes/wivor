@@ -49,4 +49,5 @@ How it works today: the customer pays WiVor through Stripe Checkout (plain platf
 - FAQ details: delivery, retention and deletion policy, payout schedule.
 - Testimonials and permission to use the Georgia Multiports logo.
 - Lawyer review of the Biometric Notice.
+- Cookie wording for the Privacy Policy. The cookie banner links there, but the policy does not mention cookies yet (essential session cookies today, analytics cookies after plan 4).
 - Hero and audience photos (athlete, photographer, start line).

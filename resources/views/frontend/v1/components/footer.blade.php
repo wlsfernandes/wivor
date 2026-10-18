@@ -85,3 +85,5 @@
 <!-- main-js -->
 <script src="{{ asset('assets/js/script.js') }}"></script>
 <script src="{{ asset('assets/js/wivor-nav.js') }}"></script>
+
+@include('frontend.v1.components.cookie-consent')
