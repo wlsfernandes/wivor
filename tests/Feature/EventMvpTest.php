@@ -15,6 +15,15 @@ class EventMvpTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_public_directory_filter_selects_stay_native_instead_of_nice_select_widgets(): void
+    {
+        $response = $this->get(route('events.listEvents'))->assertOk();
+
+        foreach (['state', 'city', 'sport'] as $filterName) {
+            $response->assertSee('<select class="form-select ignore" id="'.$filterName.'" name="'.$filterName.'">', false);
+        }
+    }
+
     public function test_public_directory_filters_published_events(): void
     {
         $matchingEvent = $this->createEvent([

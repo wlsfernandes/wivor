@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-sm-6 col-lg-2">
                     <label class="form-label" for="state">State</label>
-                    <select class="form-select" id="state" name="state">
+                    <select class="form-select ignore" id="state" name="state">
                         <option value="">All states</option>
                         @foreach ($filterOptions['states'] as $state)
                             <option value="{{ $state }}" @selected(($filters['state'] ?? '') === $state)>{{ $state }}</option>
@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-sm-6 col-lg-2">
                     <label class="form-label" for="city">City</label>
-                    <select class="form-select" id="city" name="city">
+                    <select class="form-select ignore" id="city" name="city">
                         <option value="">All cities</option>
                         @foreach ($filterOptions['cities'] as $city)
                             <option value="{{ $city }}" @selected(($filters['city'] ?? '') === $city)>{{ $city }}</option>
@@ -37,7 +37,7 @@
                 </div>
                 <div class="col-sm-6 col-lg-2">
                     <label class="form-label" for="sport">Sport</label>
-                    <select class="form-select" id="sport" name="sport">
+                    <select class="form-select ignore" id="sport" name="sport">
                         <option value="">All sports</option>
                         @foreach ($filterOptions['sports'] as $sport)
                             <option value="{{ $sport }}" @selected(($filters['sport'] ?? '') === $sport)>{{ $sport }}</option>
