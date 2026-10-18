@@ -15,6 +15,18 @@ class EventMvpTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_event_form_tells_photographers_not_to_use_a_recognizable_athlete_as_cover(): void
+    {
+        [$owner, $ownerPhotographer] = $this->createPhotographerUser();
+        $event = $this->createEvent();
+        $event->photographers()->attach($ownerPhotographer);
+
+        $this->actingAs($owner)
+            ->get(route('events.edit', ['event' => $event->id]))
+            ->assertOk()
+            ->assertSee('Use a course, start line, banner or crowd photo. Do not use a photo where an athlete can be recognized: the cover can appear in Google search.');
+    }
+
     public function test_public_directory_filter_selects_stay_native_instead_of_nice_select_widgets(): void
     {
         $response = $this->get(route('events.listEvents'))->assertOk();

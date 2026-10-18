@@ -133,7 +133,7 @@
                 <label class="form-label" for="image_url">Cover image</label>
                 <input class="form-control @error('image_url') is-invalid @enderror" id="image_url" name="image_url"
                     type="file" accept="image/jpeg,image/png,image/webp">
-                <div class="form-text">Optional JPEG, PNG, or WebP up to 10 MB.</div>
+                <div class="form-text">Optional JPEG, PNG, or WebP up to 10 MB. Use a course, start line, banner or crowd photo. Do not use a photo where an athlete can be recognized: the cover can appear in Google search.</div>
                 @error('image_url')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 @if ($formValues['cover_url'])
                     <img class="img-thumbnail mt-3" src="{{ $formValues['cover_url'] }}" alt="Current event cover" style="max-height: 180px;">
