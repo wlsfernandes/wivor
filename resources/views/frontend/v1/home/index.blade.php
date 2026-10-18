@@ -1,10 +1,38 @@
 @extends('frontend.v1.layouts.app')
 
-@php($isFaceSearchEnabled = (bool) config('face_recognition.enabled'))
-@php($metaDescription = $isFaceSearchEnabled ? 'WiVor connects photographers and athletes. Find your event photos with face and bib recognition. Free to use. Pay only for the photos you love.' : 'WiVor connects photographers and athletes. Find your event photos with bib number recognition. Free to use. Pay only for the photos you love.')
+@php
+    $isFaceSearchEnabled = (bool) config('face_recognition.enabled');
+    $metaDescription = $isFaceSearchEnabled ? 'WiVor connects photographers and athletes. Find your event photos with face and bib recognition. Free to use. Pay only for the photos you love.' : 'WiVor connects photographers and athletes. Find your event photos with bib number recognition. Free to use. Pay only for the photos you love.';
+@endphp
 
 @section('title', 'WiVor | Find and Buy Your Race Photos')
 @section('meta-description', $metaDescription)
+
+@section('structured-data')
+    @php
+        $organizationStructuredData = [
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'Organization',
+                'name' => config('seo.brand'),
+                'url' => rtrim(config('app.url'), '/').'/',
+                'logo' => asset('assets/images/logo/wivor.png'),
+                'email' => config('contact.email'),
+                'sameAs' => [
+                    'https://www.instagram.com/wivor.photos/',
+                    'https://www.facebook.com/p/WiVor-Photos-61573081696201/',
+                ],
+            ],
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => config('seo.brand'),
+                'url' => rtrim(config('app.url'), '/').'/',
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($organizationStructuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endsection
 
 @section('content')
     {{-- 4.1 Hero: text left, athlete photo right (one column on mobile). --}}
