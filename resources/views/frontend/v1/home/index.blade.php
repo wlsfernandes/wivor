@@ -15,7 +15,7 @@
                 '@context' => 'https://schema.org',
                 '@type' => 'Organization',
                 'name' => config('seo.brand'),
-                'url' => rtrim(config('app.url'), '/').'/',
+                'url' => url('/').'/',
                 'logo' => asset('assets/images/logo/wivor.png'),
                 'email' => config('contact.email'),
                 'sameAs' => [
@@ -27,7 +27,7 @@
                 '@context' => 'https://schema.org',
                 '@type' => 'WebSite',
                 'name' => config('seo.brand'),
-                'url' => rtrim(config('app.url'), '/').'/',
+                'url' => url('/').'/',
             ],
         ];
     @endphp

@@ -28,6 +28,19 @@ class SeoCanonicalAndShareTest extends TestCase
             ->assertDontSee('utm_source=instagram"', false);
     }
 
+    public function test_canonical_address_uses_the_same_host_as_the_sitemap(): void
+    {
+        config(['app.url' => 'https://wivorphotos.com']);
+
+        $this->get('https://www.wivorphotos.com/faq')
+            ->assertOk()
+            ->assertSee('<link rel="canonical" href="https://www.wivorphotos.com/faq">', false);
+
+        $this->get('https://www.wivorphotos.com/sitemaps/events-1.xml')
+            ->assertOk()
+            ->assertSee('<loc>https://www.wivorphotos.com/faq</loc>', false);
+    }
+
     public function test_marketing_pages_have_a_share_preview_with_the_default_image(): void
     {
         $this->get(route('how-it-works'))

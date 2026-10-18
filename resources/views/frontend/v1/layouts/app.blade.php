@@ -15,7 +15,8 @@
     @hasSection('author')
         <meta name="author" content="@yield('author')">
     @endif
-    @php($defaultCanonicalUrl = rtrim(config('app.url'), '/').'/'.ltrim(request()->path() === '/' ? '' : request()->path(), '/'))
+    {{-- Same host source as route() and the sitemap; url()->current() never includes the query string. --}}
+    @php($defaultCanonicalUrl = request()->path() === '/' ? url('/').'/' : url()->current())
     <link rel="canonical" href="@yield('canonical', $defaultCanonicalUrl)">
     <meta property="og:type" content="@yield('og-type', 'website')">
     <meta property="og:site_name" content="{{ config('seo.brand') }}">
