@@ -92,6 +92,8 @@
                                     Policy</a></li>
                             <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'photographer-terms']) }}">Photographer
                                     Terms</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'biometric-notice']) }}">Biometric
+                                    Notice</a></li>
                         </ul>
                     </li>
                 @endcan

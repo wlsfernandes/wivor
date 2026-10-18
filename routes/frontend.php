@@ -94,12 +94,20 @@ Route::get('/refund-policy', [PolicyController::class, 'show'])
 Route::get('/photographer-terms', [PolicyController::class, 'show'])
     ->defaults('policy', WebsitePolicy::PHOTOGRAPHER_TERMS)
     ->name('photographer-terms');
+Route::get('/biometric-notice', [PolicyController::class, 'show'])
+    ->defaults('policy', WebsitePolicy::BIOMETRIC_NOTICE)
+    ->name('biometric-notice');
 Route::get('/photo-removal', [PhotoRemovalRequestController::class, 'general'])->name('photo-removal.create');
 Route::post('/photo-removal', [PhotoRemovalRequestController::class, 'storeGeneral'])->name('photo-removal.store');
 Route::view('/contact', 'frontend.v1.pages.contact')->name('contact_us');
 
-Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
+Route::get('/about', [HomeController::class, 'aboutUs'])->name('about');
+Route::permanentRedirect('/about-us', '/about')->name('about_us');
 Route::view('/faq', 'frontend.v1.pages.faq')->name('faq');
+Route::view('/how-it-works', 'frontend.v1.pages.how-it-works')->name('how-it-works');
+Route::view('/organizers', 'frontend.v1.pages.organizers')->name('organizers');
+// Temporary until the athlete search page ships (marketing site plan 2).
+Route::redirect('/athletes', '/list-events')->name('athletes');
 Route::get('/our-team', [HomeController::class, 'ourTeam'])->name('our_team');
 Route::get('/photobook', [HomeController::class, 'photobook'])->name('photobook');
 Route::get('/wilson-fernandes-junior', [HomeController::class, 'junior'])->name('junior');

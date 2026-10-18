@@ -29,6 +29,10 @@ class PolicyController extends Controller
             'meta_description' => 'Terms for photographers who apply, publish event photographs, and earn through WivorPhotos.',
             'default_view' => 'frontend.v1.policies.photographer-terms',
         ],
+        WebsitePolicy::BIOMETRIC_NOTICE => [
+            'meta_description' => 'How WiVor uses face matching to help athletes find their event photos.',
+            'default_view' => 'frontend.v1.policies.biometric-notice',
+        ],
     ];
 
     /**

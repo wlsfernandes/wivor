@@ -51,19 +51,18 @@ class PublicPolicyPagesTest extends TestCase
         }
     }
 
-    public function test_public_header_keeps_the_customer_navigation_simple_and_searches_events(): void
+    public function test_public_header_keeps_the_customer_navigation_simple(): void
     {
         $this->get(route('privacy'))
             ->assertOk()
             ->assertSeeInOrder([
-                'Home',
-                'Find Events',
-                'Purchases &amp; Downloads',
-                'For Photographers',
-                'Login',
-            ], false)
-            ->assertSee('action="'.route('events.listEvents').'"', false)
-            ->assertSee('name="search"', false);
+                'How It Works',
+                'Athletes',
+                'Photographers',
+                'Organizers',
+                'FAQ',
+                'Find My Photos',
+            ]);
     }
 
     public function test_contact_page_uses_configured_support_address_and_existing_form(): void
