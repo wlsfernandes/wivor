@@ -11,6 +11,7 @@ use App\Models\MediaActivityLog;
 use App\Models\MediaRetentionHold;
 use App\Models\Photo;
 use App\Models\Photographer;
+use App\Services\PhotoStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -35,14 +36,19 @@ class MediaController extends Controller
         return view('admin.media.index', compact('events'));
     }
 
-    public function show(Event $event): View
+    /** Show an event's media with a thumbnail per photo, so admins can identify a sold photo by its ID. */
+    public function show(Event $event, PhotoStorage $storage): View
     {
         $assignments = EventAssignment::with('photographer.user')->where('event_id', $event->id)->get();
         $photos = $event->photos()->with('photographer')->latest()->paginate(100);
+        $thumbnailUrls = $photos->getCollection()->mapWithKeys(fn (Photo $photo) => [
+            // Removed photos keep their keys after the files are deleted, so they have no thumbnail to show.
+            $photo->id => $photo->thumbnail_key && $photo->status !== Photo::STATUS_REMOVED ? $storage->deliveryUrl($photo->thumbnail_key) : null,
+        ]);
         $holds = MediaRetentionHold::where('event_id', $event->id)->whereNull('released_at')->latest()->get();
         $deletionFailures = MediaActivityLog::where('event_id', $event->id)->where('action', 'deletion_failed')->latest()->limit(20)->get();
 
-        return view('admin.media.show', compact('event', 'assignments', 'photos', 'holds', 'deletionFailures'));
+        return view('admin.media.show', compact('event', 'assignments', 'photos', 'thumbnailUrls', 'holds', 'deletionFailures'));
     }
 
     public function extendDeadline(Request $request, Event $event, Photographer $photographer): RedirectResponse
