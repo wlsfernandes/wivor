@@ -79,7 +79,6 @@ Route::get('/orders/{accessToken}/photos/{photo}/download', [OrderController::cl
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemaps/events-{page}.xml', [SitemapController::class, 'events'])->whereNumber('page')->name('sitemap.events');
-Route::get('/sitemaps/photos-{page}.xml', [SitemapController::class, 'photos'])->whereNumber('page')->name('sitemap.photos');
 
 // Public policies and support
 Route::get('/privacy', [PolicyController::class, 'show'])

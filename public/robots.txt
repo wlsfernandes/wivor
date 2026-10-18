@@ -1,2 +1,16 @@
+# Public WiVor pages are open to search engines and AI search crawlers.
+# Athlete photos (event galleries, photo pages and preview images) and private
+# checkout, order and account pages must never appear in search results.
 User-agent: *
-Disallow:
+Disallow: /events/*/photos
+Disallow: /cart
+Disallow: /checkout/
+Disallow: /orders/
+Disallow: /login
+Disallow: /password/
+Disallow: /admin/
+Disallow: /photographers/dashboard
+Disallow: /photographers/payouts/
+Disallow: /photographers/events/
+
+Sitemap: https://www.wivorphotos.com/sitemap.xml

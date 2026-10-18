@@ -17,7 +17,7 @@ class PhotoSeoTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_published_photo_has_an_indexable_page_with_credit_people_and_social_metadata(): void
+    public function test_published_photo_page_is_hidden_from_search_but_keeps_credit_people_and_social_metadata(): void
     {
         [, , $event, $photo] = $this->photoFixture();
 
@@ -27,7 +27,7 @@ class PhotoSeoTest extends TestCase
         ]));
 
         $response->assertOk()
-            ->assertSee('<meta name="robots" content="index,follow,max-image-preview:large', false)
+            ->assertSee('<meta name="robots" content="noindex,nofollow">', false)
             ->assertSee('<meta property="og:type" content="article">', false)
             ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
             ->assertSee('<script type="application/ld+json">', false)
@@ -51,7 +51,8 @@ class PhotoSeoTest extends TestCase
         ]));
 
         $response->assertOk()
-            ->assertHeader('Content-Type', 'image/jpeg');
+            ->assertHeader('Content-Type', 'image/jpeg')
+            ->assertHeader('X-Robots-Tag', 'noindex, noimageindex');
         $this->assertStringContainsString('max-age=86400', $response->headers->get('Cache-Control'));
         $this->assertStringContainsString('public', $response->headers->get('Cache-Control'));
         $this->assertSame('jpeg preview', $response->streamedContent());
@@ -71,20 +72,21 @@ class PhotoSeoTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_image_sitemap_lists_the_photo_landing_page_and_stable_jpeg(): void
+    public function test_sitemaps_never_list_athlete_photos(): void
     {
         [, , $event, $photo] = $this->photoFixture();
 
         $this->get(route('sitemap.index'))
             ->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
-            ->assertSee(route('sitemap.photos', ['page' => 1]), false);
+            ->assertSee(route('sitemap.events', ['page' => 1]), false)
+            ->assertDontSee('sitemaps/photos', false);
 
-        $this->get(route('sitemap.photos', ['page' => 1]))
+        $this->get(route('sitemap.events', ['page' => 1]))
             ->assertOk()
-            ->assertSee(route('events.photos.show', ['event' => $event->slug, 'photo' => $photo]), false)
-            ->assertSee(route('events.photos.image', ['event' => $event->slug, 'photo' => $photo]), false)
-            ->assertSee('<image:image>', false);
+            ->assertSee(route('events.show', ['event' => $event->slug]), false)
+            ->assertDontSee(route('events.photos.show', ['event' => $event->slug, 'photo' => $photo]), false)
+            ->assertDontSee('<image:image>', false);
     }
 
     /** @return array{User, Photographer, Event, Photo} */

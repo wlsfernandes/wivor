@@ -1,6 +1,7 @@
 @extends('frontend.v1.layouts.app')
 
 @section('title', 'Photographer and Admin Login | WivorPhotos')
+@section('robots', 'noindex,nofollow')
 
 @section('meta-description', 'Photographers and administrators can sign in to manage WivorPhotos events, uploads, sales, and marketplace operations.')
 @section('meta-keywords', 'WivorPhotos login, photographer login, event photo marketplace')

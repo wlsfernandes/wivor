@@ -1,6 +1,7 @@
 @extends($layout)
 
 @section('title', 'Payment Not Completed | WivorPhotos')
+@section('robots', 'noindex,nofollow')
 
 @section('content')
     <main class="container py-5">

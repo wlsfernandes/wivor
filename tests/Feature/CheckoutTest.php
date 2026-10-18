@@ -69,6 +69,7 @@ class CheckoutTest extends TestCase
             'session_id' => $order->stripe_checkout_session_id,
         ]))
             ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex,nofollow">', false)
             ->assertSee('Confirming your payment')
             ->assertSee('window.setTimeout', false);
 
@@ -129,6 +130,7 @@ class CheckoutTest extends TestCase
 
         $this->get(route('checkout.cancel', ['order' => $order->order_number]))
             ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex,nofollow">', false)
             ->assertSee('Payment not completed');
 
         $order->refresh();

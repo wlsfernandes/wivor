@@ -40,6 +40,7 @@ class OrderDeliveryTest extends TestCase
 
         $this->get(route('orders.show', ['accessToken' => $order->access_token]))
             ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex,nofollow">', false)
             ->assertSee($order->order_number)
             ->assertSee(route('orders.download', ['accessToken' => $order->access_token, 'photo' => $photo->uuid]), false);
     }

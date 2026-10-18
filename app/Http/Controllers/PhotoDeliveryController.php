@@ -121,7 +121,7 @@ class PhotoDeliveryController extends Controller
         ]);
     }
 
-    /** Serve a stable, crawlable URL while the underlying object remains private. */
+    /** Serve a stable preview URL while the underlying object remains private. Athlete photos must never appear in search results. */
     public function image(Event $event, Photo $photo): StreamedResponse
     {
         $this->assertPublic($event, $photo);
@@ -146,6 +146,7 @@ class PhotoDeliveryController extends Controller
             'Content-Disposition' => 'inline; filename="'.$photo->uuid.'.jpg"',
             'Cache-Control' => 'public, max-age=86400, stale-while-revalidate=604800',
             'ETag' => $etag,
+            'X-Robots-Tag' => 'noindex, noimageindex',
         ]);
     }
 

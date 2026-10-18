@@ -37,6 +37,7 @@ class EventBibSearchTest extends TestCase
 
         $this->get(route('events.show', $event))
             ->assertOk()
+            ->assertSee('<meta name="robots" content="index,follow', false)
             ->assertSee('Find your photos')
             ->assertSee(route('events.photos.index', $event), false)
             ->assertDontSee(route('events.photos.show', [$event, $first]), false)
@@ -44,6 +45,7 @@ class EventBibSearchTest extends TestCase
 
         $this->get(route('events.photos.index', $event))
             ->assertOk()
+            ->assertSee('<meta name="robots" content="noindex,nofollow">', false)
             ->assertSee('Event photos')
             ->assertSee(route('events.photos.show', [$event, $first]), false)
             ->assertSee(route('events.photos.show', [$event, $second]), false);

@@ -1,6 +1,7 @@
 @extends('frontend.v1.layouts.app')
 
 @section('title', $seoTitle)
+@section('robots', 'noindex,nofollow')
 @section('meta-description', $seoDescription)
 @section('meta-keywords',
     e(
