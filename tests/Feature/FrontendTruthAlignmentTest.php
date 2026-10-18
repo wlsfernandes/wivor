@@ -34,17 +34,18 @@ class FrontendTruthAlignmentTest extends TestCase
             ->assertDontSee('action="'.route('registerUser').'"', false);
     }
 
-    public function test_homepage_preserves_supported_customer_claims_without_global_face_or_video_marketing(): void
+    public function test_homepage_shows_bib_only_matching_without_face_or_video_marketing_when_face_search_is_disabled(): void
     {
         config(['face_recognition.enabled' => false]);
 
         $this->get(route('welcome'))
             ->assertOk()
-            ->assertSee('Find Your Event Photos')
-            ->assertSee('protected previews')
-            ->assertSee("Stripe's secure checkout", false)
-            ->assertSee('download the original photos')
-            ->assertDontSee('Find me with a selfie')
+            ->assertSee('WiVor uses bib number recognition to match you with the photos photographers took of you at your event.')
+            ->assertSee('Bib number recognition finds your photos automatically.')
+            ->assertSee('Our platform identifies athletes using bib numbers.')
+            ->assertSee('Search by your name or bib number.')
+            ->assertDontSee('selfie')
+            ->assertDontSee('face recognition')
             ->assertDontSee('Video Editing')
             ->assertDontSee('video marketplace');
     }

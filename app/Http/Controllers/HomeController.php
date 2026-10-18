@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
@@ -44,15 +43,10 @@ class HomeController extends Controller
         }
         return response()->view('errors.404', [], 404); // Custom error view
     }
-    /** Display the customer-focused public homepage with recently published events. */
+    /** Display the public homepage. */
     public function welcome(): View
     {
-        $homepageEvents = Event::published()
-            ->orderBy('published_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        return view('frontend.v1.home.index', compact('homepageEvents'));
+        return view('frontend.v1.home.index');
     }
     /*Language Translation*/
     public function lang($locale)
