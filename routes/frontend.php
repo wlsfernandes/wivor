@@ -101,7 +101,8 @@ Route::get('/photo-removal', [PhotoRemovalRequestController::class, 'general'])-
 Route::post('/photo-removal', [PhotoRemovalRequestController::class, 'storeGeneral'])->name('photo-removal.store');
 Route::view('/contact', 'frontend.v1.pages.contact')->name('contact_us');
 
-Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('about_us');
+Route::get('/about', [HomeController::class, 'aboutUs'])->name('about');
+Route::permanentRedirect('/about-us', '/about')->name('about_us');
 Route::view('/faq', 'frontend.v1.pages.faq')->name('faq');
 Route::view('/how-it-works', 'frontend.v1.pages.how-it-works')->name('how-it-works');
 // Temporary until the athlete search page ships (marketing site plan 2).
