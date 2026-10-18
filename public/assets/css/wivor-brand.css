@@ -136,3 +136,135 @@ body :is(h1, h2, h3, h4, h5, h6, p, a, li, label, input, select, textarea, butto
 }
 
 .wv-faq details > div { padding: 0 20px 16px; }
+
+/* Header (spec section 3): fixed at top, white, colored logo left. */
+.wv-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--wv-white);
+    border-bottom: 1px solid var(--wv-border);
+}
+
+.wv-header__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 72px;
+}
+
+.wv-header__logo img { height: 40px; width: auto; }
+
+.wv-header__cta { margin-left: auto; padding: 10px 16px; }
+
+.wv-header__toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--wv-border);
+    border-radius: var(--wv-radius);
+}
+
+.wv-header__toggle-bar { display: block; height: 2px; background: var(--wv-slate); }
+
+/* Mobile: links collapse into a panel under the bar. */
+.wv-header__nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 8px 16px 16px;
+    background: var(--wv-white);
+    border-bottom: 1px solid var(--wv-border);
+}
+
+.wv-header__nav.is-open { display: block; }
+
+.wv-header__links,
+.wv-header__utility { list-style: none; margin: 0; padding: 0; }
+
+.wv-header__nav a {
+    display: flex;
+    align-items: center;
+    min-height: var(--wv-button-height);
+    color: var(--wv-slate);
+    text-decoration: none;
+}
+
+.wv-header__nav a:hover,
+.wv-header__nav a.is-current { color: var(--wv-orange); }
+
+.wv-header__utility { display: flex; gap: 20px; border-top: 1px solid var(--wv-border); margin-top: 8px; }
+
+.wv-header__utility a { position: relative; }
+
+.wv-header__cart-count {
+    margin-left: 4px;
+    padding: 0 6px;
+    border-radius: 9px;
+    background: var(--wv-orange);
+    color: var(--wv-white);
+    font-size: 12px;
+}
+
+@media (min-width: 992px) {
+    .wv-header__toggle { display: none; }
+
+    .wv-header__nav,
+    .wv-header__nav.is-open {
+        display: flex;
+        position: static;
+        align-items: center;
+        gap: 24px;
+        margin-left: auto;
+        padding: 0;
+        border: 0;
+    }
+
+    .wv-header__links { display: flex; gap: 24px; }
+
+    .wv-header__utility { border-top: 0; margin-top: 0; gap: 16px; }
+
+    .wv-header__cta { margin-left: 0; padding: 12px 24px; }
+}
+
+/* Footer (spec section 3): slate background, white logo, four columns. */
+.wv-footer {
+    padding: 56px 0 24px;
+    background: var(--wv-slate);
+    color: var(--wv-white);
+}
+
+.wv-footer__logo img { height: 40px; width: auto; }
+
+.wv-footer__title { font-size: 16px; color: var(--wv-white); margin: 0 0 12px; }
+
+.wv-footer ul { list-style: none; margin: 0; padding: 0; }
+
+.wv-footer nav a,
+.wv-footer__social a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    color: var(--wv-white);
+    text-decoration: none;
+}
+
+.wv-footer nav a:hover,
+.wv-footer__social a:hover { color: var(--wv-orange-hover); }
+
+.wv-footer__social { display: flex; gap: 16px; margin-top: 16px !important; font-size: 22px; }
+
+.wv-footer__copyright {
+    margin: 32px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    color: var(--wv-white);
+}

@@ -11,96 +11,58 @@
 
 </div> <!-- close from header <div class="boxed_wrapper"> -->
 
-<footer class="main-footer" style="margin-top: 250px;">
-    <div class="auto-container">
-        <div class="footer-top">
-            <figure class="footer-logo"><a href="{{ url('/') }}"><img
-                        src="{{ asset('assets/images/logo/wivor_white.png') }}" alt="Wivor Logo"></a></figure>
-            <ul class="social-links">
-                <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="_blank"
-                        rel="noopener noreferrer" aria-label="WivorPhotos on Facebook"><i class="fab fa-facebook-f"
-                            aria-hidden="true"></i></a></li>
-                <li><a href="https://www.instagram.com/wivor.photos/" target="_blank" rel="noopener noreferrer"
-                        aria-label="WivorPhotos on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-                </li>
-            </ul>
-        </div>
-        <nav aria-label="Footer navigation" class="py-4">
-            <ul class="list-unstyled d-flex flex-wrap justify-content-center mb-0" style="gap: 12px 24px;">
-                <li><a class="text-white" href="{{ route('privacy') }}">@lang('header.privacy_policy')</a></li>
-                <li><a class="text-white" href="{{ route('terms') }}">@lang('header.terms_of_use')</a></li>
-                <li><a class="text-white" href="{{ route('refund-policy') }}">@lang('header.refund_policy')</a></li>
-                <li><a class="text-white" href="{{ route('photographer-terms') }}">Photographer Terms</a></li>
-                <li><a class="text-white" href="{{ route('photo-removal.create') }}">@lang('header.photo_removal_request')</a></li>
-                <li><a class="text-white" href="{{ route('contact_us') }}">@lang('header.contact_us')</a></li>
-            </ul>
-        </nav>
-        <!--   <div class="widget-section">
-            <div class="row clearfix">
-
-                <div class="col-lg-3 col-md-6 col-sm-12 footer-column">
-                    <div class="links-widget footer-widget ml_50">
-                        <div class="widget-title">
-                            <h3>Quick Link</h3>
-                        </div>
-                        <div class="widget-content">
-                            <ul class="links-list clearfix">
-                                <li><a href="{{ url('/') }}">About Us</a></li>
-                                <li><a href="{{ url('/') }}">Services</a></li>
-                                <li><a href="{{ url('/') }}">Case</a></li>
-                                <li><a href="{{ url('/') }}">Pricing</a></li>
-                                <li><a href="{{ url('/') }}">Contact Us</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-12 footer-column">
-                    <div class="links-widget footer-widget ml_30">
-                        <div class="widget-title">
-                            <h3>Usefull Links</h3>
-                        </div>
-                        <div class="widget-content">
-                            <ul class="links-list clearfix">
-                                <li><a href="">Privacy Policy</a></li>
-                                <li><a href="">Terms & Condition</a></li>
-                                <li><a href="">Support</a></li>
-                                <li><a href="">Disclaimer</a></li>
-                                <li><a href="">Faq</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-12 footer-column">
-                    <div class="contact-widget footer-widget ml_30">
-                        <div class="widget-title">
-                            <h3>Contact</h3>
-                        </div>
-                        <div class="widget-content">
-                            <ul class="info-list clearfix">
-                                <li><i class="icon-17"></i>160 Clairemont Ave. Suite 300 Decatur, GA 30030</li>
-                                <li><i class="icon-18"></i><a href="mailto:{{ config('contact.email') }}">{{ config('contact.email') }}</a>
-                                </li>
-
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+<footer class="wv-footer">
+    <div class="wv-container">
+        <div class="row g-4">
+            <div class="col-12 col-lg-4">
+                <a href="{{ route('welcome') }}" class="wv-footer__logo">
+                    <img src="{{ asset('assets/images/logo/wivor_white.png') }}" alt="WiVor home">
+                </a>
+                <ul class="wv-footer__social">
+                    <li><a href="https://www.instagram.com/wivor.photos/" target="_blank" rel="noopener noreferrer"
+                            aria-label="WiVor on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
+                    <li><a href="https://www.facebook.com/p/WiVor-Photos-61573081696201/" target="_blank"
+                            rel="noopener noreferrer" aria-label="WiVor on Facebook"><i class="fab fa-facebook-f"
+                                aria-hidden="true"></i></a></li>
+                </ul>
             </div>
-        </div> -->
-        <div class="footer-bottom centred">
-            <div class="copyright">
-                <p><small>&copy; <span id="currentYear"></span> WivorPhotos. All rights reserved.</small>
-                </p>
-            </div>
+            <nav class="col-6 col-lg-2" aria-labelledby="wv-footer-platform">
+                <h2 id="wv-footer-platform" class="wv-footer__title">Platform</h2>
+                <ul>
+                    <li><a href="{{ route('how-it-works') }}">How It Works</a></li>
+                    <li><a href="{{ route('faq') }}">FAQ</a></li>
+                </ul>
+            </nav>
+            <nav class="col-6 col-lg-2" aria-labelledby="wv-footer-for-you">
+                <h2 id="wv-footer-for-you" class="wv-footer__title">For You</h2>
+                <ul>
+                    <li><a href="{{ route('athletes') }}">Athletes</a></li>
+                    <li><a href="{{ route('photographers') }}">Photographers</a></li>
+                    <li><a href="{{ route('organizers') }}">Organizers</a></li>
+                </ul>
+            </nav>
+            <nav class="col-6 col-lg-2" aria-labelledby="wv-footer-company">
+                <h2 id="wv-footer-company" class="wv-footer__title">Company</h2>
+                <ul>
+                    <li><a href="{{ route('about') }}">About</a></li>
+                    <li><a href="{{ route('contact_us') }}">Contact</a></li>
+                </ul>
+            </nav>
+            <nav class="col-6 col-lg-2" aria-labelledby="wv-footer-legal">
+                <h2 id="wv-footer-legal" class="wv-footer__title">Legal</h2>
+                <ul>
+                    <li><a href="{{ route('privacy') }}">Privacy</a></li>
+                    <li><a href="{{ route('terms') }}">Terms</a></li>
+                    <li><a href="{{ route('biometric-notice') }}">Biometric Notice</a></li>
+                    <li><a href="{{ route('refund-policy') }}">Refund Policy</a></li>
+                    <li><a href="{{ route('photographer-terms') }}">Photographer Terms</a></li>
+                    <li><a href="{{ route('photo-removal.create') }}">Photo Removal Request</a></li>
+                </ul>
+            </nav>
         </div>
+        <p class="wv-footer__copyright">© 2026 WiVor. All rights reserved.</p>
     </div>
 </footer>
-<!-- main-footer end -->
-
-<script>
-    // Get the current year
-    document.getElementById("currentYear").textContent = new Date().getFullYear();
-</script>
 
 <!-- jQuery plugins -->
 <script src="{{ asset('assets/js/jquery.js') }}"></script>
@@ -122,3 +84,4 @@
 
 <!-- main-js -->
 <script src="{{ asset('assets/js/script.js') }}"></script>
+<script src="{{ asset('assets/js/wivor-nav.js') }}"></script>
