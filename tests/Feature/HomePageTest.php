@@ -37,7 +37,7 @@ class HomePageTest extends TestCase
     public function test_home_page_shows_hero_and_audience_photos_with_descriptive_alt_text(): void
     {
         $photos = [
-            'hero-finish-line.webp' => 'Runner raising both arms while breaking the finish line tape',
+            'hero-finish-line.webp' => 'Runner with a race bib approaching cheering spectators on a seaside promenade',
             'athletes-bib-runners.webp' => 'Two runners with race bibs celebrating on the course',
             'photographers-telephoto-lens.webp' => 'Photographer with a telephoto lens shooting an event crowd',
             'organizers-race-crowd.webp' => 'Crowd of runners on the road at the start of a race',

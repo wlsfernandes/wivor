@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-12 col-lg-6">
                     <img class="wv-hero__image" src="{{ asset('assets/images/site/hero-finish-line.webp') }}"
-                        alt="Runner raising both arms while breaking the finish line tape" width="1192" height="600"
+                        alt="Runner with a race bib approaching cheering spectators on a seaside promenade" width="1200" height="494"
                         fetchpriority="high">
                 </div>
             </div>
