@@ -57,6 +57,12 @@ class PhotographerSalesPanelTest extends TestCase
             'discount_source' => Order::DISCOUNT_PROMO,
             'discount_percentage' => 15,
         ]);
+        $this->paidOrder($event, $photographer, 'WVR-PACK0001', 720)->update([
+            'list_unit_price_cents' => 1000,
+            'unit_price_cents' => 900,
+            'discount_source' => Order::DISCOUNT_TIER,
+            'price_tier_min_photos' => 2,
+        ]);
         $this->paidOrder($event, $photographer, 'WVR-FULL0001', 800);
 
         $this->actingAs($user)
@@ -64,6 +70,7 @@ class PhotographerSalesPanelTest extends TestCase
             ->assertOk()
             ->assertSee('Customer discount')
             ->assertSeeInOrder(['WVR-BUND0001', 'Bundle 20%'])
+            ->assertSeeInOrder(['WVR-PACK0001', 'Package 2+'])
             ->assertSeeInOrder(['WVR-PROM0001', 'Promo 15%'])
             ->assertSeeInOrder(['WVR-FULL0001', 'None']);
     }

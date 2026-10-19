@@ -10,7 +10,10 @@ final class PriceQuote
         public readonly int $listUnitPriceCents,
         public readonly int $unitPriceCents,
         public readonly ?string $discountSource,
-        public readonly float $discountPercentage,
+        /** The promo percentage; null unless a promo code set the price. */
+        public readonly ?float $discountPercentage,
+        /** The package size whose price applies; null unless a package set the price. */
+        public readonly ?int $priceTierMinPhotos,
         public readonly float $commissionPercentage,
         public readonly int $itemCommissionCents,
         public readonly int $itemAllocationCents,

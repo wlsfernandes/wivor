@@ -16,12 +16,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default packet (bundle) discount percentage
+    | Old default packet (bundle) discount percentage
     |--------------------------------------------------------------------------
     |
-    | The discount a customer receives when buying at least three photos from
-    | one event. An administrator can override it per event. Set to 0 to turn
-    | the packet discount off.
+    | No longer used for pricing: events now set package prices. It is read only
+    | by the 2026_10_18_030000 migration, which converts each event's bundle
+    | discount into a 3-photo package price. Remove it together with the unused
+    | events.packet_discount_percentage column.
     |
     */
 

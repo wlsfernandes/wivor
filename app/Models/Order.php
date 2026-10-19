@@ -22,12 +22,14 @@ class Order extends Model
     public const FULFILLMENT_REVOKED = 'revoked';
     public const FULFILLMENT_EXPIRED = 'expired';
 
+    /** The old 3+ bundle percentage; kept only for orders placed before package prices. */
     public const DISCOUNT_PACKET = 'packet';
     public const DISCOUNT_PROMO = 'promo';
+    public const DISCOUNT_TIER = 'tier';
 
     protected $fillable = [
         'order_number', 'access_token', 'event_id', 'customer_email',
-        'currency', 'photo_count', 'unit_price_cents', 'list_unit_price_cents', 'discount_source', 'discount_percentage', 'subtotal_cents',
+        'currency', 'photo_count', 'unit_price_cents', 'list_unit_price_cents', 'discount_source', 'discount_percentage', 'price_tier_min_photos', 'subtotal_cents',
         'commission_percentage', 'stripe_fee_cents', 'total_cents', 'payment_status', 'fulfillment_status',
         'stripe_checkout_session_id', 'stripe_payment_intent_id', 'stripe_charge_id',
         'paid_at', 'refunded_at', 'disputed_at', 'fulfilled_at', 'cancelled_at', 'download_expires_at',
@@ -40,6 +42,7 @@ class Order extends Model
             'unit_price_cents' => 'integer',
             'list_unit_price_cents' => 'integer',
             'discount_percentage' => 'decimal:2',
+            'price_tier_min_photos' => 'integer',
             'subtotal_cents' => 'integer',
             'commission_percentage' => 'decimal:2',
             'stripe_fee_cents' => 'integer',
@@ -100,12 +103,11 @@ class Order extends Model
     /** Return the customer discount applied to this order as a short display label. */
     public function getDiscountLabelAttribute(): string
     {
-        $sourceLabel = match ($this->discount_source) {
-            self::DISCOUNT_PACKET => 'Bundle',
-            self::DISCOUNT_PROMO => 'Promo',
-            default => null,
+        return match ($this->discount_source) {
+            self::DISCOUNT_TIER => 'Package '.$this->price_tier_min_photos.'+',
+            self::DISCOUNT_PACKET => 'Bundle '.PhotoPricingService::percentageLabel($this->discount_percentage),
+            self::DISCOUNT_PROMO => 'Promo '.PhotoPricingService::percentageLabel($this->discount_percentage),
+            default => 'None',
         };
-
-        return $sourceLabel ? $sourceLabel.' '.PhotoPricingService::percentageLabel($this->discount_percentage) : 'None';
     }
 }

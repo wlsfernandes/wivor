@@ -3,15 +3,14 @@
 namespace App\Http\Requests;
 
 use App\Models\Event;
+use App\Models\EventPriceTier;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 /** Validates creation of a Wivor sports event. */
 class StoreEventRequest extends FormRequest
 {
-    /** Keep packet-discounted photos above $0.00, which Stripe Checkout cannot charge. */
-    private const MAXIMUM_PACKET_DISCOUNT_PERCENTAGE = 90;
-
     /** Allow administrators and photographers to create events. */
     public function authorize(): bool
     {
@@ -37,12 +36,12 @@ class StoreEventRequest extends FormRequest
             'city' => ['required', 'string', 'max:120'],
             'state' => ['required', 'string', 'size:2'],
             'country_code' => ['required', Rule::in(['US'])],
-            'price' => ['required', 'numeric', 'min:0.50', 'max:999.99'],
+            'price' => ['required', 'numeric', 'decimal:0,2', 'min:0.50', 'max:999.99'],
+            // Optional package prices keyed by order size; an empty one means no package at that size.
+            'package_prices' => ['nullable', 'array:'.implode(',', EventPriceTier::PACKAGE_SIZES)],
+            'package_prices.*' => ['nullable', 'numeric', 'decimal:0,2', 'min:0.50', 'max:999.99'],
             // Only administrators set pricing overrides; an empty value means the global default applies.
             'commission_percentage' => $isAdmin ? ['nullable', 'numeric', 'min:0', 'max:100'] : ['prohibited'],
-            'packet_discount_percentage' => $isAdmin
-                ? ['nullable', 'numeric', 'min:0', 'max:'.self::MAXIMUM_PACKET_DISCOUNT_PERCENTAGE]
-                : ['prohibited'],
             'image_url' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'status' => ['required', Rule::in([
                 Event::STATUS_DRAFT,
@@ -50,6 +49,43 @@ class StoreEventRequest extends FormRequest
                 Event::STATUS_ARCHIVED,
             ])],
         ];
+    }
+
+    /** @return array<int, callable> */
+    public function after(): array
+    {
+        return [fn (Validator $validator) => $this->rejectPackagePricesAboveSmallerOrders($validator)];
+    }
+
+    /** A larger order may never cost more per photo than a smaller one. */
+    private function rejectPackagePricesAboveSmallerOrders(Validator $validator): void
+    {
+        if ($validator->errors()->hasAny(['price', 'package_prices', 'package_prices.*'])) {
+            return;
+        }
+
+        $previousLabel = '1-photo';
+        $previousPriceCents = (int) round(((float) $this->input('price')) * 100);
+
+        foreach (EventPriceTier::PACKAGE_SIZES as $minPhotos) {
+            $packagePrice = $this->input("package_prices.{$minPhotos}");
+
+            if (blank($packagePrice)) {
+                continue;
+            }
+
+            $packagePriceCents = (int) round(((float) $packagePrice) * 100);
+
+            if ($packagePriceCents > $previousPriceCents) {
+                $validator->errors()->add(
+                    "package_prices.{$minPhotos}",
+                    "The {$minPhotos}+ photo price cannot be higher than the {$previousLabel} price.",
+                );
+            }
+
+            $previousLabel = "{$minPhotos}+ photo";
+            $previousPriceCents = $packagePriceCents;
+        }
     }
 
     /** Normalize US location values before validation. */

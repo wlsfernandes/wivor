@@ -121,9 +121,9 @@
             <div class="alert alert-light border d-flex flex-wrap justify-content-between align-items-center gap-2" role="status">
                 <span>
                     {{ $event->price_label }} per photo
-                    @if ($event->packet_offer_label)
+                    @if ($event->package_price_label)
                         <span class="text-muted" aria-hidden="true">·</span>
-                        <span class="fw-semibold text-success">{{ $event->packet_offer_label }}</span>
+                        <span class="fw-semibold text-success">{{ $event->package_price_label }}</span>
                     @endif
                 </span>
                 @if ($cartCount > 0)

@@ -42,7 +42,7 @@ use Illuminate\Support\Str;
  * @property string $publish_action_label
  * @property string $sport_label
  * @property string $photos_live_label
- * @property string|null $packet_offer_label
+ * @property string|null $package_price_label
  */
 class Event extends Model
 {
@@ -68,7 +68,6 @@ class Event extends Model
         'sales_close_at',
         'price_cents',
         'commission_percentage',
-        'packet_discount_percentage',
         'date_of_event',
         'starts_at',
         'ends_at',
@@ -91,7 +90,6 @@ class Event extends Model
             'published' => 'boolean',
             'price_cents' => 'integer',
             'commission_percentage' => 'decimal:2',
-            'packet_discount_percentage' => 'decimal:2',
             'published_at' => 'datetime',
             'gallery_published_at' => 'datetime',
             'sales_close_at' => 'datetime',
@@ -118,6 +116,12 @@ class Event extends Model
         return $this->hasManyThrough(PhotoBibNumber::class, Photo::class);
     }
     public function uploadBatches(): HasMany { return $this->hasMany(UploadBatch::class); }
+
+    /** Get the event's package prices, smallest package first. */
+    public function priceTiers(): HasMany
+    {
+        return $this->hasMany(EventPriceTier::class)->orderBy('min_photos');
+    }
 
     /** Return the event-specific deadline, falling back to 72 hours after its best-known end. */
     public function uploadDeadlineFor(Photographer $photographer): Carbon
@@ -264,20 +268,18 @@ class Event extends Model
         return (float) ($this->commission_percentage ?? config('commission.percentage'));
     }
 
-    /** Return the event's packet-discount override, or the current global default when none is set. */
-    public function effectivePacketDiscountPercentage(): float
+    /** Return the public package-price offer, for example "2+ photos $15.00 each", or null when no package lowers the price. */
+    public function getPackagePriceLabelAttribute(): ?string
     {
-        return (float) ($this->packet_discount_percentage ?? config('commission.packet_percentage'));
-    }
+        $discountedTiers = $this->priceTiers->filter(fn (EventPriceTier $tier) => $tier->price_cents < (int) $this->price_cents);
 
-    /** Return the public packet-discount offer, or null when the event has no packet discount. */
-    public function getPacketOfferLabelAttribute(): ?string
-    {
-        $percentage = $this->effectivePacketDiscountPercentage();
+        if ($discountedTiers->isEmpty()) {
+            return null;
+        }
 
-        return $percentage > 0
-            ? 'Buy '.PhotoPricingService::PACKET_MINIMUM_PHOTOS.' or more photos and save '.PhotoPricingService::percentageLabel($percentage)
-            : null;
+        return $discountedTiers
+            ->map(fn (EventPriceTier $tier) => $tier->min_photos.'+ photos '.PhotoPricingService::moneyLabel($tier->price_cents).' each')
+            ->implode(' · ');
     }
 
     /** Determine whether athletes may search this event's photos by face or bib number. */
