@@ -280,6 +280,17 @@ class Event extends Model
             : null;
     }
 
+    /** Determine whether athletes may search this event's photos by face or bib number. */
+    public function isPhotoSearchAvailable(): bool
+    {
+        $eventTime = $this->ends_at ?? $this->starts_at ?? $this->date_of_event;
+
+        return $this->is_published
+            && $eventTime !== null
+            && $eventTime->isPast()
+            && ! $this->sales_close_at?->isPast();
+    }
+
     /** Determine whether photos may currently be added to a cart for this event. */
     public function isSellable(): bool
     {

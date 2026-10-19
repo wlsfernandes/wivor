@@ -70,6 +70,40 @@ class EventFaceSearchTest extends TestCase
         ])->assertNotFound();
     }
 
+    public function test_event_that_has_not_happened_yet_hides_ui_and_rejects_direct_posts(): void
+    {
+        $event = $this->event(true);
+        $event->update(['date_of_event' => now()->addWeek()]);
+        $this->mockServiceNeverCalled();
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertDontSee('Find yourself with a selfie');
+
+        $this->post(route('events.face-search', $event), [
+            'selfie' => $this->selfie(),
+            'face_search_consent' => '1',
+        ])->assertRedirect(route('events.show', $event))
+            ->assertSessionHasErrors('selfie');
+    }
+
+    public function test_event_with_closed_sales_hides_ui_and_rejects_direct_posts(): void
+    {
+        $event = $this->event(true);
+        $event->update(['sales_close_at' => now()->subMinute()]);
+        $this->mockServiceNeverCalled();
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertDontSee('Find yourself with a selfie');
+
+        $this->post(route('events.face-search', $event), [
+            'selfie' => $this->selfie(),
+            'face_search_consent' => '1',
+        ])->assertRedirect(route('events.show', $event))
+            ->assertSessionHasErrors('selfie');
+    }
+
     public function test_consent_is_required_before_service_is_called(): void
     {
         $event = $this->event();
