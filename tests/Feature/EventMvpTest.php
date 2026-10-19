@@ -239,7 +239,7 @@ class EventMvpTest extends TestCase
 
         $this->actingAs($owner)
             ->post(route('events.store'), [])
-            ->assertSessionHasErrors(['title', 'sport', 'date_of_event', 'city', 'state']);
+            ->assertSessionHasErrors(['title', 'sport', 'date_of_event', 'starts_at', 'city', 'state']);
 
         $this->actingAs($owner)
             ->post(route('events.store'), $this->validEventPayload(['title' => 'Owner Event']))
@@ -451,6 +451,7 @@ class EventMvpTest extends TestCase
             'content' => 'A community sports event.',
             'summary' => 'Event summary.',
             'date_of_event' => '2026-10-10',
+            'starts_at' => '2026-10-10T08:00',
             'timezone' => 'America/New_York',
             'city' => 'Orlando',
             'state' => 'FL',
