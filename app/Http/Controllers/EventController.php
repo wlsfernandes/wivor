@@ -144,7 +144,7 @@ class EventController extends Controller
     }
 
     /** Display the paginated public photo gallery for an event. */
-    public function gallery(Request $request, Event $event): View
+    public function gallery(Request $request, Event $event): View|RedirectResponse
     {
         abort_unless($event->status === Event::STATUS_PUBLISHED, 404);
 
@@ -154,6 +154,11 @@ class EventController extends Controller
             'bib.regex' => 'Enter a bib number using 1 to 5 digits.',
         ]);
         $bibNumber = $validated['bib'] ?? null;
+
+        if ($bibNumber && ! $event->isPhotoSearchAvailable()) {
+            return redirect()->route('events.show', ['event' => $event->slug])
+                ->withErrors(['bib' => 'Bib search is available only after the event and while its gallery is open.']);
+        }
 
         $availablePhotosQuery = $event->photos()
             ->where('status', Photo::STATUS_PUBLISHED)

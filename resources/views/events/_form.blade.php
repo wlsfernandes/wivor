@@ -58,7 +58,7 @@
             <div class="col-md-3">
                 <label class="form-label" for="starts_at">Start time</label>
                 <input class="form-control @error('starts_at') is-invalid @enderror" id="starts_at" name="starts_at"
-                    type="datetime-local" value="{{ old('starts_at', $formValues['starts_at']) }}">
+                    type="datetime-local" value="{{ old('starts_at', $formValues['starts_at']) }}" required>
                 @error('starts_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4">

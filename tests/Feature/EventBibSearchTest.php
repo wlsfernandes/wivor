@@ -124,6 +124,70 @@ class EventBibSearchTest extends TestCase
             ->assertDontSee(route('events.photos.show', [$event, $photos->first()]), false);
     }
 
+    public function test_event_that_has_not_happened_yet_hides_photo_search_but_keeps_browsing(): void
+    {
+        config(['face_recognition.enabled' => true]);
+        $event = $this->event('Future Race', true);
+        $event->update(['date_of_event' => now()->addWeek()]);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertDontSee('Find photos by bib number')
+            ->assertDontSee('Find yourself with a selfie')
+            ->assertSee('Browse all photos');
+
+        $this->get(route('events.photos.index', $event))
+            ->assertOk();
+    }
+
+    public function test_event_that_has_not_happened_yet_rejects_direct_bib_search(): void
+    {
+        $event = $this->event('Future Bib Race', true);
+        $event->update(['date_of_event' => now()->addWeek()]);
+        $this->photo($event, ['123']);
+
+        $this->get(route('events.photos.index', ['event' => $event, 'bib' => '123']))
+            ->assertRedirect(route('events.show', $event))
+            ->assertSessionHasErrors('bib');
+    }
+
+    public function test_event_with_closed_sales_hides_and_rejects_bib_search(): void
+    {
+        $event = $this->event('Closed Bib Race', true);
+        $event->update([
+            'date_of_event' => now()->subWeek(),
+            'sales_close_at' => now()->subMinute(),
+        ]);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertDontSee('Find photos by bib number');
+
+        $this->get(route('events.photos.index', ['event' => $event, 'bib' => '123']))
+            ->assertRedirect(route('events.show', $event))
+            ->assertSessionHasErrors('bib');
+    }
+
+    public function test_event_without_a_date_hides_bib_search(): void
+    {
+        $event = $this->event('Undated Race', true);
+        $event->update(['date_of_event' => null]);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertDontSee('Find photos by bib number');
+    }
+
+    public function test_past_event_with_open_sales_shows_bib_search(): void
+    {
+        $event = $this->event('Finished Race', true);
+        $event->update(['date_of_event' => now()->subDay()]);
+
+        $this->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee('Find photos by bib number');
+    }
+
     public function test_exact_bib_search_returns_multiple_matches_only_from_the_current_event(): void
     {
         $event = $this->event('Current Event');

@@ -157,7 +157,7 @@
                 </div>
 
                 <div class="row g-4">
-                    @if (config('face_recognition.enabled') && ! $event->sales_close_at?->isPast())
+                    @if (config('face_recognition.enabled') && $event->isPhotoSearchAvailable())
                         <div class="col-12 col-lg-4 order-1 order-lg-2">
                             <div class="photo-search-card photo-search-card--face card h-100 shadow">
                                 <div class="card-body p-4 d-flex flex-column">
@@ -191,6 +191,7 @@
                         </div>
                     @endif
 
+                    @if ($event->isPhotoSearchAvailable())
                     <div class="col-12 col-lg-4 order-2 order-lg-1">
                         <div class="photo-search-card card h-100 shadow-sm">
                             <div class="card-body p-4 d-flex flex-column">
@@ -207,6 +208,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <div class="col-12 col-lg-4 order-3">
                         <div class="photo-search-card card h-100 shadow-sm">

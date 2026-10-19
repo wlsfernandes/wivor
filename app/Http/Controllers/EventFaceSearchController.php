@@ -28,9 +28,9 @@ class EventFaceSearchController extends Controller
     {
         abort_unless(config('face_recognition.enabled') && $event->status === Event::STATUS_PUBLISHED, 404);
 
-        if ($event->sales_close_at?->isPast()) {
+        if (! $event->isPhotoSearchAvailable()) {
             return redirect()->route('events.show', ['event' => $event->slug])
-                ->withErrors(['selfie' => 'Face search is unavailable because this event gallery is closed.']);
+                ->withErrors(['selfie' => 'Face search is available only after the event and while its gallery is open.']);
         }
 
         $validated = $request->validate([
