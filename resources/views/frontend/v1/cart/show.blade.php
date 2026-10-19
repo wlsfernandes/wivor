@@ -46,9 +46,7 @@
                 <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
                     <div class="flex-grow-1" style="max-width: 420px;">
                         <p class="mb-0">{{ $photoCountLabel }}</p>
-                        @if ($packetHintLabel)
-                            <p class="small text-primary mb-0" data-packet-hint>{{ $packetHintLabel }}</p>
-                        @endif
+                        <p class="small text-primary mb-0 {{ $packageHintLabel ? '' : 'd-none' }}" data-package-hint>{{ $packageHintLabel }}</p>
                         <div class="mt-2">
                             <div class="d-flex justify-content-between gap-3">
                                 <span>Subtotal</span>
@@ -116,6 +114,8 @@
             document.querySelector('[data-cart-total]').textContent = response.total;
             document.querySelector('[data-discount-label]').textContent = response.discount_label || '';
             document.querySelector('[data-discount-row]').classList.toggle('d-none', !response.discount_label);
+            document.querySelector('[data-package-hint]').textContent = response.package_hint || '';
+            document.querySelector('[data-package-hint]').classList.toggle('d-none', !response.package_hint);
         }
 
         promoForm?.addEventListener('submit', async function(event) {

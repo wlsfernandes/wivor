@@ -116,56 +116,119 @@ class CartTest extends TestCase
         $this->assertNull(session('wivor_promo_code_id'));
     }
 
-    public function test_cart_tells_buyers_how_many_photos_unlock_the_packet_discount(): void
+    public function test_cart_tells_buyers_how_many_photos_reach_the_next_package_price(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        [$event, $photo] = $this->publishedPhoto();
+        $event = $this->publishedEventWithPackagePrices([3 => 800]);
 
-        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+        $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
 
         $this->get(route('cart.show'))
-            ->assertSee('Add 2 more photos to save 20%.')
+            ->assertSee('Add 2 more photos to pay $8.00 each.')
             ->assertSeeInOrder(['Subtotal', '$10.00', 'Total', '$10.00']);
-        $this->get(route('events.show', ['event' => $event->slug]))
-            ->assertSee('Buy 3 or more photos and save 20%');
     }
 
-    public function test_cart_hint_uses_singular_when_one_more_photo_unlocks_the_packet_discount(): void
+    public function test_cart_hint_uses_singular_when_one_more_photo_reaches_the_package_price(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent();
+        $event = $this->publishedEventWithPackagePrices([3 => 800]);
 
         foreach (range(1, 2) as $ignored) {
             $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
         }
 
-        $this->get(route('cart.show'))->assertSee('Add 1 more photo to save 20%.');
+        $this->get(route('cart.show'))->assertSee('Add 1 more photo to pay $8.00 each.');
     }
 
-    public function test_event_packet_override_with_decimals_is_shown_on_the_event_and_gallery_pages(): void
+    public function test_cart_hint_points_to_the_next_larger_package_once_one_is_reached(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        [$event] = $this->publishedPhoto(['packet_discount_percentage' => 12.5]);
+        $event = $this->publishedEventWithPackagePrices([2 => 900, 5 => 750]);
+
+        foreach (range(1, 2) as $ignored) {
+            $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
+        }
+
+        $this->get(route('cart.show'))
+            ->assertSee('Add 3 more photos to pay $7.50 each.')
+            ->assertSeeInOrder(['Subtotal', '$20.00', 'Package price (2+ photos)', '$2.00', 'Total', '$18.00']);
+    }
+
+    public function test_cart_hint_only_offers_packages_cheaper_than_the_applied_promo_price(): void
+    {
+        $event = $this->publishedEventWithPackagePrices([3 => 900, 10 => 400]);
+        PromoCode::create(['code' => 'HALF', 'discount_percent' => 50, 'is_active' => true, 'expires_at' => today()]);
+
+        foreach (range(1, 2) as $ignored) {
+            $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
+        }
+        $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'HALF']);
+
+        // The promo already gives $5.00 each, so the 3-photo $9.00 package is not offered.
+        $this->get(route('cart.show'))
+            ->assertDontSee('to pay $9.00 each')
+            ->assertSee('Add 8 more photos to pay $4.00 each.');
+    }
+
+    public function test_promo_responses_return_the_package_hint_for_the_new_price(): void
+    {
+        $event = $this->publishedEventWithPackagePrices([3 => 900]);
+        PromoCode::create(['code' => 'HALF', 'discount_percent' => 50, 'is_active' => true, 'expires_at' => today()]);
+        $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
+
+        $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'HALF'])
+            ->assertOk()
+            ->assertJson(['package_hint' => null]);
+
+        $this->deleteJson(route('cart.promo-code.destroy'))
+            ->assertOk()
+            ->assertJson(['package_hint' => 'Add 2 more photos to pay $9.00 each.']);
+    }
+
+    public function test_cart_page_always_renders_the_package_hint_element_for_promo_updates(): void
+    {
+        [, $photo] = $this->publishedPhoto();
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
+
+        $this->get(route('cart.show'))->assertSee('data-package-hint', false);
+    }
+
+    public function test_package_equal_to_the_single_photo_price_is_not_shown_as_a_discount(): void
+    {
+        $event = $this->publishedEventWithPackagePrices([2 => 1000, 3 => 800]);
+
+        foreach (range(1, 2) as $ignored) {
+            $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
+        }
+
+        $this->get(route('cart.show'))
+            ->assertDontSee('Package price (2+ photos)')
+            ->assertSeeInOrder(['Subtotal', '$20.00', 'Total', '$20.00']);
+        $this->get(route('events.show', ['event' => $event->slug]))
+            ->assertDontSee('2+ photos $10.00 each')
+            ->assertSee('3+ photos $8.00 each');
+    }
+
+    public function test_event_and_gallery_pages_list_the_package_prices(): void
+    {
+        $event = $this->publishedEventWithPackagePrices([2 => 900, 5 => 750]);
+        $this->publishedPhotoForEvent($event);
 
         $this->get(route('events.show', ['event' => $event->slug]))
-            ->assertSee('Buy 3 or more photos and save 12.5%');
+            ->assertSee('$10.00 per photo')
+            ->assertSee('2+ photos $9.00 each · 5+ photos $7.50 each');
         $this->get(route('events.photos.index', ['event' => $event->slug]))
-            ->assertSee('Buy 3 or more photos and save 12.5%');
+            ->assertSee('2+ photos $9.00 each · 5+ photos $7.50 each');
     }
 
-    public function test_event_pages_hide_the_packet_offer_when_the_discount_is_zero(): void
+    public function test_event_pages_hide_the_package_line_when_the_event_has_no_package_prices(): void
     {
-        config(['commission.packet_percentage' => 0]);
         [$event] = $this->publishedPhoto();
 
-        $this->get(route('events.show', ['event' => $event->slug]))->assertDontSee('or more photos and save');
-        $this->get(route('events.photos.index', ['event' => $event->slug]))->assertDontSee('or more photos and save');
+        $this->get(route('events.show', ['event' => $event->slug]))->assertDontSee('+ photos');
+        $this->get(route('events.photos.index', ['event' => $event->slug]))->assertDontSee('+ photos');
     }
 
-    public function test_removing_a_promo_code_keeps_the_packet_discount(): void
+    public function test_removing_a_promo_code_keeps_the_package_price(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent();
+        $event = $this->publishedEventWithPackagePrices([3 => 800]);
         PromoCode::create(['code' => 'BIG30', 'discount_percent' => 30, 'is_active' => true, 'expires_at' => today()]);
 
         foreach (range(1, 3) as $ignored) {
@@ -177,16 +240,15 @@ class CartTest extends TestCase
         $this->deleteJson(route('cart.promo-code.destroy'))
             ->assertOk()
             ->assertJson([
-                'discount_label' => 'Bundle discount (20%)',
+                'discount_label' => 'Package price (3+ photos)',
                 'discount' => '$6.00',
                 'total' => '$24.00',
             ]);
     }
 
-    public function test_cart_page_says_the_bundle_discount_applies_when_it_beats_the_promo_code(): void
+    public function test_cart_page_says_the_package_price_applies_when_it_beats_the_promo_code(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent();
+        $event = $this->publishedEventWithPackagePrices([3 => 800]);
         PromoCode::create(['code' => 'SMALL10', 'discount_percent' => 10, 'is_active' => true, 'expires_at' => today()]);
 
         foreach (range(1, 3) as $ignored) {
@@ -195,14 +257,13 @@ class CartTest extends TestCase
         $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'SMALL10']);
 
         $this->get(route('cart.show'))
-            ->assertSee('Your bundle discount is larger than this promo code, so the bundle discount applies.')
+            ->assertSee('Your package price is lower than this promo code, so the package price applies.')
             ->assertDontSee('SMALL10 applied');
     }
 
-    public function test_cart_applies_the_packet_discount_from_three_photos(): void
+    public function test_cart_applies_the_package_price_from_its_package_size(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent();
+        $event = $this->publishedEventWithPackagePrices([3 => 800]);
 
         foreach (range(1, 3) as $ignored) {
             $this->post(route('cart.items.store'), ['photo' => $this->publishedPhotoForEvent($event)->uuid]);
@@ -210,13 +271,12 @@ class CartTest extends TestCase
 
         $this->get(route('cart.show'))
             ->assertDontSee('more photo')
-            ->assertSeeInOrder(['Subtotal', '$30.00', 'Bundle discount (20%)', '$6.00', 'Total', '$24.00']);
+            ->assertSeeInOrder(['Subtotal', '$30.00', 'Package price (3+ photos)', '$6.00', 'Total', '$24.00']);
     }
 
-    public function test_smaller_promo_code_does_not_stack_on_the_packet_discount(): void
+    public function test_smaller_promo_code_does_not_stack_on_the_package_price(): void
     {
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent();
+        $event = $this->publishedEventWithPackagePrices([3 => 800]);
         PromoCode::create(['code' => 'SMALL10', 'discount_percent' => 10, 'is_active' => true, 'expires_at' => today()]);
 
         foreach (range(1, 3) as $ignored) {
@@ -226,15 +286,14 @@ class CartTest extends TestCase
         $this->postJson(route('cart.promo-code.store'), ['promo_code' => 'SMALL10'])
             ->assertOk()
             ->assertJson([
-                'discount_label' => 'Bundle discount (20%)',
+                'discount_label' => 'Package price (3+ photos)',
                 'discount' => '$6.00',
                 'total' => '$24.00',
             ]);
     }
 
-    public function test_cart_shows_no_packet_hint_when_the_packet_discount_is_zero(): void
+    public function test_cart_shows_no_package_hint_when_the_event_has_no_package_prices(): void
     {
-        config(['commission.packet_percentage' => 0]);
         [, $photo] = $this->publishedPhoto();
 
         $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
@@ -275,6 +334,18 @@ class CartTest extends TestCase
         $event = $this->publishedEvent($eventOverrides);
 
         return [$event, $this->publishedPhotoForEvent($event)];
+    }
+
+    /** @param array<int, int> $packagePrices package size => price in cents; the single-photo price is $10.00 */
+    private function publishedEventWithPackagePrices(array $packagePrices): Event
+    {
+        $event = $this->publishedEvent();
+
+        foreach ($packagePrices as $minPhotos => $priceCents) {
+            $event->priceTiers()->create(['min_photos' => $minPhotos, 'price_cents' => $priceCents]);
+        }
+
+        return $event;
     }
 
     private function publishedEvent(array $eventOverrides = []): Event

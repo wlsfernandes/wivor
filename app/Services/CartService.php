@@ -101,7 +101,7 @@ class CartService
         return $this->quote()?->subtotalCents() ?? 0;
     }
 
-    /** Price the current selection from current event values, applying the larger of the promo and packet discounts. */
+    /** Price the current selection from current event values, applying the lower of the promo and package prices. */
     public function quote(?PromoCode $promoCode = null): ?PriceQuote
     {
         $event = $this->event();

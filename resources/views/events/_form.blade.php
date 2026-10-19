@@ -110,48 +110,115 @@
 <div class="card mb-4">
     <div class="card-header"><h2 class="h5 mb-0">Pricing</h2></div>
     <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label" for="price">Price per photo (USD)</label>
-                <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input class="form-control @error('price') is-invalid @enderror" id="price" name="price"
-                        type="number" step="0.01" min="0.50" max="999.99" value="{{ old('price', $formValues['price']) }}" required>
-                </div>
-                <div class="form-text">Applies to every photo published for this event.</div>
-                @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
+        <p class="text-muted">
+            Set the price of one photo, then optional package prices for larger orders. Every photo in an order
+            costs the price of the largest package it reaches. Leave a package empty to keep the price from the
+            row above. A larger order can never cost more per photo.
+        </p>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" data-package-price-table>
+                <thead>
+                    <tr>
+                        <th scope="col">Photos in the order</th>
+                        <th scope="col">Price per photo (USD)</th>
+                        <th scope="col">Order total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-package-row data-photo-count="1">
+                        <th scope="row"><label class="form-label mb-0" for="price">1 photo <span class="text-danger">*</span></label></th>
+                        <td>
+                            <div class="input-group has-validation" style="max-width: 200px;">
+                                <span class="input-group-text">$</span>
+                                <input class="form-control @error('price') is-invalid @enderror" id="price" name="price"
+                                    type="number" step="0.01" min="0.50" max="999.99" value="{{ old('price', $formValues['price']) }}"
+                                    data-package-price required>
+                                @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </td>
+                        <td data-package-total>—</td>
+                    </tr>
+                    @foreach ($packageSizes as $minPhotos)
+                        @php($isLargestPackage = $loop->last)
+                        <tr data-package-row data-photo-count="{{ $minPhotos }}">
+                            <th scope="row">
+                                <label class="form-label mb-0" for="package_price_{{ $minPhotos }}">
+                                    {{ $isLargestPackage ? $minPhotos.' or more photos' : $minPhotos.' photos' }}
+                                </label>
+                            </th>
+                            <td>
+                                <div class="input-group has-validation" style="max-width: 200px;">
+                                    <span class="input-group-text">$</span>
+                                    <input class="form-control @error('package_prices.'.$minPhotos) is-invalid @enderror"
+                                        id="package_price_{{ $minPhotos }}" name="package_prices[{{ $minPhotos }}]"
+                                        type="number" step="0.01" min="0.50" max="999.99" placeholder="No package"
+                                        value="{{ old('package_prices.'.$minPhotos, $formValues['package_prices'][$minPhotos]) }}"
+                                        data-package-price>
+                                    @error('package_prices.'.$minPhotos)<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </td>
+                            <td>
+                                <span data-package-total>—</span>
+                                @if ($isLargestPackage)
+                                    <span class="text-muted small">for {{ $minPhotos }} photos</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row g-3 mt-2">
             @if ($canManagePricingOverrides)
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label" for="commission_percentage">WivorPhotos commission (%)</label>
                     <input class="form-control @error('commission_percentage') is-invalid @enderror" id="commission_percentage"
                         name="commission_percentage" type="number" step="0.01" min="0" max="100"
                         value="{{ old('commission_percentage', $formValues['commission_percentage']) }}"
                         placeholder="Default: {{ $defaultCommissionLabel }}">
-                    <div class="form-text">Leave empty to use the default ({{ $defaultCommissionLabel }}). Applies to new orders only.</div>
+                    <div class="form-text">Leave empty to use the default ({{ $defaultCommissionLabel }}). Applies to new orders only. Taken from the price the buyer pays.</div>
                     @error('commission_percentage')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="packet_discount_percentage">Bundle discount, 3+ photos (%)</label>
-                    <input class="form-control @error('packet_discount_percentage') is-invalid @enderror" id="packet_discount_percentage"
-                        name="packet_discount_percentage" type="number" step="0.01" min="0" max="90"
-                        value="{{ old('packet_discount_percentage', $formValues['packet_discount_percentage']) }}"
-                        placeholder="Default: {{ $defaultPacketDiscountLabel }}">
-                    <div class="form-text">Leave empty to use the default ({{ $defaultPacketDiscountLabel }}). Enter 0 to turn it off. Photographers receive their share of the discounted price.</div>
-                    @error('packet_discount_percentage')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
             @else
-                <div class="col-md-6">
+                <div class="col-12">
                     <p class="form-text mb-0">
-                        WivorPhotos commission: {{ $effectiveCommissionLabel }}.
-                        Bundle discount: buyers of 3 or more photos save {{ $effectivePacketDiscountLabel }}, and your
-                        earnings are calculated on the discounted price. WivorPhotos sets these values.
+                        WivorPhotos commission: {{ $effectiveCommissionLabel }}, set by WivorPhotos. It is taken from
+                        the price the buyer pays per photo, including package prices.
                     </p>
                 </div>
             @endif
         </div>
     </div>
 </div>
+
+<script>
+    // Show each row's order total so the package prices are easy to compare. Display only; the server prices every order.
+    (() => {
+        const rows = [...document.querySelectorAll('[data-package-price-table] [data-package-row]')];
+        const formatMoney = (cents) => '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const updateTotals = () => {
+            let currentPriceCents = null;
+
+            rows.forEach((row) => {
+                const photoCount = Number(row.dataset.photoCount);
+                const price = row.querySelector('[data-package-price]').value;
+
+                if (price !== '' && Number(price) > 0) {
+                    currentPriceCents = Math.round(Number(price) * 100);
+                }
+
+                row.querySelector('[data-package-total]').textContent = currentPriceCents === null
+                    ? '—'
+                    : formatMoney(currentPriceCents * photoCount) + ' (' + formatMoney(currentPriceCents) + ' each)';
+            });
+        };
+
+        rows.forEach((row) => row.querySelector('[data-package-price]').addEventListener('input', updateTotals));
+        updateTotals();
+    })();
+</script>
 
 <div class="card mb-4">
     <div class="card-header"><h2 class="h5 mb-0">Publishing</h2></div>

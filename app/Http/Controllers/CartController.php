@@ -19,7 +19,7 @@ use Illuminate\View\View;
 /** Handles the guest photo-selection cart used before Stripe checkout. */
 class CartController extends Controller
 {
-    private const PACKET_BEATS_PROMO_MESSAGE = 'Your bundle discount is larger than this promo code, so the bundle discount applies.';
+    private const PACKAGE_BEATS_PROMO_MESSAGE = 'Your package price is lower than this promo code, so the package price applies.';
 
     public function __construct(private readonly CartService $cart, private readonly PhotoPricingService $pricing)
     {
@@ -44,7 +44,7 @@ class CartController extends Controller
             'promoStatusLabel' => $this->promoStatusLabel($quote, $promoCode),
             'discountLabel' => $this->moneyLabel($quote?->discountCents() ?? 0),
             'totalLabel' => $this->moneyLabel($quote?->totalCents() ?? 0),
-            'packetHintLabel' => $event ? $this->packetHintLabel($event) : null,
+            'packageHintLabel' => $event && $quote ? $this->packageHintLabel($event, $quote) : null,
             'checkoutToken' => $checkoutToken,
             'layout' => 'frontend.v1.layouts.app',
         ]);
@@ -122,6 +122,7 @@ class CartController extends Controller
             'discount_label' => $quote ? $this->discountRowLabel($quote, null) : null,
             'discount' => $this->moneyLabel($quote?->discountCents() ?? 0),
             'total' => $this->moneyLabel($quote?->totalCents() ?? 0),
+            'package_hint' => $this->currentPackageHintLabel($quote),
             'message' => 'Promo code removed.',
         ]);
     }
@@ -151,6 +152,7 @@ class CartController extends Controller
             'discount_label' => $quote ? $this->discountRowLabel($quote, $promoCode) : null,
             'discount' => $this->moneyLabel($quote?->discountCents() ?? 0),
             'total' => $this->moneyLabel($quote?->totalCents() ?? 0),
+            'package_hint' => $this->currentPackageHintLabel($quote),
             'message' => $this->promoStatusLabel($quote, $promoCode),
         ];
     }
@@ -159,7 +161,7 @@ class CartController extends Controller
     private function discountRowLabel(PriceQuote $quote, ?PromoCode $promoCode): ?string
     {
         return match ($quote->discountSource) {
-            Order::DISCOUNT_PACKET => 'Bundle discount ('.PhotoPricingService::percentageLabel($quote->discountPercentage).')',
+            Order::DISCOUNT_TIER => 'Package price ('.$quote->priceTierMinPhotos.'+ photos)',
             Order::DISCOUNT_PROMO => 'Promo '.$promoCode?->code,
             default => null,
         };
@@ -172,21 +174,31 @@ class CartController extends Controller
             return null;
         }
 
-        return $quote?->discountSource === Order::DISCOUNT_PACKET
-            ? self::PACKET_BEATS_PROMO_MESSAGE
+        return $quote?->discountSource === Order::DISCOUNT_TIER
+            ? self::PACKAGE_BEATS_PROMO_MESSAGE
             : $promoCode->code.' applied - '.$promoCode->discount_percent.'% off';
     }
 
-    /** Return the prompt that tells the buyer how many more photos unlock the packet discount, or null. */
-    private function packetHintLabel(Event $event): ?string
+    /** Return the package hint for the cart's event at the given price, or null when the cart is empty. */
+    private function currentPackageHintLabel(?PriceQuote $quote): ?string
     {
-        $photosNeeded = $this->pricing->photosNeededForPacketDiscount($event, $this->cart->count());
+        $event = $this->cart->event();
 
-        if ($photosNeeded === 0) {
+        return $event && $quote ? $this->packageHintLabel($event, $quote) : null;
+    }
+
+    /** Return the prompt that tells the buyer how many more photos reach a lower package price, or null. */
+    private function packageHintLabel(Event $event, PriceQuote $quote): ?string
+    {
+        $nextPriceTier = $this->pricing->nextPriceTier($event, $quote);
+
+        if (! $nextPriceTier) {
             return null;
         }
 
+        $photosNeeded = $nextPriceTier->min_photos - $quote->photoCount;
+
         return 'Add '.$photosNeeded.' more '.($photosNeeded === 1 ? 'photo' : 'photos')
-            .' to save '.PhotoPricingService::percentageLabel($event->effectivePacketDiscountPercentage()).'.';
+            .' to pay '.PhotoPricingService::moneyLabel($nextPriceTier->price_cents).' each.';
     }
 }

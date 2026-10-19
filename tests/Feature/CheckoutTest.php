@@ -270,87 +270,88 @@ class CheckoutTest extends TestCase
         $this->assertSame(750, $item->photographer_allocation_cents);
     }
 
-    public function test_three_photos_get_the_packet_discount_shared_proportionally_with_the_photographer(): void
+    public function test_package_price_is_frozen_on_the_order_and_items_and_matches_stripe(): void
     {
         $stripe = $this->fakeStripe();
-        config(['commission.percentage' => 20, 'commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent(['price_cents' => 1000]);
+        config(['commission.percentage' => 20]);
+        $event = $this->publishedEventWithPackagePrices(1700, [2 => 1500, 5 => 1200]);
 
         foreach (range(1, 3) as $ignored) {
             [$photo] = $this->publishedPhotoForEvent($event, true);
             $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
         }
+        $this->get(route('cart.show'))->assertSeeInOrder(['Total', '$45.00']);
         $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
 
         $order = Order::firstOrFail();
-        $this->assertSame(1000, $order->list_unit_price_cents);
-        $this->assertSame(800, $order->unit_price_cents);
-        $this->assertSame(Order::DISCOUNT_PACKET, $order->discount_source);
-        $this->assertEquals(20, $order->discount_percentage);
-        $this->assertSame(2400, $order->total_cents);
+        $this->assertSame(1700, $order->list_unit_price_cents);
+        $this->assertSame(1500, $order->unit_price_cents);
+        $this->assertSame(Order::DISCOUNT_TIER, $order->discount_source);
+        $this->assertSame(2, $order->price_tier_min_photos);
+        $this->assertNull($order->discount_percentage);
+        $this->assertSame(4500, $order->total_cents);
+        $this->assertSame('Package 2+', $order->discount_label);
         foreach ($order->items as $item) {
-            $this->assertSame(800, $item->unit_price_cents);
-            $this->assertSame(160, $item->commission_cents);
-            $this->assertSame(640, $item->photographer_allocation_cents);
+            $this->assertSame(1500, $item->unit_price_cents);
+            $this->assertSame(300, $item->commission_cents);
+            $this->assertSame(1200, $item->photographer_allocation_cents);
         }
-        $this->assertSame(800, $stripe->checkout->sessions->lastParams['line_items'][0]['price_data']['unit_amount']);
-        $this->assertSame(3, $stripe->checkout->sessions->lastParams['line_items'][0]['quantity']);
+
+        $lineItem = $stripe->checkout->sessions->lastParams['line_items'][0];
+        $this->assertSame(1500, $lineItem['price_data']['unit_amount']);
+        $this->assertSame(3, $lineItem['quantity']);
+        $this->assertSame($order->total_cents, $lineItem['price_data']['unit_amount'] * $lineItem['quantity']);
     }
 
-    public function test_two_photos_do_not_get_the_packet_discount(): void
+    public function test_package_price_changes_after_checkout_do_not_change_the_order(): void
     {
         $this->fakeStripe();
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent(['price_cents' => 1000]);
+        $event = $this->publishedEventWithPackagePrices(1700, [2 => 1500]);
+        $photos = collect(range(1, 2))->map(fn () => $this->publishedPhotoForEvent($event, true)[0]);
 
-        foreach (range(1, 2) as $ignored) {
-            [$photo] = $this->publishedPhotoForEvent($event, true);
-            $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
-        }
+        $order = app(CheckoutService::class)->createPendingOrder($event, $photos);
+        $event->priceTiers()->update(['price_cents' => 900]);
+
+        $this->assertSame(1500, $order->refresh()->unit_price_cents);
+        $this->assertSame(3000, $order->total_cents);
+        $this->assertSame([1500, 1500], $order->items()->pluck('unit_price_cents')->all());
+    }
+
+    public function test_one_photo_pays_the_single_photo_price_without_discount(): void
+    {
+        $this->fakeStripe();
+        $event = $this->publishedEventWithPackagePrices(1700, [2 => 1500]);
+        [$photo] = $this->publishedPhotoForEvent($event, true);
+
+        $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
         $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
 
         $order = Order::firstOrFail();
-        $this->assertSame(1000, $order->unit_price_cents);
-        $this->assertSame(1000, $order->list_unit_price_cents);
+        $this->assertSame(1700, $order->unit_price_cents);
         $this->assertNull($order->discount_source);
-        $this->assertSame(2000, $order->total_cents);
+        $this->assertNull($order->price_tier_min_photos);
+        $this->assertSame(1700, $order->total_cents);
     }
 
-    public function test_event_packet_discount_override_is_used_instead_of_the_global_default(): void
+    public function test_only_the_lower_of_the_promo_and_package_prices_applies(): void
     {
         $this->fakeStripe();
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent(['price_cents' => 1000, 'packet_discount_percentage' => 30]);
-
-        foreach (range(1, 3) as $ignored) {
-            [$photo] = $this->publishedPhotoForEvent($event, true);
-            $this->post(route('cart.items.store'), ['photo' => $photo->uuid]);
-        }
-        $this->startCheckout()->assertRedirect('https://checkout.stripe.com/test-session');
-
-        $order = Order::firstOrFail();
-        $this->assertSame(700, $order->unit_price_cents);
-        $this->assertEquals(30, $order->discount_percentage);
-    }
-
-    public function test_only_the_larger_of_the_promo_and_packet_discounts_applies(): void
-    {
-        $this->fakeStripe();
-        config(['commission.packet_percentage' => 20]);
-        $event = $this->publishedEvent(['price_cents' => 1000]);
+        $event = $this->publishedEventWithPackagePrices(1000, [3 => 800]);
         $photos = collect(range(1, 3))->map(fn () => $this->publishedPhotoForEvent($event, true)[0]);
         $smallPromo = PromoCode::create(['code' => 'SMALL10', 'discount_percent' => 10, 'is_active' => true, 'expires_at' => today()->addDay()]);
         $bigPromo = PromoCode::create(['code' => 'BIG30', 'discount_percent' => 30, 'is_active' => true, 'expires_at' => today()->addDay()]);
         $checkout = app(CheckoutService::class);
 
-        $packetOrder = $checkout->createPendingOrder($event, $photos, $smallPromo);
+        $packageOrder = $checkout->createPendingOrder($event, $photos, $smallPromo);
         $promoOrder = $checkout->createPendingOrder($event, $photos, $bigPromo);
 
-        $this->assertSame(800, $packetOrder->unit_price_cents);
-        $this->assertSame(Order::DISCOUNT_PACKET, $packetOrder->discount_source);
+        $this->assertSame(800, $packageOrder->unit_price_cents);
+        $this->assertSame(Order::DISCOUNT_TIER, $packageOrder->discount_source);
+        $this->assertSame(3, $packageOrder->price_tier_min_photos);
         $this->assertSame(700, $promoOrder->unit_price_cents);
         $this->assertSame(Order::DISCOUNT_PROMO, $promoOrder->discount_source);
         $this->assertEquals(30, $promoOrder->discount_percentage);
+        $this->assertNull($promoOrder->price_tier_min_photos);
     }
 
     public function test_checkout_revalidates_a_promo_code_before_creating_an_order(): void
@@ -477,6 +478,18 @@ class CheckoutTest extends TestCase
         $this->app->instance(StripeClient::class, $stripe);
 
         return $stripe;
+    }
+
+    /** @param array<int, int> $packagePrices package size => price in cents */
+    private function publishedEventWithPackagePrices(int $priceCents, array $packagePrices): Event
+    {
+        $event = $this->publishedEvent(['price_cents' => $priceCents]);
+
+        foreach ($packagePrices as $minPhotos => $packagePriceCents) {
+            $event->priceTiers()->create(['min_photos' => $minPhotos, 'price_cents' => $packagePriceCents]);
+        }
+
+        return $event;
     }
 
     private function publishedEvent(array $eventOverrides = []): Event

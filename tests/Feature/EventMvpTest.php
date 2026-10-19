@@ -250,7 +250,7 @@ class EventMvpTest extends TestCase
         $this->assertSame(Event::STATUS_DRAFT, $event->status);
     }
 
-    public function test_admin_can_override_and_clear_the_event_commission_and_packet_discount(): void
+    public function test_admin_can_override_and_clear_the_event_commission(): void
     {
         $admin = $this->createAdminUser();
         $event = $this->createEvent(['price_cents' => 1000]);
@@ -258,74 +258,35 @@ class EventMvpTest extends TestCase
         $this->actingAs($admin)
             ->get(route('events.edit', ['event' => $event->id]))
             ->assertSee('name="commission_percentage"', false)
-            ->assertSee('name="packet_discount_percentage"', false);
+            ->assertDontSee('name="packet_discount_percentage"', false);
 
         $this->actingAs($admin)
-            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
-                'commission_percentage' => '15',
-                'packet_discount_percentage' => '25',
-            ]))
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload(['commission_percentage' => '15']))
             ->assertRedirect(route('events.index'));
-
-        $event->refresh();
-        $this->assertEquals(15, $event->commission_percentage);
-        $this->assertEquals(25, $event->packet_discount_percentage);
+        $this->assertEquals(15, $event->refresh()->commission_percentage);
 
         $this->actingAs($admin)
-            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
-                'commission_percentage' => '',
-                'packet_discount_percentage' => '',
-            ]))
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload(['commission_percentage' => '']))
             ->assertRedirect(route('events.index'));
-
-        $event->refresh();
-        $this->assertNull($event->commission_percentage);
-        $this->assertNull($event->packet_discount_percentage);
+        $this->assertNull($event->refresh()->commission_percentage);
     }
 
-    public function test_admin_event_overrides_reject_out_of_range_percentages(): void
+    public function test_admin_commission_override_accepts_zero_to_one_hundred_percent_only(): void
     {
         $admin = $this->createAdminUser();
         $event = $this->createEvent(['price_cents' => 1000]);
 
         $this->actingAs($admin)
-            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
-                'commission_percentage' => '101',
-                'packet_discount_percentage' => '-1',
-            ]))
-            ->assertSessionHasErrors(['commission_percentage', 'packet_discount_percentage']);
-    }
-
-    public function test_admin_event_overrides_accept_the_maximum_percentages(): void
-    {
-        $admin = $this->createAdminUser();
-        $event = $this->createEvent(['price_cents' => 1000]);
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload(['commission_percentage' => '101']))
+            ->assertSessionHasErrors('commission_percentage');
 
         $this->actingAs($admin)
-            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
-                'commission_percentage' => '100',
-                'packet_discount_percentage' => '90',
-            ]))
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload(['commission_percentage' => '100']))
             ->assertSessionHasNoErrors();
-
-        $event->refresh();
-        $this->assertEquals(100, $event->commission_percentage);
-        $this->assertEquals(90, $event->packet_discount_percentage);
+        $this->assertEquals(100, $event->refresh()->commission_percentage);
     }
 
-    public function test_admin_packet_discount_above_ninety_percent_is_rejected(): void
-    {
-        $admin = $this->createAdminUser();
-        $event = $this->createEvent(['price_cents' => 1000]);
-
-        $this->actingAs($admin)
-            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
-                'packet_discount_percentage' => '90.01',
-            ]))
-            ->assertSessionHasErrors('packet_discount_percentage');
-    }
-
-    public function test_admin_can_set_pricing_overrides_when_creating_an_event(): void
+    public function test_admin_can_set_the_commission_when_creating_an_event(): void
     {
         $admin = $this->createAdminUser();
 
@@ -333,29 +294,25 @@ class EventMvpTest extends TestCase
             ->post(route('events.store'), $this->validEventPayload([
                 'title' => 'Admin Priced Event',
                 'commission_percentage' => '12.5',
-                'packet_discount_percentage' => '0',
             ]))
             ->assertRedirect();
 
-        $event = Event::where('title', 'Admin Priced Event')->firstOrFail();
-        $this->assertEquals(12.5, $event->commission_percentage);
-        $this->assertEquals(0, $event->packet_discount_percentage);
+        $this->assertEquals(12.5, Event::where('title', 'Admin Priced Event')->firstOrFail()->commission_percentage);
     }
 
-    public function test_photographer_sees_the_effective_commission_and_packet_discount_read_only(): void
+    public function test_photographer_sees_the_effective_commission_read_only(): void
     {
-        config(['commission.percentage' => 20, 'commission.packet_percentage' => 20]);
+        config(['commission.percentage' => 20]);
         [$owner, $photographer] = $this->createPhotographerUser();
         $event = $this->createEvent(['price_cents' => 1000, 'commission_percentage' => 15]);
         $event->photographers()->attach($photographer);
 
         $this->actingAs($owner)
             ->get(route('events.edit', ['event' => $event->id]))
-            ->assertSee('WivorPhotos commission: 15%.')
-            ->assertSee('buyers of 3 or more photos save 20%');
+            ->assertSee('WivorPhotos commission: 15%, set by WivorPhotos.');
     }
 
-    public function test_photographer_cannot_see_or_set_the_event_commission_or_packet_discount(): void
+    public function test_photographer_cannot_see_or_set_the_event_commission(): void
     {
         [$owner, $photographer] = $this->createPhotographerUser();
         $event = $this->createEvent(['price_cents' => 1000]);
@@ -363,19 +320,159 @@ class EventMvpTest extends TestCase
 
         $this->actingAs($owner)
             ->get(route('events.edit', ['event' => $event->id]))
-            ->assertDontSee('name="commission_percentage"', false)
-            ->assertDontSee('name="packet_discount_percentage"', false);
+            ->assertDontSee('name="commission_percentage"', false);
+
+        $this->actingAs($owner)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload(['commission_percentage' => '1']))
+            ->assertSessionHasErrors('commission_percentage');
+
+        $this->assertNull($event->refresh()->commission_percentage);
+    }
+
+    public function test_photographer_creates_an_event_with_package_prices_saved_in_cents(): void
+    {
+        [$owner] = $this->createPhotographerUser();
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'title' => 'Package Event',
+                'price' => '17.00',
+                'package_prices' => ['2' => '15.00', '3' => '', '4' => '', '5' => '12.50', '10' => '10'],
+            ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $event = Event::where('title', 'Package Event')->firstOrFail();
+        $this->assertSame(1700, $event->price_cents);
+        $this->assertSame([2 => 1500, 5 => 1250, 10 => 1000], $event->priceTiers->pluck('price_cents', 'min_photos')->all());
+    }
+
+    public function test_event_form_shows_one_row_per_package_size_with_saved_prices(): void
+    {
+        [$owner, $photographer] = $this->createPhotographerUser();
+        $event = $this->createEvent(['price_cents' => 1700]);
+        $event->photographers()->attach($photographer);
+        $event->priceTiers()->create(['min_photos' => 2, 'price_cents' => 1500]);
+
+        $this->actingAs($owner)
+            ->get(route('events.edit', ['event' => $event->id]))
+            ->assertOk()
+            ->assertSeeInOrder(['1 photo', '2 photos', '3 photos', '4 photos', '5 photos', '10 or more photos'])
+            ->assertSee('name="package_prices[2]"', false)
+            ->assertSee('value="15.00"', false)
+            ->assertSee('name="package_prices[10]"', false);
+    }
+
+    public function test_updating_an_event_replaces_and_clears_its_package_prices(): void
+    {
+        [$owner, $photographer] = $this->createPhotographerUser();
+        $event = $this->createEvent(['price_cents' => 1700]);
+        $event->photographers()->attach($photographer);
+        $event->priceTiers()->create(['min_photos' => 2, 'price_cents' => 1500]);
+        $event->priceTiers()->create(['min_photos' => 5, 'price_cents' => 1200]);
 
         $this->actingAs($owner)
             ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
-                'commission_percentage' => '1',
-                'packet_discount_percentage' => '90',
+                'price' => '17.00',
+                'package_prices' => ['2' => '', '3' => '14.00', '4' => '', '5' => '11.00', '10' => ''],
             ]))
-            ->assertSessionHasErrors(['commission_percentage', 'packet_discount_percentage']);
+            ->assertRedirect(route('events.index'));
+        $this->assertSame([3 => 1400, 5 => 1100], $event->priceTiers()->pluck('price_cents', 'min_photos')->all());
 
-        $event->refresh();
-        $this->assertNull($event->commission_percentage);
-        $this->assertNull($event->packet_discount_percentage);
+        $this->actingAs($owner)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload(['price' => '17.00']))
+            ->assertRedirect(route('events.index'));
+        $this->assertSame(0, $event->priceTiers()->count());
+    }
+
+    public function test_package_price_cannot_be_higher_than_a_smaller_order(): void
+    {
+        [$owner] = $this->createPhotographerUser();
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'price' => '15.00',
+                'package_prices' => ['2' => '16.00'],
+            ]))
+            ->assertSessionHasErrors(['package_prices.2' => 'The 2+ photo price cannot be higher than the 1-photo price.']);
+
+        // Empty sizes are skipped: 5 photos is compared with 3 photos.
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'price' => '15.00',
+                'package_prices' => ['3' => '12.00', '4' => '', '5' => '12.01'],
+            ]))
+            ->assertSessionHasErrors(['package_prices.5' => 'The 5+ photo price cannot be higher than the 3+ photo price.']);
+
+        $this->assertSame(0, Event::count());
+    }
+
+    public function test_package_price_may_equal_the_smaller_order_price(): void
+    {
+        [$owner] = $this->createPhotographerUser();
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'price' => '15.00',
+                'package_prices' => ['2' => '15.00', '3' => '15.00'],
+            ]))
+            ->assertSessionHasNoErrors();
+    }
+
+    public function test_package_prices_reject_amounts_stripe_cannot_charge_and_unknown_sizes(): void
+    {
+        [$owner] = $this->createPhotographerUser();
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'package_prices' => ['2' => '0.49', '3' => 'abc'],
+            ]))
+            ->assertSessionHasErrors(['package_prices.2', 'package_prices.3']);
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'package_prices' => ['7' => '5.00'],
+            ]))
+            ->assertSessionHasErrors('package_prices');
+
+        $this->assertSame(0, Event::count());
+    }
+
+    public function test_prices_with_more_than_two_decimals_are_rejected_instead_of_rounded(): void
+    {
+        [$owner] = $this->createPhotographerUser();
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'price' => '15.005',
+                'package_prices' => ['2' => '12.999'],
+            ]))
+            ->assertSessionHasErrors(['price', 'package_prices.2']);
+
+        $this->actingAs($owner)
+            ->post(route('events.store'), $this->validEventPayload([
+                'price' => '15',
+                'package_prices' => ['2' => '12.5', '3' => '12.25'],
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(1, Event::count());
+    }
+
+    public function test_photographer_cannot_change_package_prices_of_an_event_they_do_not_manage(): void
+    {
+        [$outsider] = $this->createPhotographerUser();
+        $event = $this->createEvent(['price_cents' => 1700]);
+        $event->priceTiers()->create(['min_photos' => 2, 'price_cents' => 1500]);
+
+        $this->actingAs($outsider)
+            ->put(route('events.update', ['event' => $event->id]), $this->validEventPayload([
+                'price' => '17.00',
+                'package_prices' => ['2' => '1.00'],
+            ]))
+            ->assertForbidden();
+
+        $this->assertSame([2 => 1500], $event->priceTiers()->pluck('price_cents', 'min_photos')->all());
     }
 
     public function test_owner_can_replace_a_managed_cover_image(): void

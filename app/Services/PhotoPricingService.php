@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Event;
+use App\Models\EventPriceTier;
 use App\Models\Order;
 use App\Models\PromoCode;
 
@@ -10,19 +11,27 @@ use App\Models\PromoCode;
  * Calculates per-photo prices, discounts, commission, and photographer allocation.
  *
  * The cart and checkout both use this class so the displayed total always matches the Stripe total.
- * Only the larger of the promo-code and packet discounts applies; they never stack. The discount
- * lowers the unit price before commission, so WivorPhotos and the photographer share it proportionally.
+ * Every photo in an order costs the same unit price: the price of the largest package the order
+ * reaches, or the single-photo price when it reaches none. A promo code is a percentage off the
+ * single-photo price; only the lower of the promo and package prices applies, they never stack, and
+ * the promo wins a tie. Commission is taken from the price paid, so WivorPhotos and the photographer
+ * share any discount proportionally.
  */
 class PhotoPricingService
 {
-    /** The minimum number of photos in one order that unlocks the packet discount. */
-    public const PACKET_MINIMUM_PHOTOS = 3;
-
     public function quote(Event $event, int $photoCount, ?PromoCode $promoCode = null): PriceQuote
     {
-        [$discountSource, $discountPercentage] = $this->bestDiscount($event, $photoCount, $promoCode);
         $listUnitPriceCents = (int) $event->price_cents;
-        $unitPriceCents = max($listUnitPriceCents - (int) round($listUnitPriceCents * $discountPercentage / 100), 0);
+        $priceTier = $this->priceTierFor($event, $photoCount);
+        $promoPercentage = $promoCode ? (float) $promoCode->discount_percent : 0.0;
+        $promoUnitPriceCents = max($listUnitPriceCents - (int) round($listUnitPriceCents * $promoPercentage / 100), 0);
+
+        [$discountSource, $unitPriceCents] = match (true) {
+            $promoPercentage > 0 && (! $priceTier || $promoUnitPriceCents <= $priceTier->price_cents) => [Order::DISCOUNT_PROMO, $promoUnitPriceCents],
+            $priceTier !== null => [Order::DISCOUNT_TIER, $priceTier->price_cents],
+            default => [null, $listUnitPriceCents],
+        };
+
         $commissionPercentage = $event->effectiveCommissionPercentage();
         $itemCommissionCents = (int) round($unitPriceCents * $commissionPercentage / 100);
 
@@ -31,21 +40,24 @@ class PhotoPricingService
             listUnitPriceCents: $listUnitPriceCents,
             unitPriceCents: $unitPriceCents,
             discountSource: $discountSource,
-            discountPercentage: $discountPercentage,
+            discountPercentage: $discountSource === Order::DISCOUNT_PROMO ? $promoPercentage : null,
+            priceTierMinPhotos: $discountSource === Order::DISCOUNT_TIER ? $priceTier->min_photos : null,
             commissionPercentage: $commissionPercentage,
             itemCommissionCents: $itemCommissionCents,
             itemAllocationCents: $unitPriceCents - $itemCommissionCents,
         );
     }
 
-    /** Return how many more photos the customer needs to unlock the packet discount, or 0 when none applies. */
-    public function photosNeededForPacketDiscount(Event $event, int $photoCount): int
+    /**
+     * Return the next package that is cheaper than the price the quote already charges, including
+     * any promo code, or null when no larger order would lower the per-photo price.
+     */
+    public function nextPriceTier(Event $event, PriceQuote $quote): ?EventPriceTier
     {
-        if ($event->effectivePacketDiscountPercentage() <= 0) {
-            return 0;
-        }
-
-        return max(self::PACKET_MINIMUM_PHOTOS - $photoCount, 0);
+        return $event->priceTiers
+            ->filter(fn (EventPriceTier $tier) => $tier->min_photos > $quote->photoCount && $tier->price_cents < $quote->unitPriceCents)
+            ->sortBy('min_photos')
+            ->first();
     }
 
     /** Format a percentage without trailing zeros, for example 20.00 as "20%" and 12.50 as "12.5%". */
@@ -54,18 +66,18 @@ class PhotoPricingService
         return rtrim(rtrim(number_format((float) $percentage, 2, '.', ''), '0'), '.').'%';
     }
 
-    /** @return array{?string, float} the discount source and percentage that give the customer the lower price */
-    private function bestDiscount(Event $event, int $photoCount, ?PromoCode $promoCode): array
+    /** Format an amount in cents as US dollars, for example 1500 as "$15.00". */
+    public static function moneyLabel(int $amountCents): string
     {
-        $promoPercentage = $promoCode ? (float) $promoCode->discount_percent : 0.0;
-        $packetPercentage = $photoCount >= self::PACKET_MINIMUM_PHOTOS ? $event->effectivePacketDiscountPercentage() : 0.0;
+        return '$'.number_format($amountCents / 100, 2);
+    }
 
-        if ($promoPercentage <= 0 && $packetPercentage <= 0) {
-            return [null, 0.0];
-        }
-
-        return $promoPercentage >= $packetPercentage
-            ? [Order::DISCOUNT_PROMO, $promoPercentage]
-            : [Order::DISCOUNT_PACKET, $packetPercentage];
+    /** Return the largest package the order reaches that is cheaper than one photo, or null when it reaches none. */
+    private function priceTierFor(Event $event, int $photoCount): ?EventPriceTier
+    {
+        return $event->priceTiers
+            ->filter(fn (EventPriceTier $tier) => $tier->min_photos <= $photoCount && $tier->price_cents < (int) $event->price_cents)
+            ->sortByDesc('min_photos')
+            ->first();
     }
 }
