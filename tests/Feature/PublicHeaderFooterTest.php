@@ -58,4 +58,13 @@ class PublicHeaderFooterTest extends TestCase
             $response->assertSee('href="'.route($routeName).'"', false);
         }
     }
+
+    public function test_footer_credits_the_website_builder_with_a_link(): void
+    {
+        $this->get(route('faq'))
+            ->assertOk()
+            ->assertSee('Website by')
+            ->assertSee('href="https://devpromaster.com"', false)
+            ->assertSee('DevPromaster');
+    }
 }

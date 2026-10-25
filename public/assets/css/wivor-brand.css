@@ -269,6 +269,12 @@ body :is(h1, h2, h3, h4, h5, h6, p, a, li, label, input, select, textarea, butto
     color: var(--wv-white);
 }
 
+.wv-footer__credit { margin: 8px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.7); }
+
+.wv-footer__credit a { color: var(--wv-white); text-decoration: underline; }
+
+.wv-footer__credit a:hover { color: var(--wv-orange-hover); }
+
 /* Keyboard focus: the template CSS removes outlines globally. */
 .wv-header__nav a:focus-visible,
 .wv-header__toggle:focus-visible,

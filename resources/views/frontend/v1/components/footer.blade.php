@@ -61,6 +61,8 @@
             </nav>
         </div>
         <p class="wv-footer__copyright">© 2026 WiVor. All rights reserved.</p>
+        <p class="wv-footer__credit">Website by <a href="https://devpromaster.com" target="_blank"
+                rel="noopener noreferrer">DevPromaster</a></p>
     </div>
 </footer>
 
