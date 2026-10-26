@@ -18,6 +18,8 @@
     <server name="QUEUE_CONNECTION" value="sync"/>
     <server name="SESSION_DRIVER" value="array"/>
     <server name="TELESCOPE_ENABLED" value="false"/>
+    <server name="TURNSTILE_SITE_KEY" value="1x00000000000000000000AA"/>
+    <server name="TURNSTILE_SECRET_KEY" value="1x0000000000000000000000000000000AA"/>
   </php>
   <source>
     <include>

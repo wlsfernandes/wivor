@@ -10,7 +10,10 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -18,6 +21,8 @@ use Tests\TestCase;
 class PhotographerApprovalTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
     public function test_photographer_registration_form_links_to_distinct_photographer_terms(): void
     {
@@ -31,6 +36,7 @@ class PhotographerApprovalTest extends TestCase
     {
         Mail::fake();
         Notification::fake();
+        $this->fakeTurnstileResponse(['success' => true]);
 
         $response = $this->post(route('registerPhotographer'), $this->validApplication());
 
@@ -65,7 +71,103 @@ class PhotographerApprovalTest extends TestCase
                 'about',
                 'is_adult',
                 'accepts_terms',
+                'cf-turnstile-response',
             ]);
+    }
+
+    public function test_photographer_registration_form_renders_the_turnstile_widget(): void
+    {
+        config(['services.turnstile.site_key' => 'test-site-key']);
+
+        $this->get(route('photographers'))
+            ->assertOk()
+            ->assertSee('class="cf-turnstile"', false)
+            ->assertSee('data-sitekey="test-site-key"', false)
+            ->assertSee('https://challenges.cloudflare.com/turnstile/v0/api.js', false);
+    }
+
+    public function test_registration_sends_the_secret_token_and_ip_to_cloudflare(): void
+    {
+        Mail::fake();
+        Notification::fake();
+        config(['services.turnstile.secret_key' => 'test-secret-key']);
+        $this->fakeTurnstileResponse(['success' => true]);
+
+        $this->post(route('registerPhotographer'), $this->validApplication())
+            ->assertRedirect(route('verification.notice'));
+
+        Http::assertSent(fn (Request $request): bool => $request->url() === self::TURNSTILE_VERIFY_URL
+            && $request['secret'] === 'test-secret-key'
+            && $request['response'] === 'turnstile-token'
+            && $request['remoteip'] === '127.0.0.1');
+    }
+
+    public function test_registration_without_a_turnstile_token_is_rejected_without_calling_cloudflare(): void
+    {
+        Http::fake();
+        $application = $this->validApplication();
+        unset($application['cf-turnstile-response']);
+
+        $this->post(route('registerPhotographer'), $application)
+            ->assertSessionHasErrors(['cf-turnstile-response' => 'Please complete the security check before submitting.']);
+
+        Http::assertNothingSent();
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'alex@example.com']);
+    }
+
+    public function test_registration_with_an_invalid_turnstile_token_is_rejected(): void
+    {
+        $this->fakeTurnstileResponse(['success' => false, 'error-codes' => ['invalid-input-response']]);
+
+        $this->assertRegistrationRejectedByTurnstile();
+    }
+
+    public function test_registration_with_an_expired_or_reused_turnstile_token_is_rejected(): void
+    {
+        $this->fakeTurnstileResponse(['success' => false, 'error-codes' => ['timeout-or-duplicate']]);
+
+        $this->assertRegistrationRejectedByTurnstile();
+    }
+
+    public function test_registration_is_rejected_when_cloudflare_is_unreachable(): void
+    {
+        Http::fake(fn () => throw new ConnectionException('Connection timed out'));
+
+        $this->assertRegistrationRejectedByTurnstile();
+    }
+
+    public function test_registration_is_rejected_when_cloudflare_returns_a_server_error(): void
+    {
+        $this->fakeTurnstileResponse(['success' => true], 500);
+
+        $this->assertRegistrationRejectedByTurnstile();
+    }
+
+    public function test_registration_is_rejected_when_cloudflare_returns_an_unexpected_body(): void
+    {
+        Http::fake([self::TURNSTILE_VERIFY_URL => Http::response('<html>bad gateway</html>', 200)]);
+
+        $this->assertRegistrationRejectedByTurnstile();
+    }
+
+    public function test_registration_is_rejected_when_the_turnstile_secret_is_not_configured(): void
+    {
+        config(['services.turnstile.secret_key' => null]);
+        Http::fake();
+
+        $this->assertRegistrationRejectedByTurnstile();
+        Http::assertNothingSent();
+    }
+
+    public function test_invalid_application_fields_still_report_their_own_errors_with_a_valid_token(): void
+    {
+        $this->fakeTurnstileResponse(['success' => true]);
+        $application = array_merge($this->validApplication(), ['email' => 'not-an-email', 'state' => 'Florida']);
+
+        $this->post(route('registerPhotographer'), $application)
+            ->assertSessionHasErrors(['email', 'state'])
+            ->assertSessionDoesntHaveErrors('cf-turnstile-response');
     }
 
     public function test_only_approved_and_verified_photographers_can_open_the_dashboard(): void
@@ -255,7 +357,26 @@ class PhotographerApprovalTest extends TestCase
             'about' => 'Professional sports and community event photographer.',
             'is_adult' => '1',
             'accepts_terms' => '1',
+            'cf-turnstile-response' => 'turnstile-token',
         ];
+    }
+
+    /** @param array<string, mixed> $body */
+    private function fakeTurnstileResponse(array $body, int $status = 200): void
+    {
+        Http::fake([self::TURNSTILE_VERIFY_URL => Http::response($body, $status)]);
+    }
+
+    private function assertRegistrationRejectedByTurnstile(): void
+    {
+        Mail::fake();
+
+        $this->post(route('registerPhotographer'), $this->validApplication())
+            ->assertSessionHasErrors(['cf-turnstile-response' => 'Security check failed or expired. Please complete it again and resubmit.']);
+
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'alex@example.com']);
+        Mail::assertNothingSent();
     }
 
     /** @return array{User, Photographer} */
