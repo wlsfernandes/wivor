@@ -105,6 +105,33 @@ class ContactFormTurnstileTest extends TestCase
         );
     }
 
+    public function test_contact_form_is_throttled_after_five_messages_per_minute_from_one_ip(): void
+    {
+        Mail::fake();
+        Http::fake([self::TURNSTILE_VERIFY_URL => Http::response(['success' => true])]);
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post(route('contact.send'), $this->validMessage())->assertSessionHasNoErrors();
+        }
+
+        $this->post(route('contact.send'), $this->validMessage())->assertTooManyRequests();
+        Mail::assertSentCount(5);
+    }
+
+    public function test_contact_form_throttle_is_counted_per_ip(): void
+    {
+        Mail::fake();
+        Http::fake([self::TURNSTILE_VERIFY_URL => Http::response(['success' => true])]);
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post(route('contact.send'), $this->validMessage());
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->post(route('contact.send'), $this->validMessage())
+            ->assertSessionHasNoErrors();
+    }
+
     /** @return array<string, string> */
     private function validMessage(): array
     {
