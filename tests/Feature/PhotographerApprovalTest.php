@@ -160,6 +160,30 @@ class PhotographerApprovalTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_registration_is_throttled_after_five_attempts_per_minute_from_one_ip(): void
+    {
+        Http::fake();
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post(route('registerPhotographer'), [])->assertSessionHasErrors('email');
+        }
+
+        $this->post(route('registerPhotographer'), [])->assertTooManyRequests();
+    }
+
+    public function test_registration_throttle_is_counted_per_ip(): void
+    {
+        Http::fake();
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post(route('registerPhotographer'), []);
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->post(route('registerPhotographer'), [])
+            ->assertSessionHasErrors('email');
+    }
+
     public function test_invalid_application_fields_still_report_their_own_errors_with_a_valid_token(): void
     {
         $this->fakeTurnstileResponse(['success' => true]);
