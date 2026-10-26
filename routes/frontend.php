@@ -118,7 +118,9 @@ Route::get('/testimonials', [HomeController::class, 'testimonials'])->name('test
 Route::get('/photographers', [PhotographerController::class, 'photographers'])->name('photographers');
 Route::get('/photobook', [PhotographerController::class, 'photobook'])->name('photobook');
 Route::get('/signup', [HomeController::class, 'signUp'])->name('signUp');
-Route::post('/registerPhotographer', [PhotographerRegistrationController::class, 'store'])->name('registerPhotographer');
+Route::post('/registerPhotographer', [PhotographerRegistrationController::class, 'store'])
+    ->middleware('throttle:photographer-registration')
+    ->name('registerPhotographer');
 Route::post('/registerUser', [UserController::class, 'registerUser'])->name('registerUser');
 Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
 

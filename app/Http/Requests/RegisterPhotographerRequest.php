@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Services\TurnstileVerifier;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 
 /** Validate a public photographer application. */
@@ -29,6 +31,7 @@ class RegisterPhotographerRequest extends FormRequest
             'about' => ['required', 'string', 'max:2000'],
             'is_adult' => ['accepted'],
             'accepts_terms' => ['accepted'],
+            'cf-turnstile-response' => ['bail', 'required', 'string', $this->verifyTurnstileToken(...)],
         ];
     }
 
@@ -39,6 +42,16 @@ class RegisterPhotographerRequest extends FormRequest
             'email.unique' => 'This email is already registered. Please log in instead.',
             'is_adult.accepted' => 'You must confirm that you are at least 18 years old.',
             'accepts_terms.accepted' => 'You must accept the photographer terms.',
+            'cf-turnstile-response.required' => 'Please complete the security check before submitting.',
+            'cf-turnstile-response.string' => 'Please complete the security check before submitting.',
         ];
+    }
+
+    /** Reject the application unless Cloudflare confirms the Turnstile token. */
+    private function verifyTurnstileToken(string $attribute, mixed $value, Closure $fail): void
+    {
+        if (! app(TurnstileVerifier::class)->verify($value, $this->ip())) {
+            $fail('Security check failed or expired. Please complete it again and resubmit.');
+        }
     }
 }

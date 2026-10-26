@@ -43,6 +43,8 @@ class PhotographerController extends Controller
                 'payout_status_label' => $photographer->payoutStatusLabel(),
                 'registered_at_label' => $photographer->created_at->format('M j, Y'),
                 'review_url' => route('admin.photographers.show', $photographer),
+                'can_delete' => $photographer->status === Photographer::STATUS_PENDING,
+                'delete_url' => route('admin.photographers.destroy', $photographer),
             ]);
 
         return view('admin.photographers.index', [
@@ -80,6 +82,27 @@ class PhotographerController extends Controller
             'canSuspend' => $photographer->status === Photographer::STATUS_APPROVED,
             'canRestore' => $photographer->status === Photographer::STATUS_SUSPENDED,
         ]);
+    }
+
+    /** Delete a pending application together with its user account. */
+    public function destroy(Request $request, Photographer $photographer): RedirectResponse
+    {
+        DB::transaction(function () use ($photographer): void {
+            $locked = Photographer::query()->lockForUpdate()->findOrFail($photographer->id);
+            abort_unless($locked->status === Photographer::STATUS_PENDING, 422);
+
+            // Deleting the user cascades to the photographer profile, roles and customer row.
+            $locked->user()->delete();
+        });
+
+        Log::info('Pending photographer application deleted.', [
+            'event' => 'photographers.application.deleted',
+            'photographer_id' => $photographer->id,
+            'user_id' => $photographer->user_id,
+            'admin_id' => $request->user()->id,
+        ]);
+
+        return redirect()->route('photographers.list')->with('success', 'Photographer application deleted.');
     }
 
     /** Approve a pending or previously declined photographer. */
