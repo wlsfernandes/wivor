@@ -38,6 +38,7 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
     Route::patch('/list-photographers/{photographer}/decline', [AdminPhotographerController::class, 'decline'])->name('admin.photographers.decline');
     Route::patch('/list-photographers/{photographer}/suspend', [AdminPhotographerController::class, 'suspend'])->name('admin.photographers.suspend');
     Route::patch('/list-photographers/{photographer}/restore', [AdminPhotographerController::class, 'restore'])->name('admin.photographers.restore');
+    Route::delete('/list-photographers/{photographer}', [AdminPhotographerController::class, 'destroy'])->name('admin.photographers.destroy');
     Route::post('/list-photographers/{photographer}/payout-status', [AdminPhotographerController::class, 'refreshPayoutStatus'])->name('admin.photographers.payout-status');
 
     Route::post('/events/{event}/photographers', [EventController::class, 'assignPhotographer'])->name('admin.events.photographers.assign');

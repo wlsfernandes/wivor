@@ -354,6 +354,63 @@ class PhotographerApprovalTest extends TestCase
         $this->assertNull($photographer->status_reason);
     }
 
+    public function test_admin_list_shows_an_active_red_trash_icon_only_for_pending_applications(): void
+    {
+        [$admin] = $this->createAdmin();
+        [, $pendingPhotographer] = $this->createPhotographer(Photographer::STATUS_PENDING);
+        [, $approvedPhotographer] = $this->createPhotographer(Photographer::STATUS_APPROVED);
+
+        $this->actingAs($admin)
+            ->get(route('photographers.list'))
+            ->assertOk()
+            ->assertSee('action="'.route('admin.photographers.destroy', $pendingPhotographer).'"', false)
+            ->assertDontSee('action="'.route('admin.photographers.destroy', $approvedPhotographer).'"', false)
+            ->assertSee('Only pending applications can be deleted');
+    }
+
+    public function test_admin_can_delete_a_pending_application_and_its_user_account(): void
+    {
+        [$admin] = $this->createAdmin();
+        [$user, $photographer] = $this->createPhotographer(Photographer::STATUS_PENDING);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.photographers.destroy', $photographer))
+            ->assertRedirect(route('photographers.list'))
+            ->assertSessionHas('success', 'Photographer application deleted.');
+
+        $this->assertDatabaseMissing('photographers', ['id' => $photographer->id]);
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        $this->assertDatabaseMissing('role_user', ['user_id' => $user->id]);
+    }
+
+    public function test_admin_cannot_delete_an_application_that_is_not_pending(): void
+    {
+        [$admin] = $this->createAdmin();
+
+        foreach ([Photographer::STATUS_APPROVED, Photographer::STATUS_DECLINED, Photographer::STATUS_SUSPENDED] as $status) {
+            [$user, $photographer] = $this->createPhotographer($status);
+
+            $this->actingAs($admin)
+                ->delete(route('admin.photographers.destroy', $photographer))
+                ->assertStatus(422);
+
+            $this->assertDatabaseHas('photographers', ['id' => $photographer->id]);
+            $this->assertDatabaseHas('users', ['id' => $user->id]);
+        }
+    }
+
+    public function test_non_admin_cannot_delete_a_pending_application(): void
+    {
+        [$user] = $this->createPhotographer(Photographer::STATUS_APPROVED);
+        [, $photographer] = $this->createPhotographer(Photographer::STATUS_PENDING);
+
+        $this->actingAs($user)
+            ->delete(route('admin.photographers.destroy', $photographer))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('photographers', ['id' => $photographer->id]);
+    }
+
     public function test_non_admin_cannot_review_photographers(): void
     {
         [$user] = $this->createPhotographer(Photographer::STATUS_APPROVED);

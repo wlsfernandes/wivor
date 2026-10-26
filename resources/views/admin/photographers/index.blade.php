@@ -24,6 +24,10 @@
                         </form>
                     </div>
 
+                    @if (session('success'))
+                        <div class="alert alert-success" role="alert">{{ session('success') }}</div>
+                    @endif
+
                     <div class="table-responsive">
                         <table class="table table-striped align-middle">
                             <thead>
@@ -49,7 +53,23 @@
                                         <td>{{ $photographer['payout_status_label'] }}</td>
                                         <td>{{ $photographer['registered_at_label'] }}</td>
                                         <td class="text-end">
-                                            <a class="btn btn-sm btn-outline-primary" href="{{ $photographer['review_url'] }}">Review</a>
+                                            <div class="d-inline-flex align-items-center gap-2">
+                                                <a class="btn btn-sm btn-outline-primary" href="{{ $photographer['review_url'] }}">Review</a>
+                                                @if ($photographer['can_delete'])
+                                                    <form method="POST" action="{{ $photographer['delete_url'] }}" class="d-inline"
+                                                        onsubmit="return confirm('Delete this pending application and its user account? This cannot be undone.');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-link p-0 text-danger" title="Delete pending application" aria-label="Delete pending application for {{ $photographer['name'] }}">
+                                                            <i class="uil uil-trash-alt font-size-18"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-muted" title="Only pending applications can be deleted" aria-label="Only pending applications can be deleted">
+                                                        <i class="uil uil-trash-alt font-size-18"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
