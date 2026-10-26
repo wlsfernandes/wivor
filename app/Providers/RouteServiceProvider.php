@@ -71,5 +71,9 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('photographer-registration', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());
         });
+
+        RateLimiter::for('contact-form', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
     }
 }

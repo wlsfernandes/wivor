@@ -32,7 +32,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10 form-column">
                     <div class="form-inner">
-                        <form id="photographer-registration-form" method="POST" action="{{ route('registerPhotographer') }}" autocomplete="on">
+                        <form method="POST" action="{{ route('registerPhotographer') }}" autocomplete="on">
                             @csrf
                             <div class="row clearfix">
                                 <div class="col-md-6 form-group">
@@ -102,12 +102,8 @@
                                         @error('accepts_terms')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-12 form-group">
-                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-size="flexible"
-                                        data-callback="onPhotographerTurnstileSuccess"
-                                        data-expired-callback="onPhotographerTurnstileExpired"
-                                        data-error-callback="onPhotographerTurnstileError"></div>
-                                    <div id="turnstile-feedback" class="invalid-feedback @error('cf-turnstile-response') d-block @enderror" role="alert">@error('cf-turnstile-response'){{ $message }}@enderror</div>
+                                <div class="col-12 mb-3">
+                                    @include('frontend.v1.components.turnstile', ['form' => 'photographer-registration'])
                                 </div>
                                 <div class="col-12 form-group text-center">
                                     <button class="theme-btn-one" type="submit"><span>Submit application</span></button>
@@ -124,41 +120,4 @@
     <section class="contact-section sec-pad">
         @include('frontend.v1.components.contact')
     </section>
-@endsection
-
-@section('scripts')
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    <script>
-        (function () {
-            const form = document.getElementById('photographer-registration-form');
-            const feedback = document.getElementById('turnstile-feedback');
-
-            function showTurnstileMessage(message) {
-                feedback.textContent = message;
-                feedback.classList.add('d-block');
-            }
-
-            window.onPhotographerTurnstileSuccess = function () {
-                feedback.textContent = '';
-                feedback.classList.remove('d-block');
-            };
-
-            window.onPhotographerTurnstileExpired = function () {
-                showTurnstileMessage('The security check expired. It will refresh automatically; please complete it again.');
-            };
-
-            window.onPhotographerTurnstileError = function () {
-                showTurnstileMessage('The security check could not be completed. Please refresh the page and try again.');
-            };
-
-            form.addEventListener('submit', function (event) {
-                const tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
-
-                if (!tokenInput || tokenInput.value === '') {
-                    event.preventDefault();
-                    showTurnstileMessage('Please complete the security check before submitting.');
-                }
-            });
-        })();
-    </script>
 @endsection

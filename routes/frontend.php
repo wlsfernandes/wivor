@@ -122,7 +122,9 @@ Route::post('/registerPhotographer', [PhotographerRegistrationController::class,
     ->middleware('throttle:photographer-registration')
     ->name('registerPhotographer');
 Route::post('/registerUser', [UserController::class, 'registerUser'])->name('registerUser');
-Route::post('/send-email', [ContactController::class, 'sendEmail'])->name('contact.send');
+Route::post('/send-email', [ContactController::class, 'sendEmail'])
+    ->middleware('throttle:contact-form')
+    ->name('contact.send');
 
 Route::middleware('auth')->group(function () {
     Route::middleware('can:photographer-account')->group(function () {
