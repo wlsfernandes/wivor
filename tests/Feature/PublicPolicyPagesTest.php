@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Mail\ContactMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -79,6 +80,7 @@ class PublicPolicyPagesTest extends TestCase
     public function test_contact_form_sends_to_configured_support_address(): void
     {
         Mail::fake();
+        Http::fake(['https://challenges.cloudflare.com/turnstile/v0/siteverify' => Http::response(['success' => true])]);
         config(['contact.email' => 'support@example.test']);
 
         $this->from(route('contact_us'))->post(route('contact.send'), [
@@ -86,6 +88,7 @@ class PublicPolicyPagesTest extends TestCase
             'email' => 'jamie@example.test',
             'phone' => '4045551212',
             'message' => 'I need help finding my purchase.',
+            'cf-turnstile-response' => 'turnstile-token',
         ])->assertRedirect(route('contact_us'));
 
         Mail::assertSent(ContactMessage::class, fn (ContactMessage $message): bool => $message->hasTo('support@example.test'));

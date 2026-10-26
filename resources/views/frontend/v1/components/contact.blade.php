@@ -45,8 +45,9 @@
                             <div class="col-lg-12 col-md-12 col-sm-12 form-group">
                                 <textarea name="message" placeholder="@lang('messages.your_message')" required>{{ old('message') }}</textarea>
                             </div>
-                              {{-- reCAPTCHA --}}
-                              <input type="hidden" name="g-recaptcha-response" id="recaptcha-token">
+                            <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                                @include('frontend.v1.components.turnstile', ['form' => 'contact'])
+                            </div>
                             <div class="col-lg-12 col-md-12 col-sm-12 form-group message-btn mr-0">
                                 <button class="theme-btn-one" type="submit"
                                     name="submit-form"><span>@lang('messages.send_message')</span></button>

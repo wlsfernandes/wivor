@@ -81,7 +81,7 @@ class PhotographerApprovalTest extends TestCase
 
         $this->get(route('photographers'))
             ->assertOk()
-            ->assertSee('class="cf-turnstile"', false)
+            ->assertSee('data-turnstile-widget', false)
             ->assertSee('data-sitekey="test-site-key"', false)
             ->assertSee('https://challenges.cloudflare.com/turnstile/v0/api.js', false);
     }
