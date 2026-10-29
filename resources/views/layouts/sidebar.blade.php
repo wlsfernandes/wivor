@@ -79,6 +79,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('admin.crm.dashboard') }}" class="waves-effect">
+                            <i class="fa fa-address-book"></i>
+                            <span>CRM</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="javascript: void(0);" class="has-arrow waves-effect">
                             <i class="fa fa-globe"></i>
                             <span>Website</span>

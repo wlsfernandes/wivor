@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CrmDashboardController as AdminCrmDashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -67,4 +68,6 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
         ->name('admin.website.policies.edit');
     Route::put('/admin/website/{policy}', [AdminWebsitePolicyController::class, 'update'])
         ->name('admin.website.policies.update');
+
+    Route::get('/admin/crm', [AdminCrmDashboardController::class, 'index'])->name('admin.crm.dashboard');
 });
