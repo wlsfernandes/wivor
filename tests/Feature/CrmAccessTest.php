@@ -57,6 +57,31 @@ class CrmAccessTest extends TestCase
             ->assertSee(route('admin.crm.templates.index'), false);
     }
 
+    public function test_admin_can_read_the_crm_manual(): void
+    {
+        $this->actingAs($this->admin())
+            ->get(route('admin.crm.manual'))
+            ->assertOk()
+            ->assertSee('How the CRM works')
+            ->assertSee('Import participants')
+            ->assertSee('Who can receive which email')
+            ->assertSee(route('admin.crm.imports.index'), false)
+            ->assertSee(route('admin.crm.campaigns.index'), false);
+    }
+
+    public function test_crm_manual_is_admin_only_and_linked_from_the_menu(): void
+    {
+        $this->get(route('admin.crm.manual'))->assertRedirect(route('login'));
+
+        /** @var User $user */
+        $user = User::factory()->createOne();
+        $this->actingAs($user)->get(route('admin.crm.manual'))->assertForbidden();
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.dashboard'))
+            ->assertSee(route('admin.crm.manual'), false);
+    }
+
     private function admin(): User
     {
         $admin = User::factory()->create();

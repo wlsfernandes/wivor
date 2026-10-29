@@ -77,6 +77,7 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
         ->name('admin.website.policies.update');
 
     Route::get('/admin/crm', [AdminCrmDashboardController::class, 'index'])->name('admin.crm.dashboard');
+    Route::view('/admin/crm/manual', 'admin.crm.manual')->name('admin.crm.manual');
     Route::get('/admin/crm/contacts', [AdminCrmContactController::class, 'index'])->name('admin.crm.contacts.index');
     Route::get('/admin/crm/contacts/{contact}', [AdminCrmContactController::class, 'show'])->name('admin.crm.contacts.show');
     Route::get('/admin/crm/events/{event}/participants', [AdminCrmEventParticipantController::class, 'index'])->name('admin.crm.events.participants');
