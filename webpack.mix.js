@@ -27,6 +27,7 @@ const folder = {
             {"name": "node-waves", "assets": ["./node_modules/node-waves/dist/waves.js"]},
             {"name": "waypoints", "assets": ["./node_modules/waypoints/lib/jquery.waypoints.min.js"]},
             {"name": "select2", "assets": ["./node_modules/select2/dist/js/select2.min.js", "./node_modules/select2/dist/css/select2.min.css"]},
+            {"name": "quill", "assets": ["./node_modules/quill/dist/quill.js", "./node_modules/quill/dist/quill.snow.css"]},
             {"name": "chart-js", "assets": ["./node_modules/chart.js/dist/Chart.bundle.min.js"]},
             {"name": "apexcharts", "assets": ["./node_modules/apexcharts/dist/apexcharts.min.js"]},
         
@@ -150,7 +151,6 @@ const folder = {
         }
     });
     
-    mix.copyDirectory("./node_modules/tinymce", folder.dist_assets + "/libs/tinymce");
     mix.copyDirectory("./node_modules/leaflet/dist/images", folder.dist_assets + "/libs/leaflet/images");
     mix.copyDirectory("./node_modules/bootstrap-editable/img", folder.dist_assets + "/libs/img");
 
@@ -190,11 +190,9 @@ const folder = {
             folder.src + "js/pages/ecommerce-add-product.init.js",
             folder.src + "js/pages/ecommerce-cart.init.js",
             folder.src + "js/pages/ecommerce-datatables.init.js",
-            folder.src + "js/pages/email-editor.init.js",
             folder.src + "js/pages/flot.init.js",
             folder.src + "js/pages/fontawesome.init.js",
             folder.src + "js/pages/form-advanced.init.js",
-            folder.src + "js/pages/form-editor.init.js",
             folder.src + "js/pages/form-mask.init.js",
             folder.src + "js/pages/form-repeater.int.js",
             folder.src + "js/pages/form-validation.init.js",
