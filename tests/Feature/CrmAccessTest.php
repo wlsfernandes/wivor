@@ -52,7 +52,9 @@ class CrmAccessTest extends TestCase
             ->get(route('admin.dashboard'))
             ->assertSee(route('admin.crm.dashboard'), false)
             ->assertSee(route('admin.crm.contacts.index'), false)
-            ->assertSee(route('admin.crm.imports.index'), false);
+            ->assertSee(route('admin.crm.imports.index'), false)
+            ->assertSee(route('admin.crm.campaigns.index'), false)
+            ->assertSee(route('admin.crm.templates.index'), false);
     }
 
     private function admin(): User

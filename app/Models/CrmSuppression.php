@@ -22,6 +22,9 @@ class CrmSuppression extends Model
     public const REASON_COMPLAINT = 'complaint';
     public const REASON_MANUAL = 'manual';
 
+    /** Suppresses every category, used for bounces and spam complaints. */
+    public const CATEGORY_ALL = 'all';
+
     /** @var list<string> */
     protected $fillable = [
         'crm_contact_id',

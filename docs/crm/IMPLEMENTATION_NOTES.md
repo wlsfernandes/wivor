@@ -56,14 +56,24 @@ All `down()` methods drop the tables, so the migrations are reversible. Money is
 - The "Email Participants" shortcut is left out until Phase 3 builds campaigns, instead of linking to a placeholder.
 - Upload files are deleted 30 days after an import finishes; imports never started within 30 days are marked failed and their file deleted.
 
-## 6. Open risks
+## 6. Phase 3 decisions (2026-10-29)
+
+- Editor: Quill 2 (`quill` npm, copied to `public/assets/libs/quill` like other vendor libs). `symfony/html-sanitizer` cleans HTML on save (placeholder links allowed) and again on render (absolute links only).
+- Event / photo notifications: sent only to participants of selected events; unknown consent allowed; any operational or global opt-out/suppression blocks. Promotions and newsletters need granted, unrevoked marketing consent scoped to WiVor or a selected event; any marketing revocation blocks.
+- Event placeholders (`event_name`, `event_date`, `event_url`, `photo_gallery_url`, `bib_number`) are rejected unless exactly one event is selected.
+- Postal address comes from `CRM_POSTAL_ADDRESS`; scheduling is blocked while it is empty. Default (owner-provided, 2026-10-29): 382 Scarlet Rose Way, Hoschton, GA 30548. Transactional emails read the same value, replacing the old hardcoded Decatur address.
+- Send times are entered and shown in Eastern time (`CrmCampaign::SCHEDULE_TIMEZONE`, America/New_York) and stored in UTC.
+- Unused TinyMCE 5 (theme leftover, out of support) was removed; Quill is the only editor.
+- Scheduled campaigns are not sent until Phase 4 adds the dispatcher; recipients stay `pending`.
+
+## 7. Open risks
 
 - Marketing consent for imported participants is unknown; promotional/newsletter sending will be blocked for every imported contact until real evidence exists.
 - Queue default `sync` in config: if production `.env` also says `sync`, imports and sends would run inside web requests. Must confirm production uses `database`.
 - Running CRM sends through the same SMTP account as receipts and password resets: quotas must reserve capacity for transactional mail.
 - SMTP acceptance is the only delivery signal available unless the provider offers webhooks.
 
-## 7. Task checklist
+## 8. Task checklist
 
 - [x] Inspect framework, events, roles, mail, queue, scheduler, UI, tests
 - [x] Document architecture and collisions (this file)
@@ -71,6 +81,6 @@ All `down()` methods drop the tables, so the migrations are reversible. Money is
 - [x] Approve schema and new dependencies (2026-10-29: tables approved; `symfony/html-sanitizer` approved, installed in Phase 3 when first used)
 - [x] Phase 1: migration `2026_10_29_000000_create_crm_directory_tables`, models, `access-admin` gate reuse, CRM dashboard, tests
 - [x] Phase 2: CSV upload (private `local` disk, 5 MB, encoding and delimiter detection), column mapping with presets, preview, queued idempotent import (`ProcessCrmImport`), status/retry, spreadsheet-safe error report, contacts and event participant pages, admin-only event shortcuts, `crm:import-buyers`, daily `crm:purge-import-files` (30-day retention)
-- [ ] Phase 3: consent, audiences, templates, campaigns
+- [x] Phase 3: eligibility rules (`CrmAudienceBuilder`), templates, campaigns with Quill editor and sanitized HTML source, personalization allowlist, sandboxed desktop/mobile preview, test send to the signed-in admin only, schedule/unschedule/cancel with recipient snapshot
 - [ ] Phase 4: delivery policy, dispatcher, unsubscribe
 - [ ] Phase 5: reporting, QA, rollout docs

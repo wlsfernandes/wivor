@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\CrmCampaignActionController as AdminCrmCampaignActionController;
+use App\Http\Controllers\Admin\CrmCampaignController as AdminCrmCampaignController;
 use App\Http\Controllers\Admin\CrmContactController as AdminCrmContactController;
 use App\Http\Controllers\Admin\CrmDashboardController as AdminCrmDashboardController;
 use App\Http\Controllers\Admin\CrmEventParticipantController as AdminCrmEventParticipantController;
 use App\Http\Controllers\Admin\CrmImportController as AdminCrmImportController;
 use App\Http\Controllers\Admin\CrmImportMappingController as AdminCrmImportMappingController;
+use App\Http\Controllers\Admin\CrmTemplateController as AdminCrmTemplateController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -87,4 +90,17 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
     Route::post('/admin/crm/imports/{import}/start', [AdminCrmImportController::class, 'start'])->name('admin.crm.imports.start');
     Route::post('/admin/crm/imports/{import}/retry', [AdminCrmImportController::class, 'retry'])->name('admin.crm.imports.retry');
     Route::get('/admin/crm/imports/{import}/errors', [AdminCrmImportController::class, 'downloadErrors'])->name('admin.crm.imports.errors');
+
+    Route::resource('/admin/crm/templates', AdminCrmTemplateController::class)
+        ->names('admin.crm.templates')
+        ->except('show');
+    Route::resource('/admin/crm/campaigns', AdminCrmCampaignController::class)
+        ->names('admin.crm.campaigns');
+    Route::get('/admin/crm/campaigns/{campaign}/preview', [AdminCrmCampaignActionController::class, 'preview'])->name('admin.crm.campaigns.preview');
+    Route::post('/admin/crm/campaigns/{campaign}/test-send', [AdminCrmCampaignActionController::class, 'testSend'])
+        ->middleware('throttle:5,1')
+        ->name('admin.crm.campaigns.test-send');
+    Route::post('/admin/crm/campaigns/{campaign}/schedule', [AdminCrmCampaignActionController::class, 'schedule'])->name('admin.crm.campaigns.schedule');
+    Route::post('/admin/crm/campaigns/{campaign}/unschedule', [AdminCrmCampaignActionController::class, 'unschedule'])->name('admin.crm.campaigns.unschedule');
+    Route::post('/admin/crm/campaigns/{campaign}/cancel', [AdminCrmCampaignActionController::class, 'cancel'])->name('admin.crm.campaigns.cancel');
 });

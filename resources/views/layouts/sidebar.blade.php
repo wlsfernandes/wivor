@@ -87,6 +87,8 @@
                             <li><a href="{{ route('admin.crm.dashboard') }}">Dashboard</a></li>
                             <li><a href="{{ route('admin.crm.contacts.index') }}">All Contacts</a></li>
                             <li><a href="{{ route('admin.crm.imports.index') }}">CSV Imports</a></li>
+                            <li><a href="{{ route('admin.crm.campaigns.index') }}">Email Campaigns</a></li>
+                            <li><a href="{{ route('admin.crm.templates.index') }}">Email Templates</a></li>
                         </ul>
                     </li>
                     <li>

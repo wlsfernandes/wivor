@@ -7,6 +7,7 @@
         <div class="d-flex gap-2">
             <a href="{{ route('admin.crm.events.participants', $event) }}" class="btn btn-outline-secondary">Participants</a>
             <a href="{{ route('admin.crm.imports.create', $event) }}" class="btn btn-outline-primary">Import Participants</a>
+            <a href="{{ route('admin.crm.campaigns.create', ['event_id' => $event->id]) }}" class="btn btn-outline-primary">Email Participants</a>
             <form method="POST" action="{{ route('admin.media.close', $event) }}" onsubmit="return confirm('Close this gallery now?')">@csrf<button class="btn btn-outline-danger">Close gallery</button></form>
         </div>
     </div>

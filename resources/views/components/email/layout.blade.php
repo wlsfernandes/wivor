@@ -1,4 +1,4 @@
-@props(['title' => 'WivorPhotos'])
+@props(['title' => 'WivorPhotos', 'postalAddress' => null, 'footerNotice' => null])
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
@@ -95,9 +95,9 @@
                     </tr>
                     <tr>
                         <td class="email-footer-cell" align="center" style="background-color: #232323; border-top: 1px solid #3a3a3a; padding: 30px 36px;">
+                            {{ $footerNotice }}
                             <p style="color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; margin: 0 0 14px; text-align: center;">
-                                160 Clairemont Ave., Suite 300<br>
-                                Decatur, GA 30030
+                                {!! nl2br(e($postalAddress ?? config('crm.postal_address'))) !!}
                             </p>
                             <p style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; margin: 0 0 20px; text-align: center;">
                                 <a href="mailto:{{ config('contact.email') }}" style="color: #ff8a3d; text-decoration: underline;">{{ config('contact.email') }}</a>
