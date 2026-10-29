@@ -150,6 +150,34 @@ class Event extends Model
         return $query->where('status', self::STATUS_PUBLISHED);
     }
 
+    /** Limit a query to events whose photos are public and still on sale. */
+    public function scopePhotosLive(Builder $query): Builder
+    {
+        return $query->where('photos_live_at', '<=', now())
+            ->where(fn (Builder $query) => $query->whereNull('sales_close_at')->orWhere('sales_close_at', '>', now()));
+    }
+
+    /** Limit a query to events without live photos that take place today or later, or have no date yet. */
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        return $this->scopeWithoutLivePhotos($query)
+            ->where(fn (Builder $query) => $query->whereNull('date_of_event')->orWhereDate('date_of_event', '>=', today()));
+    }
+
+    /** Limit a query to events without live photos that took place before today. */
+    public function scopePast(Builder $query): Builder
+    {
+        return $this->scopeWithoutLivePhotos($query)->whereDate('date_of_event', '<', today());
+    }
+
+    /** Limit a query to events that the photosLive scope excludes. */
+    public function scopeWithoutLivePhotos(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $query) => $query->whereNull('photos_live_at')
+            ->orWhere('photos_live_at', '>', now())
+            ->orWhere('sales_close_at', '<=', now()));
+    }
+
     /** Search public event fields using a single search term. */
     public function scopeSearch(Builder $query, ?string $search): Builder
     {

@@ -68,6 +68,36 @@ class EventMvpTest extends TestCase
             ->assertDontSee('Boston Draft Event');
     }
 
+    public function test_public_directory_groups_events_into_live_upcoming_and_past(): void
+    {
+        $published = ['status' => Event::STATUS_PUBLISHED, 'published' => true];
+        $this->createEvent($published + ['title' => 'Live Photos Run', 'date_of_event' => now()->subDays(3), 'photos_live_at' => now()->subDay()]);
+        $this->createEvent($published + ['title' => 'Next Month Ride', 'date_of_event' => now()->addMonth()]);
+        $this->createEvent($published + ['title' => 'Undated Swim', 'date_of_event' => null]);
+        $this->createEvent($published + ['title' => 'Old Trail Race', 'date_of_event' => now()->subMonth()]);
+        $this->createEvent($published + ['title' => 'Closed Sales Race', 'date_of_event' => now()->subMonths(2), 'photos_live_at' => now()->subMonth(), 'sales_close_at' => now()->subDay()]);
+
+        $this->get(route('events.listEvents'))
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Photos are live', 'Live Photos Run', 'Find your photos',
+                'Upcoming events', 'Next Month Ride', 'Undated Swim',
+                'Past events', 'Old Trail Race', 'Closed Sales Race',
+            ]);
+    }
+
+    public function test_public_directory_omits_empty_groups(): void
+    {
+        $this->createEvent(['status' => Event::STATUS_PUBLISHED, 'published' => true, 'title' => 'Old Trail Race', 'date_of_event' => now()->subMonth()]);
+
+        $this->get(route('events.listEvents'))
+            ->assertOk()
+            ->assertSee('Past events')
+            ->assertDontSee('Photos are live')
+            ->assertDontSee('Upcoming events')
+            ->assertDontSee('No events match your search');
+    }
+
     public function test_draft_event_is_not_public_but_published_event_is(): void
     {
         $event = $this->createEvent(['title' => 'Private Draft']);

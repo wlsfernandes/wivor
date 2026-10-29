@@ -57,33 +57,56 @@
             </div>
         </form>
 
-        <div class="row g-4">
-            @forelse ($events as $event)
-                <div class="col-md-6 col-lg-4">
-                    <article class="card h-100 shadow-sm border-0">
-                        <a href="{{ route('events.show', ['event' => $event->slug]) }}">
-                            <img src="{{ $event->cover_url }}" class="card-img-top" alt="Cover for {{ $event->title }}" style="height: 240px; object-fit: cover;">
-                        </a>
-                        <div class="card-body d-flex flex-column">
-                            <span class="text-uppercase small fw-semibold text-primary">{{ $event->sport_label }}</span>
-                            <h2 class="h5 mt-2"><a class="text-decoration-none" href="{{ route('events.show', ['event' => $event->slug]) }}">{{ $event->title }}</a></h2>
-                            <p class="text-muted mb-2">{{ $event->date_label }}</p>
-                            <p class="text-muted mb-3">{{ $event->location_label }}</p>
-                            <p class="fw-semibold mt-auto mb-0">{{ $event->public_availability_label }}</p>
-                        </div>
-                    </article>
-                </div>
-            @empty
-                <div class="col-12">
-                    <div class="alert alert-light border text-center py-5">
-                        <h2 class="h5">No events match your search</h2>
-                        <p class="text-muted mb-3">Try removing a filter or searching for a different event, city, or sport.</p>
-                        <a class="btn btn-outline-primary" href="{{ route('events.listEvents') }}">Clear filters</a>
-                    </div>
-                </div>
-            @endforelse
-        </div>
+        @if ($liveEvents->isEmpty() && $upcomingEvents->isEmpty() && $pastEvents->isEmpty())
+            <div class="alert alert-light border text-center py-5">
+                <h2 class="h5">No events match your search</h2>
+                <p class="text-muted mb-3">Try removing a filter or searching for a different event, city, or sport.</p>
+                <a class="btn btn-outline-primary" href="{{ route('events.listEvents') }}">Clear filters</a>
+            </div>
+        @endif
 
-        <div class="mt-5">{{ $events->links() }}</div>
+        @if ($liveEvents->isNotEmpty())
+            <section class="wv-events-group wv-events-group--live" aria-labelledby="live-events-heading">
+                <header class="wv-events-group__head">
+                    <h2 class="wv-events-group__title" id="live-events-heading"><span class="wv-live-dot" aria-hidden="true"></span>Photos are live</h2>
+                    <p class="wv-events-group__count">{{ trans_choice('{1} 1 event|[2,*] :count events', $liveEvents->count()) }}</p>
+                </header>
+                <p class="wv-events-group__note">Open an event to find and buy your photos.</p>
+                <div class="wv-events-grid">
+                    @foreach ($liveEvents as $event)
+                        @include('frontend.v1.events._event-card', ['event' => $event, 'isLive' => true])
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if ($upcomingEvents->isNotEmpty())
+            <section class="wv-events-group" aria-labelledby="upcoming-events-heading">
+                <header class="wv-events-group__head">
+                    <h2 class="wv-events-group__title" id="upcoming-events-heading">Upcoming events</h2>
+                    <p class="wv-events-group__count">{{ trans_choice('{1} 1 event|[2,*] :count events', $upcomingEvents->count()) }}</p>
+                </header>
+                <div class="wv-events-grid">
+                    @foreach ($upcomingEvents as $event)
+                        @include('frontend.v1.events._event-card', ['event' => $event])
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if ($pastEvents->isNotEmpty())
+            <section class="wv-events-group wv-events-group--past" aria-labelledby="past-events-heading">
+                <header class="wv-events-group__head">
+                    <h2 class="wv-events-group__title" id="past-events-heading">Past events</h2>
+                    <p class="wv-events-group__count">{{ trans_choice('{1} 1 event|[2,*] :count events', $pastEvents->total()) }}</p>
+                </header>
+                <div class="wv-events-grid">
+                    @foreach ($pastEvents as $event)
+                        @include('frontend.v1.events._event-card', ['event' => $event])
+                    @endforeach
+                </div>
+                <div class="mt-5">{{ $pastEvents->links() }}</div>
+            </section>
+        @endif
     </main>
 @endsection

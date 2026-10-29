@@ -81,17 +81,21 @@ class EventController extends Controller
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ]);
 
-        $events = Event::query()
+        $filteredEvents = fn () => Event::query()
             ->published()
             ->search($filters['search'] ?? null)
             ->when(isset($filters['state']), fn ($query) => $query->where('state', strtoupper($filters['state'])))
             ->when(isset($filters['city']), fn ($query) => $query->where('city', $filters['city']))
             ->when(isset($filters['sport']), fn ($query) => $query->where('sport', $filters['sport']))
             ->when(isset($filters['date_from']), fn ($query) => $query->whereDate('date_of_event', '>=', $filters['date_from']))
-            ->when(isset($filters['date_to']), fn ($query) => $query->whereDate('date_of_event', '<=', $filters['date_to']))
-            ->orderByDesc('date_of_event')
-            ->paginate(12)
-            ->withQueryString();
+            ->when(isset($filters['date_to']), fn ($query) => $query->whereDate('date_of_event', '<=', $filters['date_to']));
+
+        $pastEvents = $filteredEvents()->past()->orderByDesc('date_of_event')->paginate(12)->withQueryString();
+
+        // Live and upcoming events lead the first page only, so later pages continue the past list.
+        $isFirstPage = $pastEvents->onFirstPage();
+        $liveEvents = $isFirstPage ? $filteredEvents()->photosLive()->orderByDesc('photos_live_at')->get() : collect();
+        $upcomingEvents = $isFirstPage ? $filteredEvents()->upcoming()->orderByRaw('date_of_event IS NULL')->orderBy('date_of_event')->get() : collect();
 
         $filterOptions = [
             'states' => Event::published()->whereNotNull('state')->distinct()->orderBy('state')->pluck('state'),
@@ -100,7 +104,9 @@ class EventController extends Controller
         ];
 
         return view('frontend.v1.events.index', [
-            'events' => $events,
+            'liveEvents' => $liveEvents,
+            'upcomingEvents' => $upcomingEvents,
+            'pastEvents' => $pastEvents,
             'filters' => $filters,
             'filterOptions' => $filterOptions,
             'layout' => 'frontend.v1.layouts.app',

@@ -336,3 +336,86 @@ body :is(h1, h2, h3, h4, h5, h6, p, a, li, label, input, select, textarea, butto
     .wv-cookie { right: auto; max-width: 360px; }
     .wv-cookie__button { flex: 0 0 auto; }
 }
+
+/* Event directory: live, upcoming and past groups. */
+.wv-events-group { margin-bottom: 56px; }
+
+/* Divider: heading and count over a thin bar that starts with a short orange segment. */
+.wv-events-group__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+    background: linear-gradient(to right, var(--wv-orange) 0 56px, var(--wv-border) 56px) bottom / 100% 2px no-repeat;
+}
+
+.wv-events-group__title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; line-height: 1.2; color: var(--wv-slate); }
+.wv-events-group__count { margin: 0; font-size: 14px; color: #6b7280; white-space: nowrap; }
+.wv-events-group__note { margin: -12px 0 24px; font-size: 15px; }
+
+.wv-events-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+
+@media (min-width: 768px) { .wv-events-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 992px) { .wv-events-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* Live group: slate panel so it stands apart from the rest of the page. */
+.wv-events-group--live {
+    padding: 28px 20px;
+    background: var(--wv-slate);
+    border-radius: calc(var(--wv-radius) * 2);
+}
+
+.wv-events-group--live .wv-events-group__head {
+    background-image: linear-gradient(to right, var(--wv-orange) 0 56px, rgba(255, 255, 255, 0.2) 56px);
+}
+
+.wv-events-group--live :is(.wv-events-group__title, .wv-events-group__note) { color: var(--wv-white); }
+.wv-events-group--live .wv-events-group__count { color: rgba(255, 255, 255, 0.7); }
+
+@media (min-width: 992px) { .wv-events-group--live { padding: 40px; } }
+
+.wv-live-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--wv-orange);
+    box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.6);
+    animation: wv-live-pulse 2s ease-out infinite;
+}
+
+@keyframes wv-live-pulse {
+    to { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) { .wv-live-dot { animation: none; } }
+
+/* Event card */
+.wv-event-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--wv-white);
+    border: 1px solid var(--wv-border);
+    border-radius: var(--wv-radius);
+}
+
+.wv-events-group--live .wv-event-card { border-color: transparent; }
+
+.wv-event-card__media img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+
+.wv-event-card__body { display: flex; flex-direction: column; flex: 1; padding: 20px; }
+.wv-event-card__sport { margin: 0 0 6px; font-size: 14px; color: var(--wv-orange); }
+.wv-event-card__title { margin: 0 0 8px; font-size: 20px; line-height: 1.3; }
+.wv-event-card__title a { color: var(--wv-slate); text-decoration: none; }
+.wv-event-card__title a:hover { color: var(--wv-orange); }
+.wv-event-card__meta { margin: 0 0 16px; font-size: 15px; line-height: 1.5; color: #6b7280; }
+.wv-event-card__status { margin: auto 0 0; font-size: 15px; color: var(--wv-slate); }
+.wv-event-card__action { margin-top: auto; align-self: flex-start; }
+
+/* Past events step back so the current ones lead. */
+.wv-events-group--past .wv-event-card__media img { filter: saturate(0.6); }
+
+.wv-event-card a:focus-visible { outline: 2px solid var(--wv-orange); outline-offset: 2px; }
