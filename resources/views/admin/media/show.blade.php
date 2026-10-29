@@ -4,7 +4,11 @@
 <div class="container-fluid py-4">
     <a href="{{ route('admin.media.index') }}">← Media operations</a>
     <div class="d-flex justify-content-between align-items-start mt-2 mb-4"><div><h1 class="h3">{{ $event->title }}</h1><p class="text-muted">{{ $event->date_label }} · {{ $event->location_label }}</p></div>
-        <form method="POST" action="{{ route('admin.media.close', $event) }}" onsubmit="return confirm('Close this gallery now?')">@csrf<button class="btn btn-outline-danger">Close gallery</button></form>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.crm.events.participants', $event) }}" class="btn btn-outline-secondary">Participants</a>
+            <a href="{{ route('admin.crm.imports.create', $event) }}" class="btn btn-outline-primary">Import Participants</a>
+            <form method="POST" action="{{ route('admin.media.close', $event) }}" onsubmit="return confirm('Close this gallery now?')">@csrf<button class="btn btn-outline-danger">Close gallery</button></form>
+        </div>
     </div>
     @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif

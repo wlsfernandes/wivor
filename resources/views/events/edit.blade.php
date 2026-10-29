@@ -46,6 +46,14 @@
                     </form>
                 </div>
             </div>
+
+            <div class="card mt-4">
+                <div class="card-header"><h2 class="h5 mb-0">Participants (CRM)</h2></div>
+                <div class="card-body d-flex gap-2">
+                    <a href="{{ route('admin.crm.events.participants', $event) }}" class="btn btn-outline-secondary">Participants</a>
+                    <a href="{{ route('admin.crm.imports.create', $event) }}" class="btn btn-outline-primary">Import Participants</a>
+                </div>
+            </div>
         @endcan
     </div>
 @endsection

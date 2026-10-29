@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\CrmContactController as AdminCrmContactController;
 use App\Http\Controllers\Admin\CrmDashboardController as AdminCrmDashboardController;
+use App\Http\Controllers\Admin\CrmEventParticipantController as AdminCrmEventParticipantController;
+use App\Http\Controllers\Admin\CrmImportController as AdminCrmImportController;
+use App\Http\Controllers\Admin\CrmImportMappingController as AdminCrmImportMappingController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -70,4 +74,17 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
         ->name('admin.website.policies.update');
 
     Route::get('/admin/crm', [AdminCrmDashboardController::class, 'index'])->name('admin.crm.dashboard');
+    Route::get('/admin/crm/contacts', [AdminCrmContactController::class, 'index'])->name('admin.crm.contacts.index');
+    Route::get('/admin/crm/contacts/{contact}', [AdminCrmContactController::class, 'show'])->name('admin.crm.contacts.show');
+    Route::get('/admin/crm/events/{event}/participants', [AdminCrmEventParticipantController::class, 'index'])->name('admin.crm.events.participants');
+    Route::get('/admin/crm/imports', [AdminCrmImportController::class, 'index'])->name('admin.crm.imports.index');
+    Route::get('/admin/crm/events/{event}/imports/create', [AdminCrmImportController::class, 'create'])->name('admin.crm.imports.create');
+    Route::post('/admin/crm/events/{event}/imports', [AdminCrmImportController::class, 'store'])->name('admin.crm.imports.store');
+    Route::get('/admin/crm/imports/{import}', [AdminCrmImportController::class, 'show'])->name('admin.crm.imports.show');
+    Route::get('/admin/crm/imports/{import}/mapping', [AdminCrmImportMappingController::class, 'edit'])->name('admin.crm.imports.mapping.edit');
+    Route::put('/admin/crm/imports/{import}/mapping', [AdminCrmImportMappingController::class, 'update'])->name('admin.crm.imports.mapping.update');
+    Route::get('/admin/crm/imports/{import}/preview', [AdminCrmImportMappingController::class, 'preview'])->name('admin.crm.imports.preview');
+    Route::post('/admin/crm/imports/{import}/start', [AdminCrmImportController::class, 'start'])->name('admin.crm.imports.start');
+    Route::post('/admin/crm/imports/{import}/retry', [AdminCrmImportController::class, 'retry'])->name('admin.crm.imports.retry');
+    Route::get('/admin/crm/imports/{import}/errors', [AdminCrmImportController::class, 'downloadErrors'])->name('admin.crm.imports.errors');
 });
