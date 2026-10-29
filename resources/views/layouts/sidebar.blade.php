@@ -89,6 +89,7 @@
                             <li><a href="{{ route('admin.crm.imports.index') }}">CSV Imports</a></li>
                             <li><a href="{{ route('admin.crm.campaigns.index') }}">Email Campaigns</a></li>
                             <li><a href="{{ route('admin.crm.templates.index') }}">Email Templates</a></li>
+                            <li><a href="{{ route('admin.crm.manual') }}">CRM Manual</a></li>
                         </ul>
                     </li>
                     <li>
