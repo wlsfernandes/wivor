@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('media:enforce-retention')->dailyAt('02:15')->withoutOverlapping();
+        $schedule->command('crm:purge-import-files')->dailyAt('02:45')->withoutOverlapping();
     }
 
     /**
