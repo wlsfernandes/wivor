@@ -48,23 +48,29 @@ All `down()` methods drop the tables, so the migrations are reversible. Money is
 - Buyer emails from orders and customers join the CRM. A purchase does not count as marketing consent.
 - Event shortcuts (Import / Email Participants): admin only.
 
-## 5. Open risks
+## 5. Phase 2 behavior worth knowing
+
+- Import never overwrites a contact's existing name or phone; it only fills empty values. Event-specific bib, division and extra fields take the newest non-blank value.
+- "Granted" consent requires written evidence, a category and a scope (this event or WiVor). An import never re-grants a category the person revoked or is suppressed from.
+- `crm:import-buyers` takes customer accounts and **paid** order emails only. It records no consent and no event participation. It is a manual command, not scheduled.
+- The "Email Participants" shortcut is left out until Phase 3 builds campaigns, instead of linking to a placeholder.
+- Upload files are deleted 30 days after an import finishes; imports never started within 30 days are marked failed and their file deleted.
+
+## 6. Open risks
 
 - Marketing consent for imported participants is unknown; promotional/newsletter sending will be blocked for every imported contact until real evidence exists.
 - Queue default `sync` in config: if production `.env` also says `sync`, imports and sends would run inside web requests. Must confirm production uses `database`.
 - Running CRM sends through the same SMTP account as receipts and password resets: quotas must reserve capacity for transactional mail.
 - SMTP acceptance is the only delivery signal available unless the provider offers webhooks.
 
-## 6. Task checklist
+## 7. Task checklist
 
 - [x] Inspect framework, events, roles, mail, queue, scheduler, UI, tests
 - [x] Document architecture and collisions (this file)
 - [ ] Confirm SMTP provider, quotas, SPF/DKIM/DMARC, feedback options (needs owner input)
 - [x] Approve schema and new dependencies (2026-10-29: tables approved; `symfony/html-sanitizer` approved, installed in Phase 3 when first used)
 - [x] Phase 1: migration `2026_10_29_000000_create_crm_directory_tables`, models, `access-admin` gate reuse, CRM dashboard, tests
-- [ ] Phase 2: `crm_mapping_presets` table (moved from Phase 1 so it ships with the preset feature)
-- [ ] Phase 2: import existing buyer emails (`orders.customer_email`, `customers`) with consent status unknown
-- [ ] Phase 2: CSV upload, mapping, preview, queued import, contacts UI
+- [x] Phase 2: CSV upload (private `local` disk, 5 MB, encoding and delimiter detection), column mapping with presets, preview, queued idempotent import (`ProcessCrmImport`), status/retry, spreadsheet-safe error report, contacts and event participant pages, admin-only event shortcuts, `crm:import-buyers`, daily `crm:purge-import-files` (30-day retention)
 - [ ] Phase 3: consent, audiences, templates, campaigns
 - [ ] Phase 4: delivery policy, dispatcher, unsubscribe
 - [ ] Phase 5: reporting, QA, rollout docs
