@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $data_source
  * @property string|null $organizer_name
  * @property string $consent_status
+ * @property string|null $consent_category
+ * @property string|null $consent_scope
  * @property string|null $consent_evidence
  * @property string $status
  * @property int $total_rows
@@ -27,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $error_report_path
  * @property \Illuminate\Support\Carbon|null $started_at
  * @property \Illuminate\Support\Carbon|null $finished_at
+ * @property \Illuminate\Support\Carbon|null $files_purged_at
  */
 class CrmImport extends Model
 {
@@ -35,6 +38,9 @@ class CrmImport extends Model
     public const STATUS_RUNNING = 'running';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_FAILED = 'failed';
+
+    public const CONSENT_SCOPE_EVENT = 'event';
+    public const CONSENT_SCOPE_WIVOR = 'wivor';
 
     /** @var list<string> */
     protected $fillable = [
@@ -47,6 +53,8 @@ class CrmImport extends Model
         'data_source',
         'organizer_name',
         'consent_status',
+        'consent_category',
+        'consent_scope',
         'consent_evidence',
     ];
 
@@ -55,6 +63,7 @@ class CrmImport extends Model
         'mapping' => 'array',
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
+        'files_purged_at' => 'datetime',
     ];
 
     public function event(): BelongsTo

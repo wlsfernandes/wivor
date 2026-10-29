@@ -16,11 +16,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $last_name
  * @property string|null $full_name
  * @property string|null $phone
+ * @property string|null $first_source
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class CrmContact extends Model
 {
+    public const SOURCE_CSV_IMPORT = 'csv_import';
+    public const SOURCE_ORDER = 'order';
+    public const SOURCE_CUSTOMER_ACCOUNT = 'customer_account';
+
     /** @var list<string> */
     protected $fillable = [
         'email_normalized',
@@ -29,6 +34,7 @@ class CrmContact extends Model
         'last_name',
         'full_name',
         'phone',
+        'first_source',
     ];
 
     /** Build the matching key used to deduplicate contacts across imports. */
