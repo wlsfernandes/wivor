@@ -71,7 +71,21 @@
                                 <td>{{ $event->sport_label }}</td>
                                 <td>{{ $event->date_label }}</td>
                                 <td>{{ $event->location_label }}</td>
-                                <td>{{ $event->photos_live_label }}</td>
+                                <td>
+                                    @can('update', $event)
+                                        <form method="POST" action="{{ route('events.photos-live', ['event' => $event->id]) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <div class="form-check form-switch mb-0">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="photos-live-{{ $event->id }}"
+                                                    @checked($event->has_live_photos) onchange="this.form.submit()">
+                                                <label class="form-check-label small" for="photos-live-{{ $event->id }}">{{ $event->photos_live_label }}</label>
+                                            </div>
+                                        </form>
+                                    @else
+                                        {{ $event->photos_live_label }}
+                                    @endcan
+                                </td>
                                 <td><span class="badge bg-secondary">{{ $event->status_label }}</span></td>
                                 <td>
                                     <div class="d-flex flex-wrap justify-content-end gap-2">

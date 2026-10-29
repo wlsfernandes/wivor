@@ -258,6 +258,12 @@ class Event extends Model
         return $this->status === self::STATUS_PUBLISHED;
     }
 
+    /** Indicate whether the event's photos have gone live. */
+    public function getHasLivePhotosAttribute(): bool
+    {
+        return $this->photos_live_at !== null && ! $this->photos_live_at->isFuture();
+    }
+
     /** Indicate whether the event is archived. */
     public function getIsArchivedAttribute(): bool
     {

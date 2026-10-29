@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
     Route::patch('/events/{event}/publish', [EventController::class, 'publish'])->name('events.publish');
+    Route::patch('/events/{event}/photos-live', [EventController::class, 'togglePhotosLive'])->name('events.photos-live');
     Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
     Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');

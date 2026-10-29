@@ -338,6 +338,17 @@ class EventController extends Controller
         return back()->with('success', $publish ? 'Event published successfully.' : 'Event unpublished successfully.');
     }
 
+    /** Turn an event's live photos off, or make them live now, without changing whether the event is public. */
+    public function togglePhotosLive(Event $event): RedirectResponse
+    {
+        Gate::authorize('update', $event);
+
+        $makeLive = ! $event->has_live_photos;
+        $event->update(['photos_live_at' => $makeLive ? now() : null]);
+
+        return back()->with('success', $makeLive ? 'Photos are live.' : 'Photos are no longer live.');
+    }
+
     /** Assign an approved photographer to an event with upload access. */
     public function assignPhotographer(Request $request, Event $event): RedirectResponse
     {

@@ -241,6 +241,62 @@ class EventMvpTest extends TestCase
         $this->get(route('events.show', ['event' => $event->slug]))->assertNotFound();
     }
 
+    public function test_owner_can_turn_live_photos_off_and_on_while_event_stays_public(): void
+    {
+        [$owner, $photographer] = $this->createPhotographerUser();
+        $event = $this->createEvent(['status' => Event::STATUS_PUBLISHED, 'published' => true, 'photos_live_at' => now()->subDay()]);
+        $event->photographers()->attach($photographer);
+
+        $this->actingAs($owner)
+            ->patch(route('events.photos-live', ['event' => $event->id]))
+            ->assertRedirect()
+            ->assertSessionHas('success', 'Photos are no longer live.');
+
+        $event->refresh();
+        $this->assertNull($event->photos_live_at);
+        $this->assertSame(Event::STATUS_PUBLISHED, $event->status);
+
+        $this->actingAs($owner)
+            ->patch(route('events.photos-live', ['event' => $event->id]))
+            ->assertSessionHas('success', 'Photos are live.');
+
+        $this->assertTrue($event->refresh()->has_live_photos);
+    }
+
+    public function test_turning_photos_live_on_replaces_a_future_schedule_with_now(): void
+    {
+        $event = $this->createEvent(['photos_live_at' => now()->addWeek()]);
+
+        $this->actingAs($this->createAdminUser())
+            ->patch(route('events.photos-live', ['event' => $event->id]))
+            ->assertRedirect();
+
+        $this->assertTrue($event->refresh()->has_live_photos);
+    }
+
+    public function test_unassigned_user_cannot_toggle_live_photos(): void
+    {
+        [$stranger] = $this->createPhotographerUser();
+        $event = $this->createEvent(['photos_live_at' => now()->subDay()]);
+
+        $this->actingAs($stranger)
+            ->patch(route('events.photos-live', ['event' => $event->id]))
+            ->assertForbidden();
+
+        $this->assertNotNull($event->refresh()->photos_live_at);
+    }
+
+    public function test_manage_events_shows_a_live_photos_switch(): void
+    {
+        $event = $this->createEvent(['title' => 'Switch Race', 'photos_live_at' => now()->subDay()]);
+
+        $this->actingAs($this->createAdminUser())
+            ->get(route('events.index'))
+            ->assertOk()
+            ->assertSee('action="'.route('events.photos-live', ['event' => $event->id]).'"', false)
+            ->assertSee('role="switch"', false);
+    }
+
     public function test_admin_can_assign_and_approve_a_photographer_for_an_event(): void
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
