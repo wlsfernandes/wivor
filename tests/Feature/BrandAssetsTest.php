@@ -55,6 +55,14 @@ class BrandAssetsTest extends TestCase
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $stylesheet);
     }
 
+    public function test_link_underlines_override_the_template_rule_that_removes_them(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        $this->assertDoesNotMatchRegularExpression('/text-decoration: underline;/', $stylesheet);
+        $this->assertStringContainsString('text-decoration: underline !important', $stylesheet);
+    }
+
     public function test_brand_stylesheet_shows_keyboard_focus_on_header_footer_and_faq_controls(): void
     {
         $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));

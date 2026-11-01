@@ -151,8 +151,8 @@ body {
 
 .wv-link { color: var(--wivor-accent); font-weight: 600; text-decoration: none; }
 .wv-link:hover,
-.wv-link:focus-visible { color: var(--wivor-accent-hover); text-decoration: underline; }
-.wv-section--dark .wv-link { color: var(--wivor-on-dark); text-decoration: underline; }
+.wv-link:focus-visible { color: var(--wivor-accent-hover); text-decoration: underline !important; }
+.wv-section--dark .wv-link { color: var(--wivor-on-dark); text-decoration: underline !important; }
 
 /* FAQ accordion (native <details>) */
 .wv-faq details {
@@ -235,7 +235,7 @@ body {
 }
 
 .wv-header__nav a:hover,
-.wv-header__nav a.is-current { color: var(--wivor-accent); text-decoration: underline; text-underline-offset: 6px; }
+.wv-header__nav a.is-current { color: var(--wivor-accent); text-decoration: underline !important; text-underline-offset: 6px; }
 
 .wv-header__utility { display: flex; gap: 20px; border-top: 1px solid var(--wivor-border); margin-top: 8px; }
 
@@ -300,7 +300,7 @@ body {
 }
 
 .wv-footer nav a:hover,
-.wv-footer__social a:hover { color: var(--wivor-on-dark); text-decoration: underline; }
+.wv-footer__social a:hover { color: var(--wivor-on-dark); text-decoration: underline !important; }
 
 .wv-footer__social { display: flex; gap: 16px; margin-top: 16px !important; font-size: 22px; }
 
@@ -314,9 +314,11 @@ body {
 
 .wv-footer__credit { margin: 8px 0 0; font-size: 13px; color: var(--wivor-on-dark-muted); }
 
-.wv-footer__credit a { color: var(--wivor-on-dark); text-decoration: underline; }
+.wv-footer__credit a { color: var(--wivor-on-dark); text-decoration: underline !important; }
 
 .wv-footer__credit a:hover { color: var(--wivor-surface); }
+
+/* Link underlines use !important because bootstrap.css sets a { text-decoration: none !important }. */
 
 /* Keyboard focus: the template CSS removes outlines globally. */
 .wv-header__nav a:focus-visible,
@@ -358,7 +360,7 @@ body {
 
 .wv-cookie__text { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--wivor-surface); }
 
-.wv-cookie__text a { color: var(--wivor-surface); text-decoration: underline; }
+.wv-cookie__text a { color: var(--wivor-surface); text-decoration: underline !important; }
 
 .wv-cookie__actions { display: flex; gap: 8px; }
 
@@ -526,7 +528,7 @@ body {
 
 .wv-hero__grid { display: grid; gap: 32px; }
 
-.wv-hero__title { font-size: 40px; font-weight: 800; line-height: 1.1; }
+.wv-hero__title { font-size: 40px; font-weight: 800; line-height: 1.1; text-wrap: balance; }
 
 .wv-hero .wv-search { margin-top: 24px; }
 
