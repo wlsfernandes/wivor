@@ -40,9 +40,9 @@ class FrontendTruthAlignmentTest extends TestCase
 
         $this->get(route('welcome'))
             ->assertOk()
-            ->assertSee('WiVor uses bib number recognition to match you with the photos photographers took of you at your event.')
-            ->assertSee('Bib number recognition finds your photos automatically.')
-            ->assertSee('Our platform identifies athletes using bib numbers.')
+            ->assertSee('Find your event, search by bib number, then preview and buy the photos you want.')
+            ->assertSee('Search this event by bib number, or browse every photo.')
+            ->assertSee('Read how WiVor handles your data in our')
             ->assertSee('Search by event name or bib number.')
             ->assertDontSee('Search by your name')
             ->assertDontSee('selfie')
