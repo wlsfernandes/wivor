@@ -63,6 +63,21 @@ class BrandAssetsTest extends TestCase
         $this->assertStringContainsString('text-decoration: underline !important', $stylesheet);
     }
 
+    public function test_hero_aligns_with_the_container_regardless_of_scrollbar_width(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        $this->assertStringNotContainsString('100vw', $stylesheet);
+    }
+
+    public function test_links_and_inputs_replace_the_slow_template_transition(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        $this->assertStringContainsString('.wv-link,', $stylesheet);
+        $this->assertStringContainsString('transition: color 0.16s ease, border-color 0.16s ease;', $stylesheet);
+    }
+
     public function test_brand_stylesheet_shows_keyboard_focus_on_header_footer_and_faq_controls(): void
     {
         $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));

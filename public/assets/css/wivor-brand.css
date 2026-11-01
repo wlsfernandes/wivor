@@ -518,8 +518,19 @@ body {
 .wv-badge--upcoming { background: var(--wivor-accent-subtle); color: var(--wivor-accent-hover); }
 .wv-badge--past { background: var(--wivor-surface-subtle); color: var(--wivor-muted); }
 
+/* The template animates every link for 500ms, which also delays focus rings. */
+.wv-link,
+.wv-header__nav a,
+.wv-footer a,
+.wv-input {
+    transition: color 0.16s ease, border-color 0.16s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .wv-btn,
+    .wv-link,
+    .wv-header__nav a,
+    .wv-footer a,
     .wv-input { transition: none; }
 }
 
@@ -597,7 +608,7 @@ body {
         gap: 56px;
         max-width: none;
         padding-right: 0;
-        padding-left: max(32px, calc((100vw - var(--wivor-content-width)) / 2 + 32px));
+        padding-left: max(32px, calc((100% - var(--wivor-content-width)) / 2 + 32px));
     }
 
     .wv-hero__title { font-size: clamp(2.5rem, 5vw, 4rem); }
