@@ -93,4 +93,22 @@ class BrandAssetsTest extends TestCase
             $this->assertStringContainsString($selector, $stylesheet);
         }
     }
+
+    public function test_hero_entrance_animates_only_opacity_and_transform(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        $this->assertMatchesRegularExpression('/@keyframes wv-hero-rise \{[^}]*opacity: 0;[^}]*transform: translateY\(12px\);[^}]*\}/', $stylesheet);
+        $this->assertMatchesRegularExpression('/@keyframes wv-hero-rule \{[^}]*transform: scaleX\(0\);[^}]*\}/', $stylesheet);
+    }
+
+    public function test_hero_entrance_stops_for_visitors_who_prefer_reduced_motion(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/@media \(prefers-reduced-motion: reduce\) \{\s*\.wv-hero__intro > \*,\s*\.wv-hero__title::after \{ animation: none; \}/',
+            $stylesheet
+        );
+    }
 }

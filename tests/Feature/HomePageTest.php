@@ -110,4 +110,10 @@ class HomePageTest extends TestCase
             ->assertDontSee('Free for athletes')
             ->assertDontSee('[Quote]');
     }
+
+    public function test_only_the_home_page_marks_the_hero_copy_for_its_entrance_animation(): void
+    {
+        $this->get(route('welcome'))->assertOk()->assertSee('class="wv-hero__intro"', false);
+        $this->get(route('faq'))->assertOk()->assertDontSee('wv-hero__intro', false);
+    }
 }

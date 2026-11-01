@@ -297,6 +297,7 @@ Build/refine **one** public visual language. Prefer existing Blade components / 
 
 - 120–240ms transitions for border, background, opacity and mild translate (1–2px max).
 - No autoplay hero videos, bouncy entrance animation or unnecessary parallax.
+- Exception: the homepage hero copy has one entrance on page load (fade, 12px rise, accent rule, under 700ms). No other page or section animates on entry.
 - Honor `prefers-reduced-motion: reduce`.
 - Keep focus indicators visible and error/loading states stable (avoid layout jumping).
 

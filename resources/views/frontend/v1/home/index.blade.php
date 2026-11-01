@@ -38,7 +38,7 @@
     {{-- Hero: dark text panel beside the race photo; copy and search come first on mobile. --}}
     <section class="wv-section wv-section--dark wv-hero">
         <div class="wv-container wv-hero__grid">
-            <div>
+            <div class="wv-hero__intro">
                 <h1 class="wv-h1 wv-hero__title">Your race. Your moment.</h1>
                 @if ($isFaceSearchEnabled)
                     <p class="wv-lead">Find your event, search by bib number or selfie, then preview and buy the photos you want.</p>
