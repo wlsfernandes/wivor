@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Event;
+use Illuminate\Database\Query\Grammars\PostgresGrammar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class HomePageTest extends TestCase
@@ -90,6 +93,35 @@ class HomePageTest extends TestCase
     public function test_empty_event_search_opens_the_full_event_list(): void
     {
         $this->get(route('events.listEvents', ['search' => '']))->assertOk();
+    }
+
+    public function test_event_search_matches_title_city_and_sport_on_postgresql_regardless_of_letter_case(): void
+    {
+        $searchQuery = Event::query()->search('marathon')->toBase();
+        $searchQuery->grammar = new PostgresGrammar(DB::connection());
+
+        $this->assertSame(3, substr_count($searchQuery->toSql(), ' ilike '));
+        $this->assertStringNotContainsString(' like ', $searchQuery->toSql());
+    }
+
+    public function test_event_search_finds_a_published_event_in_any_letter_case(): void
+    {
+        Event::create([
+            'title' => 'Boston Marathon',
+            'slug' => Event::generateUniqueSlug('Boston Marathon'),
+            'content' => '',
+            'status' => Event::STATUS_PUBLISHED,
+            'published' => true,
+            'published_at' => now(),
+            'date_of_event' => now(),
+            'price_cents' => 1000,
+        ]);
+
+        foreach (['marathon', 'MARATHON', 'Marathon'] as $searchText) {
+            $this->get(route('events.listEvents', ['search' => $searchText]))
+                ->assertOk()
+                ->assertSee('Boston Marathon');
+        }
     }
 
     public function test_event_search_escapes_markup_in_the_search_text(): void

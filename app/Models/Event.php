@@ -186,9 +186,9 @@ class Event extends Model
         }
 
         return $query->where(function (Builder $query) use ($search): void {
-            $query->where('title', 'like', "%{$search}%")
-                ->orWhere('city', 'like', "%{$search}%")
-                ->orWhere('sport', 'like', "%{$search}%");
+            $query->whereLike('title', "%{$search}%")
+                ->orWhereLike('city', "%{$search}%")
+                ->orWhereLike('sport', "%{$search}%");
         });
     }
 

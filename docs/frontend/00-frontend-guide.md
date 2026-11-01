@@ -94,8 +94,8 @@ Implement via existing CSS variables / Tailwind theme / design tokens, whichever
 | `--wivor-surface`        | `#FFFFFF` | Cards, controls, primary white sections                  |
 | `--wivor-surface-subtle` | `#F1F3F3` | Alternate light section backgrounds                      |
 | `--wivor-border`         | `#E1E6E7` | Dividers, borders, input outlines                        |
-| `--wivor-accent`         | `#C64526` | Main CTA, important active states, limited brand accents |
-| `--wivor-accent-hover`   | `#A5381C` | Hover/pressed CTA                                        |
+| `--wivor-accent`         | `#FF3D00` | Main CTA, important active states, limited brand accents |
+| `--wivor-accent-hover`   | `#C64526` | Hover/pressed CTA                                        |
 | `--wivor-accent-subtle`  | `#FFF0EA` | Warm highlight background, selected surfaces             |
 | `--wivor-on-dark`        | `#F7F8FA` | Headings on dark areas                                   |
 | `--wivor-on-dark-muted`  | `#DFE4E8` | Supporting text on dark areas                            |
@@ -107,7 +107,7 @@ Implement via existing CSS variables / Tailwind theme / design tokens, whichever
 
 1. Pages should usually be **80–90% visually neutral** (white, off-white, charcoal, actual images); orange is the interactive accent, not the page background.
 2. Keep primary text on light backgrounds dark; avoid weak gray text.
-3. Primary CTA: orange background `#C64526` with white label; this pairing has approximately **4.9:1** contrast. Validate in actual rendered states.
+3. Primary CTA: orange background `#FF3D00` with white label; this pairing has approximately **3.55:1** contrast, below the 4.5:1 button target in the accessibility section (owner decision). The `#C64526` hover state has approximately 4.9:1. Validate in actual rendered states.
 4. Dark hero sections: `#151B22` with white/off-white type. Don't place light gray text at reduced opacity until contrast is checked.
 5. Success badges use green only for real photo availability; **never imply "photos ready" for events with no gallery**.
 6. Avoid status meaning conveyed by color alone: include clear labels.
@@ -125,8 +125,8 @@ Implement via existing CSS variables / Tailwind theme / design tokens, whichever
     --wivor-surface: #ffffff;
     --wivor-surface-subtle: #f1f3f3;
     --wivor-border: #e1e6e7;
-    --wivor-accent: #c64526;
-    --wivor-accent-hover: #a5381c;
+    --wivor-accent: #ff3d00;
+    --wivor-accent-hover: #c64526;
     --wivor-accent-subtle: #fff0ea;
     --wivor-on-dark: #f7f8fa;
     --wivor-on-dark-muted: #dfe4e8;
@@ -742,6 +742,6 @@ If design decisions are ambiguous, **choose the smallest change consistent with 
 
 ## 21. Final instruction for `/frontend-design`
 
-> **Create a modern, trustworthy, deliberately designed frontend for WiVor Photos: an athlete-first, photography-led sports-event photo marketplace for weekend competitors, photographers and organizers. Use Manrope + Inter, charcoal/off-white surfaces, a restrained `#C64526` orange accent, generous whitespace, realistic sports photographs from authorized WiVor assets, and clear mobile-first search/purchase interactions. Build the master design system first; implement the homepage as the reference; then apply exactly the same system to every other public page in the specified order. Preserve the working Laravel backend, dynamic event data, biometric consent, photo selection, checkout, photographer application and legal content. No generic AI-generated website aesthetic, no unnecessary complexity and no speculative features.**
+> **Create a modern, trustworthy, deliberately designed frontend for WiVor Photos: an athlete-first, photography-led sports-event photo marketplace for weekend competitors, photographers and organizers. Use Manrope + Inter, charcoal/off-white surfaces, a restrained `#FF3D00` orange accent, generous whitespace, realistic sports photographs from authorized WiVor assets, and clear mobile-first search/purchase interactions. Build the master design system first; implement the homepage as the reference; then apply exactly the same system to every other public page in the specified order. Preserve the working Laravel backend, dynamic event data, biometric consent, photo selection, checkout, photographer application and legal content. No generic AI-generated website aesthetic, no unnecessary complexity and no speculative features.**
 
 **END OF MASTER SPECIFICATION.**

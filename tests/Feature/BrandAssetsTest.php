@@ -22,16 +22,25 @@ class BrandAssetsTest extends TestCase
 
         $specifiedColors = [
             '#151b22', '#28323d', '#34404c', '#596675', '#f7f8f6', '#ffffff', '#f1f3f3', '#e1e6e7',
-            '#c64526', '#a5381c', '#fff0ea', '#f7f8fa', '#dfe4e8', '#1d7755', '#1174b8', '#b42318',
+            '#ff3d00', '#c64526', '#fff0ea', '#f7f8fa', '#dfe4e8', '#1d7755', '#1174b8', '#b42318',
         ];
 
         foreach ($specifiedColors as $color) {
             $this->assertStringContainsString($color, $stylesheet);
         }
 
-        foreach (['#ff5722', '#ff7e55', '#303841', "'Alata'", '--wv-'] as $retiredValue) {
+        foreach (['#ff5722', '#ff7e55', '#303841', '#a5381c', "'Alata'", '--wv-'] as $retiredValue) {
             $this->assertStringNotContainsString($retiredValue, $stylesheet);
         }
+    }
+
+    public function test_main_accent_is_bright_orange_and_hover_is_the_deeper_orange(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        $this->assertStringContainsString('--wivor-accent: #ff3d00;', $stylesheet);
+        $this->assertStringContainsString('--wivor-accent-hover: #c64526;', $stylesheet);
+        $this->assertStringNotContainsString('198, 69, 38', $stylesheet);
     }
 
     public function test_portal_shares_the_accent_and_admin_layout_does_not_load_the_public_brand(): void
@@ -39,7 +48,7 @@ class BrandAssetsTest extends TestCase
         $portalLayout = file_get_contents(resource_path('views/portal/layouts/app-sidebar.blade.php'));
         $adminHead = file_get_contents(resource_path('views/layouts/head.blade.php'));
 
-        $this->assertStringContainsString('--photographer-accent: #c64526', $portalLayout);
+        $this->assertStringContainsString('--photographer-accent: #ff3d00', $portalLayout);
         $this->assertStringNotContainsString('wivor-brand', $adminHead);
     }
 

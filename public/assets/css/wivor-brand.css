@@ -12,8 +12,8 @@
     --wivor-surface: #ffffff;
     --wivor-surface-subtle: #f1f3f3;
     --wivor-border: #e1e6e7;
-    --wivor-accent: #c64526;
-    --wivor-accent-hover: #a5381c;
+    --wivor-accent: #ff3d00;
+    --wivor-accent-hover: #c64526;
     --wivor-accent-subtle: #fff0ea;
     --wivor-on-dark: #f7f8fa;
     --wivor-on-dark-muted: #dfe4e8;
@@ -414,12 +414,12 @@ body {
     height: 10px;
     border-radius: 50%;
     background: var(--wivor-accent);
-    box-shadow: 0 0 0 0 rgba(198, 69, 38, 0.6);
+    box-shadow: 0 0 0 0 rgba(255, 61, 0, 0.6);
     animation: wv-live-pulse 2s ease-out infinite;
 }
 
 @keyframes wv-live-pulse {
-    to { box-shadow: 0 0 0 10px rgba(198, 69, 38, 0); }
+    to { box-shadow: 0 0 0 10px rgba(255, 61, 0, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) { .wv-live-dot { animation: none; } }

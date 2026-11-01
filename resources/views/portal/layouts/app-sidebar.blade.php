@@ -18,7 +18,7 @@
     @include('frontend.v1.components.head-assets')
     <style>
         :root {
-            --photographer-accent: #c64526;
+            --photographer-accent: #ff3d00;
             --photographer-sidebar: #151b22;
             --photographer-sidebar-muted: #aeb8ca;
             --photographer-page: #f5f7fb;

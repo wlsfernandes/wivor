@@ -38,7 +38,7 @@ Lead with the outcome and action. Explain mechanics after the visitor knows why 
 
 ## Visual principle
 
-Keep the approved Manrope/Inter typography, charcoal and off-white surfaces, and `#C64526` orange accent. Use orange to identify the primary action and a few deliberate highlights. Use authentic, authorized race photos for energy. Do not create an orange-heavy page or synthetic event imagery.
+Keep the approved Manrope/Inter typography, charcoal and off-white surfaces, and `#FF3D00` orange accent. Use orange to identify the primary action and a few deliberate highlights. Use authentic, authorized race photos for energy. Do not create an orange-heavy page or synthetic event imagery.
 
 ## Claims to verify before publishing
 
