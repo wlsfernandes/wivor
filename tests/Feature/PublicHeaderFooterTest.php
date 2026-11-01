@@ -9,6 +9,30 @@ class PublicHeaderFooterTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_header_announces_the_number_of_photos_in_the_cart(): void
+    {
+        $this->withSession(['wivor_cart' => [11, 12]])
+            ->get(route('welcome'))
+            ->assertOk()
+            ->assertSee('View cart with 2 selected photos');
+    }
+
+    public function test_flash_error_stays_visible_on_the_homepage(): void
+    {
+        $this->withSession(['error' => 'Your session has expired.'])
+            ->get(route('welcome'))
+            ->assertOk()
+            ->assertSee('Your session has expired.');
+    }
+
+    public function test_mobile_menu_script_closes_on_escape_and_returns_focus(): void
+    {
+        $script = file_get_contents(public_path('assets/js/wivor-nav.js'));
+
+        $this->assertStringContainsString("'Escape'", $script);
+        $this->assertStringContainsString('toggle.focus()', $script);
+    }
+
     public function test_header_shows_specified_navigation_and_find_my_photos_button(): void
     {
         $this->get(route('faq'))
