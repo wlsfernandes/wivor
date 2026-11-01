@@ -335,16 +335,6 @@ body {
 }
 
 /* Home photos */
-.wv-card__image {
-    display: block;
-    width: 100%;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-    object-position: center 30%;
-    border-radius: var(--wivor-radius);
-    margin-bottom: 16px;
-}
-
 /* Cookie consent (spec section 12): small and out of the way. */
 .wv-cookie {
     position: fixed;
@@ -540,7 +530,9 @@ body {
 
 .wv-hero__grid { display: grid; gap: 32px; }
 
-.wv-hero__title { font-size: 40px; font-weight: 800; line-height: 1.1; text-wrap: balance; }
+.wv-hero__title { font-size: clamp(2.125rem, 9.4vw, 2.5rem); font-weight: 800; line-height: 1.1; text-wrap: balance; }
+
+.wv-hero__title span { display: block; }
 
 .wv-hero__title::after {
     content: "";
@@ -626,8 +618,30 @@ body {
 
 .wv-reassurance { display: grid; gap: 24px; margin-top: 32px; }
 
+.wv-section.wv-band { padding: 32px 0; }
+
+.wv-band__row { display: flex; flex-direction: column; gap: 12px; }
+
+.wv-band__row p { margin: 0; }
+
+.wv-section.wv-photographers { padding: 0; }
+
+.wv-photographers__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+}
+
+.wv-photographers__copy { padding-top: 40px; padding-bottom: 56px; }
+
 @media (min-width: 768px) {
     .wv-reassurance { grid-template-columns: repeat(3, 1fr); }
+
+    .wv-band__row { flex-direction: row; align-items: center; justify-content: space-between; gap: 32px; }
+
+    .wv-band__row > a { flex-shrink: 0; }
 }
 
 @media (min-width: 1024px) {
@@ -642,9 +656,22 @@ body {
         padding-left: max(32px, calc((100% - var(--wivor-content-width)) / 2 + 32px));
     }
 
-    .wv-hero__title { font-size: clamp(2.5rem, 5vw, 4rem); }
+    .wv-hero__title { font-size: clamp(2.5rem, 3.7vw, 3.25rem); }
 
     .wv-hero__media img { height: 600px; aspect-ratio: auto; }
 
     .wv-split { grid-template-columns: 1fr 1fr; gap: 64px; }
+
+    .wv-photographers {
+        display: grid;
+        grid-template-columns: 52fr 48fr;
+        align-items: center;
+        gap: 56px;
+    }
+
+    .wv-section.wv-photographers { padding-right: max(32px, calc((100% - var(--wivor-content-width)) / 2 + 32px)); }
+
+    .wv-photographers__image { height: 100%; min-height: 480px; aspect-ratio: auto; }
+
+    .wv-photographers__copy { max-width: none; margin: 0; padding: 64px 0; }
 }

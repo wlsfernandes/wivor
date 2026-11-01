@@ -17,23 +17,42 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertSee('<title>WiVor | Find and Buy Your Race Photos</title>', false)
             ->assertSeeInOrder([
-                'Your race. Your moment.',
-                'Find your event, search by bib number or selfie, then preview and buy the photos you want.',
+                'Find your race photos.', 'Relive the moment.',
+                'Search your event, find yourself by bib number or selfie, and preview the photos before you buy.',
                 'Search Events',
+                'Not sure of the event name?',
                 'How WiVor works',
                 'Find your event', 'Find yourself', 'Choose your photos',
-                'For photographers', 'For event organizers',
+                'You capture the race. Help athletes find your work.',
+                'Organizing a race?',
                 'Know what you are buying',
                 'Preview first', 'Buy only what you want', 'Your privacy',
                 'Ready to find your photos?',
                 'Search by event name, bib number or selfie.',
             ])
             ->assertSee("I'm a Photographer", false)
-            ->assertSee('href="'.route('athletes').'"', false)
             ->assertSee('href="'.route('how-it-works').'"', false)
-            ->assertSee('href="'.route('organizers').'"', false)
-            ->assertSee('href="'.route('photographers').'#register_section"', false)
             ->assertSee('href="'.route('biometric-notice').'"', false);
+    }
+
+    public function test_home_page_hides_selfie_search_when_face_recognition_is_disabled(): void
+    {
+        config(['face_recognition.enabled' => false]);
+
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertSee('Search your event, find yourself by bib number, and preview the photos before you buy.')
+            ->assertDontSee('selfie');
+    }
+
+    public function test_home_page_sends_each_audience_to_its_existing_journey(): void
+    {
+        $this->get(route('welcome'))
+            ->assertOk()
+            ->assertSee('<a class="wv-link" href="'.route('events.listEvents').'">Browse events</a>', false)
+            ->assertSee('<a class="wv-btn wv-btn--primary" href="'.route('photographers').'#register_section">Apply as a Photographer</a>', false)
+            ->assertSee('<a class="wv-link" href="'.route('organizers').'">Become a Partner</a>', false)
+            ->assertSee('<a class="wv-btn wv-btn--primary" href="'.route('events.listEvents').'">Find My Photos</a>', false);
     }
 
     public function test_home_page_has_one_h1_and_a_working_event_search_form(): void
@@ -53,7 +72,7 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertDontSee('Free for photographers')
             ->assertDontSee('zero cost')
-            ->assertSee('WiVor keeps a commission on each sale.');
+            ->assertSee('There is no sign-up fee. WiVor keeps a commission on each sale.');
     }
 
     public function test_home_page_meta_description_does_not_claim_wivor_is_free_to_use(): void
@@ -88,7 +107,6 @@ class HomePageTest extends TestCase
             'hero-finish-line.webp' => 'Runner with a race bib approaching cheering spectators on a seaside promenade',
             'athletes-bib-runners.webp' => 'Two runners with race bibs celebrating on the course',
             'photographers-telephoto-lens.webp' => 'Photographer with a telephoto lens shooting an event crowd',
-            'organizers-race-crowd.webp' => 'Crowd of runners on the road at the start of a race',
         ];
 
         $response = $this->get(route('welcome'))->assertOk();

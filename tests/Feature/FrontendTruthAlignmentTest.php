@@ -40,7 +40,7 @@ class FrontendTruthAlignmentTest extends TestCase
 
         $this->get(route('welcome'))
             ->assertOk()
-            ->assertSee('Find your event, search by bib number, then preview and buy the photos you want.')
+            ->assertSee('Search your event, find yourself by bib number, and preview the photos before you buy.')
             ->assertSee('Search this event by bib number, or browse every photo.')
             ->assertSee('Read how WiVor handles your data in our')
             ->assertSee('Search by event name or bib number.')

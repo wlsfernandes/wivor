@@ -39,11 +39,11 @@
     <section class="wv-section wv-section--dark wv-hero">
         <div class="wv-container wv-hero__grid">
             <div class="wv-hero__intro">
-                <h1 class="wv-h1 wv-hero__title">Your race. Your moment.</h1>
+                <h1 class="wv-h1 wv-hero__title"><span>Find your race photos.</span> <span>Relive the moment.</span></h1>
                 @if ($isFaceSearchEnabled)
-                    <p class="wv-lead">Find your event, search by bib number or selfie, then preview and buy the photos you want.</p>
+                    <p class="wv-lead">Search your event, find yourself by bib number or selfie, and preview the photos before you buy.</p>
                 @else
-                    <p class="wv-lead">Find your event, search by bib number, then preview and buy the photos you want.</p>
+                    <p class="wv-lead">Search your event, find yourself by bib number, and preview the photos before you buy.</p>
                 @endif
                 @include('frontend.v1.components.event-search', ['fieldId' => 'home-event-search'])
                 <p class="wv-small"><a class="wv-link" href="{{ route('photographers') }}">I'm a Photographer</a></p>
@@ -56,11 +56,23 @@
         </div>
     </section>
 
+    {{-- Event directory: stands in for live gallery proof until the homepage has event data. --}}
+    <section class="wv-section wv-section--light wv-band">
+        <div class="wv-container wv-band__row">
+            <div>
+                <h2 class="wv-h3">Not sure of the event name?</h2>
+                <p class="wv-body">See the full list of events on WiVor.</p>
+            </div>
+            <a class="wv-link" href="{{ route('events.listEvents') }}">Browse events</a>
+        </div>
+    </section>
+
     {{-- How it works: three steps beside an athlete photo. --}}
     <section class="wv-section wv-section--white">
         <div class="wv-container wv-split">
             <div>
                 <h2 class="wv-h2">How WiVor works</h2>
+                <p class="wv-lead">A race goes by fast. Your photos keep the moments that mattered.</p>
                 <ol class="wv-steps">
                     <li>
                         <h3 class="wv-h3">Find your event</h3>
@@ -86,31 +98,27 @@
         </div>
     </section>
 
-    {{-- Photographers and organizers. --}}
-    <section class="wv-section wv-section--light">
-        <div class="wv-container">
-            <div class="row g-4">
-                <div class="col-12 col-md-6">
-                    <div class="wv-card">
-                        <img class="wv-card__image" src="{{ asset('assets/images/site/photographers-telephoto-lens.webp') }}"
-                            alt="Photographer with a telephoto lens shooting an event crowd" width="900" height="452"
-                            loading="lazy">
-                        <h2 class="wv-h3">For photographers</h2>
-                        <p class="wv-body">Upload your event photos and sell them to athletes. There is no sign-up fee. WiVor keeps a commission on each sale.</p>
-                        <a class="wv-link" href="{{ route('photographers') }}#register_section">Apply as a Photographer</a>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <div class="wv-card">
-                        <img class="wv-card__image" src="{{ asset('assets/images/site/organizers-race-crowd.webp') }}"
-                            alt="Crowd of runners on the road at the start of a race" width="900" height="372"
-                            loading="lazy">
-                        <h2 class="wv-h3">For event organizers</h2>
-                        <p class="wv-body">Give your athletes professional photos of their race. WiVor works with photographers to cover your event.</p>
-                        <a class="wv-link" href="{{ route('organizers') }}">Become a Partner</a>
-                    </div>
-                </div>
+    {{-- Photographers: full-width panel, the mirror of the hero. --}}
+    <section class="wv-section wv-section--dark wv-photographers">
+        <img class="wv-photographers__image" src="{{ asset('assets/images/site/photographers-telephoto-lens.webp') }}"
+            alt="Photographer with a telephoto lens shooting an event crowd" width="900" height="452" loading="lazy">
+        <div class="wv-container wv-photographers__copy">
+            <h2 class="wv-h2">You capture the race. Help athletes find your work.</h2>
+            <p class="wv-body">Upload your event photos, let athletes find them and sell through WiVor. There is no sign-up fee. WiVor keeps a commission on each sale.</p>
+            <div class="wv-button-row">
+                <a class="wv-btn wv-btn--primary" href="{{ route('photographers') }}#register_section">Apply as a Photographer</a>
             </div>
+        </div>
+    </section>
+
+    {{-- Organizers: a short path, below the athlete and photographer journeys. --}}
+    <section class="wv-section wv-section--light wv-band">
+        <div class="wv-container wv-band__row">
+            <div>
+                <h2 class="wv-h3">Organizing a race?</h2>
+                <p class="wv-body">Give your athletes professional photos of their race. WiVor works with photographers to cover your event.</p>
+            </div>
+            <a class="wv-link" href="{{ route('organizers') }}">Become a Partner</a>
         </div>
     </section>
 
@@ -149,7 +157,7 @@
                 <p class="wv-lead">Search by event name or bib number.</p>
             @endif
             <div class="wv-button-row">
-                <a href="{{ route('athletes') }}" class="wv-btn wv-btn--primary">Find My Photos</a>
+                <a class="wv-btn wv-btn--primary" href="{{ route('events.listEvents') }}">Find My Photos</a>
             </div>
         </div>
     </section>
