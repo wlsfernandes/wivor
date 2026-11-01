@@ -43,6 +43,18 @@ class BrandAssetsTest extends TestCase
         $this->assertStringNotContainsString('wivor-brand', $adminHead);
     }
 
+    public function test_brand_stylesheet_provides_shared_form_badge_focus_and_motion_rules(): void
+    {
+        $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
+
+        foreach (['.wv-input', '.wv-label', '.wv-help', '.wv-search', '.wv-badge--available', '.wv-badge--upcoming', '.wv-badge--past'] as $selector) {
+            $this->assertStringContainsString($selector, $stylesheet);
+        }
+
+        $this->assertStringContainsString('outline: 3px solid var(--wivor-focus)', $stylesheet);
+        $this->assertStringContainsString('prefers-reduced-motion: reduce', $stylesheet);
+    }
+
     public function test_brand_stylesheet_shows_keyboard_focus_on_header_footer_and_faq_controls(): void
     {
         $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
