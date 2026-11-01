@@ -321,6 +321,7 @@ body {
 /* Link underlines use !important because bootstrap.css sets a { text-decoration: none !important }. */
 
 /* Keyboard focus: the template CSS removes outlines globally. */
+.wv-header__logo:focus-visible,
 .wv-header__nav a:focus-visible,
 .wv-header__toggle:focus-visible,
 .wv-footer a:focus-visible,

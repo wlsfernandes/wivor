@@ -2,7 +2,7 @@
 
 @php
     $isFaceSearchEnabled = (bool) config('face_recognition.enabled');
-    $metaDescription = $isFaceSearchEnabled ? 'WiVor connects photographers and athletes. Find your event photos with face and bib recognition. Free to use. Pay only for the photos you love.' : 'WiVor connects photographers and athletes. Find your event photos with bib number recognition. Free to use. Pay only for the photos you love.';
+    $metaDescription = $isFaceSearchEnabled ? 'WiVor connects photographers and athletes. Find your event photos with face and bib recognition. Free to browse. Pay only for the photos you love.' : 'WiVor connects photographers and athletes. Find your event photos with bib number recognition. Free to browse. Pay only for the photos you love.';
 @endphp
 
 @section('title', 'WiVor | Find and Buy Your Race Photos')

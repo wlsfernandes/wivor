@@ -56,6 +56,18 @@ class HomePageTest extends TestCase
             ->assertSee('WiVor keeps a commission on each sale.');
     }
 
+    public function test_home_page_meta_description_does_not_claim_wivor_is_free_to_use(): void
+    {
+        foreach ([true, false] as $isFaceSearchEnabled) {
+            config(['face_recognition.enabled' => $isFaceSearchEnabled]);
+
+            $this->get(route('welcome'))
+                ->assertOk()
+                ->assertDontSee('Free to use')
+                ->assertSee('Free to browse.');
+        }
+    }
+
     public function test_empty_event_search_opens_the_full_event_list(): void
     {
         $this->get(route('events.listEvents', ['search' => '']))->assertOk();
