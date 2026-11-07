@@ -39,6 +39,7 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
     Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/{id}/password-reset', [UserController::class, 'sendPasswordReset'])->name('users.password-reset');
 
     Route::get('/list-photographers', [AdminPhotographerController::class, 'index'])->name('photographers.list');
     Route::get('/list-photographers/{photographer}', [AdminPhotographerController::class, 'show'])->name('admin.photographers.show');

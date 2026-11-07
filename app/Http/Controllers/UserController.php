@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,36 @@ class UserController extends Controller
 
             return redirect()->back()->withErrors(['error' => 'Failed to delete user.']);
         }
+    }
+
+    /** Email the user Laravel's signed password reset link on an administrator's request. */
+    public function sendPasswordReset(Request $request, string $id): RedirectResponse
+    {
+        $user = User::findOrFail($id);
+        $status = Password::sendResetLink(['email' => $user->email]);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            Log::info('Administrator sent a password reset link.', [
+                'event' => 'admin.users.password_reset',
+                'user_id' => $user->id,
+                'admin_id' => $request->user()->id,
+            ]);
+
+            return redirect()->back()->with('success', "Password reset link sent to {$user->email}.");
+        }
+
+        if ($status === Password::RESET_THROTTLED) {
+            return redirect()->back()->withErrors(['error' => 'A reset link was sent recently. Try again in a minute.']);
+        }
+
+        Log::error('Administrator password reset link could not be sent.', [
+            'event' => 'admin.users.password_reset',
+            'user_id' => $user->id,
+            'admin_id' => $request->user()->id,
+            'status' => $status,
+        ]);
+
+        return redirect()->back()->withErrors(['error' => 'The password reset link could not be sent. Please try again.']);
     }
 
     public function store(Request $request)

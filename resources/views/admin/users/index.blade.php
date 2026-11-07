@@ -90,6 +90,16 @@
                                         </a>
 
 
+                                        <a href="javascript:void(0);" class="px-3 text-warning" title="Send password reset email"
+                                            onclick="event.preventDefault(); if(confirm(@js('Send password reset email to ' . $user->email . '?'))) { document.getElementById('password-reset-form-{{ $user->id }}').submit(); }">
+                                            <i class="uil uil-envelope-lock font-size-18"></i>
+                                        </a>
+
+                                        <form id="password-reset-form-{{ $user->id }}" action="{{ route('users.password-reset', $user->id) }}"
+                                            method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
+
                                         <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}"
                                             method="POST" style="display: none;">
                                             @csrf

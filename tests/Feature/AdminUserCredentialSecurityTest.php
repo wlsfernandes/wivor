@@ -79,6 +79,71 @@ class AdminUserCredentialSecurityTest extends TestCase
         $this->assertAuthenticatedAs($user->fresh());
     }
 
+    public function test_admin_can_send_a_password_reset_link_without_changing_the_current_password(): void
+    {
+        Notification::fake();
+
+        [$admin] = $this->adminAndEmployeeRole();
+        $user = User::factory()->create(['password' => Hash::make('current-password')]);
+
+        $this->actingAs($admin)
+            ->get(route('users.index'))
+            ->assertOk()
+            ->assertSee(route('users.password-reset', $user->id), false);
+
+        $this->actingAs($admin)
+            ->from(route('users.index'))
+            ->post(route('users.password-reset', $user->id))
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('success', "Password reset link sent to {$user->email}.");
+
+        Notification::assertSentTo($user, ResetPassword::class);
+        $this->assertTrue(Hash::check('current-password', $user->fresh()->password));
+    }
+
+    public function test_second_password_reset_request_within_a_minute_is_throttled(): void
+    {
+        Notification::fake();
+
+        [$admin] = $this->adminAndEmployeeRole();
+        $user = User::factory()->create();
+
+        $this->actingAs($admin)->post(route('users.password-reset', $user->id));
+
+        $this->actingAs($admin)
+            ->post(route('users.password-reset', $user->id))
+            ->assertSessionHasErrors(['error' => 'A reset link was sent recently. Try again in a minute.']);
+
+        Notification::assertSentToTimes($user, ResetPassword::class, 1);
+    }
+
+    public function test_non_admin_cannot_send_a_password_reset_link(): void
+    {
+        Notification::fake();
+
+        $nonAdmin = User::factory()->create();
+        $user = User::factory()->create();
+
+        $this->actingAs($nonAdmin)
+            ->post(route('users.password-reset', $user->id))
+            ->assertForbidden();
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_password_reset_for_an_unknown_user_returns_not_found(): void
+    {
+        Notification::fake();
+
+        [$admin] = $this->adminAndEmployeeRole();
+
+        $this->actingAs($admin)
+            ->post(route('users.password-reset', 999999))
+            ->assertNotFound();
+
+        Notification::assertNothingSent();
+    }
+
     public function test_user_and_role_seeder_creates_the_admin_role_without_creating_a_user(): void
     {
         $this->seed(UserAndRoleSeeder::class);
