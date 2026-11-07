@@ -31,24 +31,7 @@ class LoginController extends Controller
      */
     protected function redirectTo()
     {
-        $user = Auth::user();
-
-        if ($user->hasRole('admin')) {
-            return '/index';
-        } elseif ($user->hasRole('photographer')) {
-            if (! $user->hasVerifiedEmail()) {
-                return '/email/verify';
-            }
-
-            return $user->canAccessPhotographerArea()
-                ? '/photographers/dashboard'
-                : '/photographers/application-status';
-        } elseif ($user->hasRole('customer')) {
-            return '/customers/dashboard';
-        }
-
-        // Fallback
-        return '/home';
+        return Auth::user()->homePath();
     }
 
     /** Keep the stale admin dashboard URL from overriding the photographer redirect. */

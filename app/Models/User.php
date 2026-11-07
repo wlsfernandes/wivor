@@ -36,6 +36,30 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->roles->pluck('name')->contains($role);
     }
 
+    /** Return the landing path for this user's role after authentication. */
+    public function homePath(): string
+    {
+        if ($this->hasRole('admin')) {
+            return '/index';
+        }
+
+        if ($this->hasRole('photographer')) {
+            if (! $this->hasVerifiedEmail()) {
+                return '/email/verify';
+            }
+
+            return $this->canAccessPhotographerArea()
+                ? '/photographers/dashboard'
+                : '/photographers/application-status';
+        }
+
+        if ($this->hasRole('customer')) {
+            return '/customers/dashboard';
+        }
+
+        return '/home';
+    }
+
     /** Determine whether this user may enter the photographer workspace. */
     public function canAccessPhotographerArea(): bool
     {

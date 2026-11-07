@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class PhotographerApprovalTest extends TestCase
@@ -53,6 +54,30 @@ class PhotographerApprovalTest extends TestCase
         $this->assertNotNull($photographer->terms_accepted_at);
         Notification::assertSentTo($user, VerifyEmail::class);
         Mail::assertSent(PhotographerApplicationReceived::class, fn ($mail) => $mail->hasTo($user->email));
+    }
+
+    public function test_newly_registered_photographer_visiting_login_is_sent_to_email_verification_not_admin(): void
+    {
+        Mail::fake();
+        Notification::fake();
+        $this->fakeTurnstileResponse(['success' => true]);
+
+        $this->post(route('registerPhotographer'), $this->validApplication());
+
+        $this->get(route('login'))->assertRedirect('/email/verify');
+    }
+
+    public function test_approved_photographer_resetting_password_lands_on_photographer_dashboard_not_admin(): void
+    {
+        [$user] = $this->createPhotographer(Photographer::STATUS_APPROVED);
+        $token = Password::createToken($user);
+
+        $this->post(route('password.update'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-secure-pass',
+            'password_confirmation' => 'new-secure-pass',
+        ])->assertRedirect('/photographers/dashboard');
     }
 
     public function test_registration_requires_the_complete_application_and_consents(): void
