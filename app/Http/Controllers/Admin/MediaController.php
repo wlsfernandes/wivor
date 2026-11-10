@@ -12,6 +12,7 @@ use App\Models\MediaRetentionHold;
 use App\Models\Photo;
 use App\Models\Photographer;
 use App\Services\PhotoStorage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,9 @@ use Throwable;
 
 class MediaController extends Controller
 {
+    /** Longest digit string that still fits a bigint photo ID. */
+    private const MAX_PHOTO_ID_DIGITS = 18;
+
     public function index(): View
     {
         $events = Event::withCount([
@@ -39,10 +43,10 @@ class MediaController extends Controller
     /** Show an event's media with a thumbnail per photo, so admins can identify a sold photo by its ID. */
     public function show(Request $request, Event $event, PhotoStorage $storage): View
     {
-        $searchedPhotoId = $request->validate(['photo_id' => ['nullable', 'integer', 'min:1']])['photo_id'] ?? null;
+        $photoSearch = trim($request->validate(['search' => ['nullable', 'string', 'max:255']])['search'] ?? '');
         $assignments = EventAssignment::with('photographer.user')->where('event_id', $event->id)->get();
         $photos = $event->photos()->with('photographer')
-            ->when($searchedPhotoId, fn ($query) => $query->whereKey($searchedPhotoId))
+            ->when($photoSearch !== '', fn ($query) => $query->where(fn ($match) => $this->matchPhotoSearch($match, $photoSearch)))
             ->latest()->paginate(100)->withQueryString();
         $thumbnailUrls = $photos->getCollection()->mapWithKeys(fn (Photo $photo) => [
             // Removed photos keep their keys after the files are deleted, so they have no thumbnail to show.
@@ -51,7 +55,7 @@ class MediaController extends Controller
         $holds = MediaRetentionHold::where('event_id', $event->id)->whereNull('released_at')->latest()->get();
         $deletionFailures = MediaActivityLog::where('event_id', $event->id)->where('action', 'deletion_failed')->latest()->limit(20)->get();
 
-        return view('admin.media.show', compact('event', 'assignments', 'photos', 'thumbnailUrls', 'holds', 'deletionFailures', 'searchedPhotoId'));
+        return view('admin.media.show', compact('event', 'assignments', 'photos', 'thumbnailUrls', 'holds', 'deletionFailures', 'photoSearch'));
     }
 
     /** Redirect an admin to a short-lived signed URL that downloads the photographer's original file. */
@@ -130,6 +134,16 @@ class MediaController extends Controller
         $hold->update(['released_at' => now(), 'released_by' => $request->user()->id]);
         MediaActivityLog::create(['event_id' => $event->id, 'photo_id' => $hold->photo_id, 'actor_id' => $request->user()->id, 'action' => 'retention_hold_released']);
         return back()->with('success', 'Retention hold released.');
+    }
+
+    /** Match a database ID, or the reference number / UUID customers see. An eight-digit value can be either, so both are tried. */
+    private function matchPhotoSearch(Builder $query, string $photoSearch): void
+    {
+        $query->where(fn (Builder $reference) => $reference->matchingReference($photoSearch));
+
+        if (ctype_digit($photoSearch) && strlen($photoSearch) <= self::MAX_PHOTO_ID_DIGITS) {
+            $query->orWhere('id', (int) $photoSearch);
+        }
     }
 
     private function assertEventPhoto(Event $event, Photo $photo): void

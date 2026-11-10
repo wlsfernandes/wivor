@@ -102,34 +102,85 @@ class AdminMediaOriginalDownloadTest extends TestCase
         $this->photo($event, ['original_filename' => 'other-shot.jpg']);
 
         $this->actingAs($this->admin())
-            ->get(route('admin.media.show', [$event, 'photo_id' => $wanted->id]))
+            ->get(route('admin.media.show', [$event, 'search' => (string) $wanted->id]))
             ->assertOk()
             ->assertSee('wanted-shot.jpg')
             ->assertDontSee('other-shot.jpg')
             ->assertSee('value="'.$wanted->id.'"', false);
     }
 
-    public function test_search_by_photo_id_from_another_event_finds_nothing(): void
+    public function test_search_by_reference_number_the_customer_sees_finds_the_photo(): void
+    {
+        $event = $this->event();
+        $wanted = $this->photo($event, ['uuid' => '54c9dda1-0000-4000-8000-000000000001', 'original_filename' => 'wanted-shot.jpg']);
+        $this->photo($event, ['uuid' => '11111111-0000-4000-8000-000000000002', 'original_filename' => 'other-shot.jpg']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.media.show', [$event, 'search' => $wanted->reference_number]))
+            ->assertOk()
+            ->assertSee('wanted-shot.jpg')
+            ->assertDontSee('other-shot.jpg');
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.media.show', [$event, 'search' => '54c9dda1']))
+            ->assertOk()
+            ->assertSee('wanted-shot.jpg')
+            ->assertDontSee('other-shot.jpg');
+    }
+
+    public function test_search_by_full_uuid_finds_the_photo(): void
+    {
+        $event = $this->event();
+        $wanted = $this->photo($event, ['original_filename' => 'wanted-shot.jpg']);
+        $this->photo($event, ['original_filename' => 'other-shot.jpg']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.media.show', [$event, 'search' => strtoupper($wanted->uuid)]))
+            ->assertOk()
+            ->assertSee('wanted-shot.jpg')
+            ->assertDontSee('other-shot.jpg');
+    }
+
+    public function test_eight_digit_search_matches_both_a_database_id_and_a_reference_number(): void
+    {
+        $event = $this->event();
+        $byReference = $this->photo($event, ['uuid' => '12345678-0000-4000-8000-000000000001', 'original_filename' => 'by-reference.jpg']);
+        $byId = $this->photo($event, ['original_filename' => 'by-id.jpg']);
+        $byId->forceFill(['id' => 12345678])->save();
+        $this->photo($event, ['original_filename' => 'unrelated.jpg']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.media.show', [$event, 'search' => '12345678']))
+            ->assertOk()
+            ->assertSee($byReference->original_filename)
+            ->assertSee('by-id.jpg')
+            ->assertDontSee('unrelated.jpg');
+    }
+
+    public function test_search_for_a_photo_from_another_event_finds_nothing(): void
     {
         $event = $this->event();
         $this->photo($event, ['original_filename' => 'this-event.jpg']);
         $otherEventPhoto = $this->photo($this->event(), ['original_filename' => 'other-event.jpg']);
 
         $this->actingAs($this->admin())
-            ->get(route('admin.media.show', [$event, 'photo_id' => $otherEventPhoto->id]))
+            ->get(route('admin.media.show', [$event, 'search' => $otherEventPhoto->reference_number]))
             ->assertOk()
             ->assertDontSee('this-event.jpg')
             ->assertDontSee('other-event.jpg')
-            ->assertSee('No photo matches ID #'.$otherEventPhoto->id);
+            ->assertSee('No photo matches "'.$otherEventPhoto->reference_number.'"', false);
     }
 
-    public function test_search_rejects_a_photo_id_that_is_not_a_positive_number(): void
+    public function test_search_text_that_is_not_an_id_reference_or_uuid_finds_nothing(): void
     {
         $event = $this->event();
+        $this->photo($event, ['original_filename' => 'race.jpg']);
 
         $this->actingAs($this->admin())
-            ->get(route('admin.media.show', [$event, 'photo_id' => 'abc']))
-            ->assertSessionHasErrors('photo_id');
+            ->get(route('admin.media.show', [$event, 'search' => 'race%']))
+            ->assertOk()
+            ->assertDontSee('race.jpg')
+            ->assertSee('No photo matches');
     }
 
     private function admin(): User

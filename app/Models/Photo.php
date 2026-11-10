@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,6 +18,9 @@ class Photo extends Model
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_PUBLISHED = 'published';
     public const STATUS_REMOVED = 'removed';
+
+    private const UUID_PATTERN = '/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i';
+    private const REFERENCE_NUMBER_PATTERN = '/^[0-9a-f]{8}$/i';
 
     protected $fillable = [
         'uuid', 'event_id', 'photographer_id', 'assignment_id', 'upload_batch_id',
@@ -79,6 +83,23 @@ class Photo extends Model
     public function getReferenceNumberAttribute(): string
     {
         return Str::upper(substr(str_replace('-', '', $this->uuid), 0, 8));
+    }
+
+    /**
+     * Match photos by a full UUID (also when embedded in a photo URL) or by the eight-character reference number.
+     * Anything else matches nothing.
+     */
+    public function scopeMatchingReference(Builder $query, string $identifier): Builder
+    {
+        if (preg_match(self::UUID_PATTERN, $identifier, $matches)) {
+            return $query->where('uuid', strtolower($matches[0]));
+        }
+
+        if (preg_match(self::REFERENCE_NUMBER_PATTERN, trim($identifier))) {
+            return $query->where('uuid', 'like', strtolower(trim($identifier)).'%');
+        }
+
+        return $query->whereRaw('1 = 0');
     }
 
     public function getDisplayAltTextAttribute(): string

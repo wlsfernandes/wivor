@@ -109,16 +109,9 @@ class PhotoRemovalRequestController extends Controller
     /** Locate a photo from a WivorPhotos URL, UUID, or displayed reference number. */
     private function findPhoto(string $identifier): ?Photo
     {
-        if (preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i', $identifier, $matches)) {
-            return Photo::where('uuid', strtolower($matches[0]))->first();
-        }
+        $photos = Photo::matchingReference($identifier)->limit(2)->get();
 
-        if (! preg_match('/^[0-9a-f]{8}$/i', trim($identifier))) {
-            return null;
-        }
-
-        $photos = Photo::where('uuid', 'like', strtolower(trim($identifier)).'%')->limit(2)->get();
-
+        // A reference number shared by two photos is ambiguous, so the visitor must give the full URL or UUID instead.
         return $photos->count() === 1 ? $photos->first() : null;
     }
 }

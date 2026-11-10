@@ -29,9 +29,9 @@
 
     @if($deletionFailures->isNotEmpty())<div class="alert alert-danger"><strong>Recent deletion failures:</strong> {{ $deletionFailures->count() }} attempt(s). Eligible records are retried by the daily task.</div>@endif
     <form class="d-flex gap-2 mb-3" method="GET" action="{{ route('admin.media.show', $event) }}">
-        <input class="form-control" style="max-width: 16rem;" type="number" min="1" name="photo_id" value="{{ $searchedPhotoId }}" placeholder="Search by photo ID">
+        <input class="form-control" style="max-width: 22rem;" name="search" value="{{ $photoSearch }}" placeholder="Photo ID, reference (e.g. 54C9DDA1) or UUID">
         <button class="btn btn-outline-primary">Search</button>
-        @if($searchedPhotoId)<a href="{{ route('admin.media.show', $event) }}" class="btn btn-outline-secondary">Clear</a>@endif
+        @if($photoSearch !== '')<a href="{{ route('admin.media.show', $event) }}" class="btn btn-outline-secondary">Clear</a>@endif
     </form>
     <div class="card"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Photo</th><th>ID</th><th>Photographer</th><th>File</th><th>Original</th><th>Status</th><th>Reason</th><th>Actions</th></tr></thead><tbody>
         @foreach($photos as $photo)<tr><td>@if($thumbnailUrls[$photo->id] ?? null)<a href="{{ $thumbnailUrls[$photo->id] }}" target="_blank" rel="noopener"><img src="{{ $thumbnailUrls[$photo->id] }}" alt="Photo #{{ $photo->id }}" loading="lazy" style="width: 64px; height: 64px; object-fit: cover;" class="rounded"></a>@else<span class="text-muted small">No preview</span>@endif</td><td>#{{ $photo->id }}</td><td>{{ $photo->photographer->first_name }} {{ $photo->photographer->last_name }}</td><td>{{ $photo->original_filename }}</td><td>@if($photo->status !== 'removed' && $photo->original_key)<a href="{{ route('admin.media.original', [$event, $photo]) }}" class="btn btn-sm btn-outline-secondary">Download</a>@else<span class="text-muted small">Unavailable</span>@endif</td><td>{{ ucfirst($photo->status) }}</td><td>{{ $photo->rejection_reason ?? $photo->deletion_reason }}</td><td><div class="d-flex gap-2">
@@ -39,7 +39,7 @@
             @if($photo->status === 'published')<form method="POST" action="{{ route('admin.media.unpublish', [$event, $photo]) }}">@csrf @method('PATCH')<button class="btn btn-sm btn-outline-warning">Unpublish</button></form>@endif
             @if($photo->status !== 'removed')<form class="d-flex gap-1" method="POST" action="{{ route('admin.media.remove', [$event, $photo]) }}" onsubmit="return confirm('Permanently remove this media?')">@csrf @method('DELETE')<input class="form-control form-control-sm" name="reason" placeholder="Removal reason" required><button class="btn btn-sm btn-danger">Remove</button></form>@endif
         </div></td></tr>@endforeach
-        @if($searchedPhotoId && $photos->isEmpty())<tr><td colspan="8" class="text-muted">No photo matches ID #{{ $searchedPhotoId }} in this event.</td></tr>@endif
+        @if($photoSearch !== '' && $photos->isEmpty())<tr><td colspan="8" class="text-muted">No photo matches "{{ $photoSearch }}" in this event.</td></tr>@endif
     </tbody></table></div></div><div class="mt-3">{{ $photos->links() }}</div>
 </div>
 @endsection
