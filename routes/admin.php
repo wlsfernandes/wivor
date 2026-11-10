@@ -55,6 +55,7 @@ Route::middleware(['auth', 'can:access-admin'])->group(function () {
     Route::get('/admin/media', [AdminMediaController::class, 'index'])->name('admin.media.index');
     Route::get('/admin/media/{event}', [AdminMediaController::class, 'show'])->name('admin.media.show');
     Route::patch('/admin/media/{event}/assignments/{photographer}/deadline', [AdminMediaController::class, 'extendDeadline'])->name('admin.media.deadline');
+    Route::get('/admin/media/{event}/photos/{photo}/original', [AdminMediaController::class, 'downloadOriginal'])->name('admin.media.original');
     Route::post('/admin/media/{event}/photos/{photo}/retry', [AdminMediaController::class, 'retry'])->name('admin.media.retry');
     Route::patch('/admin/media/{event}/photos/{photo}/unpublish', [AdminMediaController::class, 'unpublish'])->name('admin.media.unpublish');
     Route::delete('/admin/media/{event}/photos/{photo}', [AdminMediaController::class, 'remove'])->name('admin.media.remove');

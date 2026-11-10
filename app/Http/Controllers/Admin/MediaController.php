@@ -37,10 +37,13 @@ class MediaController extends Controller
     }
 
     /** Show an event's media with a thumbnail per photo, so admins can identify a sold photo by its ID. */
-    public function show(Event $event, PhotoStorage $storage): View
+    public function show(Request $request, Event $event, PhotoStorage $storage): View
     {
+        $searchedPhotoId = $request->validate(['photo_id' => ['nullable', 'integer', 'min:1']])['photo_id'] ?? null;
         $assignments = EventAssignment::with('photographer.user')->where('event_id', $event->id)->get();
-        $photos = $event->photos()->with('photographer')->latest()->paginate(100);
+        $photos = $event->photos()->with('photographer')
+            ->when($searchedPhotoId, fn ($query) => $query->whereKey($searchedPhotoId))
+            ->latest()->paginate(100)->withQueryString();
         $thumbnailUrls = $photos->getCollection()->mapWithKeys(fn (Photo $photo) => [
             // Removed photos keep their keys after the files are deleted, so they have no thumbnail to show.
             $photo->id => $photo->thumbnail_key && $photo->status !== Photo::STATUS_REMOVED ? $storage->deliveryUrl($photo->thumbnail_key) : null,
@@ -48,7 +51,18 @@ class MediaController extends Controller
         $holds = MediaRetentionHold::where('event_id', $event->id)->whereNull('released_at')->latest()->get();
         $deletionFailures = MediaActivityLog::where('event_id', $event->id)->where('action', 'deletion_failed')->latest()->limit(20)->get();
 
-        return view('admin.media.show', compact('event', 'assignments', 'photos', 'thumbnailUrls', 'holds', 'deletionFailures'));
+        return view('admin.media.show', compact('event', 'assignments', 'photos', 'thumbnailUrls', 'holds', 'deletionFailures', 'searchedPhotoId'));
+    }
+
+    /** Redirect an admin to a short-lived signed URL that downloads the photographer's original file. */
+    public function downloadOriginal(Request $request, Event $event, Photo $photo, PhotoStorage $storage): RedirectResponse
+    {
+        $this->assertEventPhoto($event, $photo);
+        // Removed photos keep their keys after the files are deleted, so there is no original to download.
+        abort_if($photo->status === Photo::STATUS_REMOVED || blank($photo->original_key), 404);
+        MediaActivityLog::create(['event_id' => $event->id, 'photo_id' => $photo->id, 'actor_id' => $request->user()->id, 'action' => 'admin_original_downloaded']);
+
+        return redirect()->away($storage->downloadUrl($photo->original_key, $photo->original_filename ?: "photo-{$photo->id}.jpg"));
     }
 
     public function extendDeadline(Request $request, Event $event, Photographer $photographer): RedirectResponse
