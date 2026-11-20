@@ -98,16 +98,11 @@
                             <span>Website</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'privacy']) }}">Privacy
-                                    Policy</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'terms']) }}">Terms of
-                                    Use</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'refund']) }}">Refund
-                                    Policy</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'photographer-terms']) }}">Photographer
-                                    Terms</a></li>
-                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'biometric-notice']) }}">Biometric
-                                    Notice</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'privacy']) }}">Privacy Policy</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'terms']) }}">Terms of Use</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'refund']) }}">Refund Policy</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'photographer-terms']) }}">Photographer Terms</a></li>
+                            <li><a href="{{ route('admin.website.policies.edit', ['policy' => 'biometric-notice']) }}">Biometric Notice</a></li>
                         </ul>
                     </li>
                 @endcan
