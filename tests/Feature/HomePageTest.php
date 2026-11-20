@@ -20,20 +20,21 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertSee('<title>WiVor | Find and Buy Your Race Photos</title>', false)
             ->assertSeeInOrder([
-                'Find your race photos.', 'Relive the moment.',
-                'Search your event, find yourself by bib number or selfie, and preview the photos before you buy.',
+                'Your race.', 'Your moment.', 'Your photos.',
+                'Find your event, then find yourself in it by bib number or optional selfie. Preview every photo before you buy.',
                 'Search Events',
-                'Not sure of the event name?',
-                'How WiVor works',
-                'Find your event', 'Find yourself', 'Choose your photos',
-                'You capture the race. Help athletes find your work.',
-                'Organizing a race?',
-                'Know what you are buying',
-                'Preview first', 'Buy only what you want', 'Your privacy',
-                'Ready to find your photos?',
-                'Search by event name, bib number or selfie.',
+                'See how it works',
+                'From finish line to favorite photo.',
+                'Find your event', 'Find yourself', 'Keep your moments',
+                'Your next great moment starts here.',
+                'The race ends. The feeling stays.',
+                'For photographers', 'Capture the action. Reach the athletes.',
+                'For event organizers', 'Give athletes more to remember.',
+                'Know what you are buying.',
+                'Preview before you buy', 'Choose the photos you love', 'Selfie search is optional',
+                'Ready to relive your race?',
+                'Your favorite moments may be waiting. Start by finding your event.',
             ])
-            ->assertSee("I'm a Photographer", false)
             ->assertSee('href="'.route('how-it-works').'"', false)
             ->assertSee('href="'.route('biometric-notice').'"', false);
     }
@@ -44,7 +45,7 @@ class HomePageTest extends TestCase
 
         $this->get(route('welcome'))
             ->assertOk()
-            ->assertSee('Search your event, find yourself by bib number, and preview the photos before you buy.')
+            ->assertSee('Find your event, then find yourself in it by bib number. Preview every photo before you buy.')
             ->assertDontSee('selfie');
     }
 
@@ -52,10 +53,10 @@ class HomePageTest extends TestCase
     {
         $this->get(route('welcome'))
             ->assertOk()
-            ->assertSee('<a class="wv-link" href="'.route('events.listEvents').'">Browse events</a>', false)
-            ->assertSee('<a class="wv-btn wv-btn--primary" href="'.route('photographers').'#register_section">Apply as a Photographer</a>', false)
-            ->assertSee('<a class="wv-link" href="'.route('organizers').'">Become a Partner</a>', false)
-            ->assertSee('<a class="wv-btn wv-btn--primary" href="'.route('events.listEvents').'">Find My Photos</a>', false);
+            ->assertSee('href="'.route('events.listEvents').'">Browse all events</a>', false)
+            ->assertSee('href="'.route('photographers').'">Explore photographer opportunities</a>', false)
+            ->assertSee('href="'.route('organizers').'">Partner with WiVor</a>', false)
+            ->assertSee('href="'.route('events.listEvents').'">Find My Photos</a>', false);
     }
 
     public function test_home_page_has_one_h1_and_a_working_event_search_form(): void
@@ -139,6 +140,7 @@ class HomePageTest extends TestCase
             'hero-finish-line.webp' => 'Runner with a race bib approaching cheering spectators on a seaside promenade',
             'athletes-bib-runners.webp' => 'Two runners with race bibs celebrating on the course',
             'photographers-telephoto-lens.webp' => 'Photographer with a telephoto lens shooting an event crowd',
+            'organizers-race-crowd.webp' => 'Feet of runners in a crowded race start',
         ];
 
         $response = $this->get(route('welcome'))->assertOk();
@@ -163,7 +165,21 @@ class HomePageTest extends TestCase
 
     public function test_only_the_home_page_marks_the_hero_copy_for_its_entrance_animation(): void
     {
-        $this->get(route('welcome'))->assertOk()->assertSee('class="wv-hero__intro"', false);
+        $this->get(route('welcome'))->assertOk()->assertSee('wv-hero__intro', false);
         $this->get(route('faq'))->assertOk()->assertDontSee('wv-hero__intro', false);
+    }
+
+    public function test_home_page_loads_the_hero_photo_eagerly_with_high_priority(): void
+    {
+        $content = $this->get(route('welcome'))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<img src="[^"]*hero-finish-line\.webp"[^>]*fetchpriority="high"/', $content);
+        $this->assertDoesNotMatchRegularExpression('/<img src="[^"]*hero-finish-line\.webp"[^>]*loading="lazy"/', $content);
+    }
+
+    public function test_only_the_home_page_loads_the_condensed_display_font(): void
+    {
+        $this->get(route('welcome'))->assertOk()->assertSee('family=Barlow+Condensed', false);
+        $this->get(route('faq'))->assertOk()->assertDontSee('Barlow+Condensed', false);
     }
 }

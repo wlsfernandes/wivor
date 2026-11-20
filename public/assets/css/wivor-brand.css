@@ -525,153 +525,452 @@ body {
     .wv-input { transition: none; }
 }
 
-/* Homepage reference */
-.wv-hero { padding: 40px 0 0; }
-
-.wv-hero__grid { display: grid; gap: 32px; }
-
-.wv-hero__title { font-size: clamp(2.125rem, 9.4vw, 2.5rem); font-weight: 800; line-height: 1.1; text-wrap: balance; }
-
-.wv-hero__title span { display: block; }
-
-.wv-hero__title::after {
-    content: "";
-    display: block;
-    width: 56px;
-    height: 3px;
-    margin-top: 20px;
-    background: var(--wivor-accent);
-    transform-origin: left;
-    animation: wv-hero-rule 400ms ease-out 240ms backwards;
+/*
+ * Homepage (docs/WIVOR_FRONTEND_2026_HOMEPAGE_MASTER_PLAN.md).
+ * Barlow Condensed is loaded on the homepage only, so these display rules apply only inside .wv-home.
+ * Brand colors are the tokens above; nothing here adds a new brand color.
+ */
+:root {
+    --wivor-font-display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    --wivor-font-ui: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --wivor-ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+    --wivor-overlay-strong: rgba(21, 27, 34, 0.94);
+    --wivor-overlay-medium: rgba(21, 27, 34, 0.8);
+    --wivor-overlay-soft: rgba(21, 27, 34, 0.28);
 }
 
-/* One entrance on page load. Backwards fill leaves no transform behind once it ends. */
-.wv-hero__intro > * { animation: wv-hero-rise 400ms ease-out backwards; }
-.wv-hero__intro > :nth-child(2) { animation-delay: 80ms; }
-.wv-hero__intro > :nth-child(3) { animation-delay: 160ms; }
-.wv-hero__intro > :nth-child(4) { animation-delay: 240ms; }
+.wv-home { color: var(--wivor-text); }
 
-@keyframes wv-hero-rise {
-    from { opacity: 0; transform: translateY(12px); }
+.wv-home :is(p, a, li, label, input, button) { font-family: var(--wivor-font-ui); }
+
+.wv-home-section { padding: 60px 0; }
+
+.wv-home-section--white { background: var(--wivor-surface); }
+.wv-home-section--light { background: var(--wivor-surface-subtle); }
+
+/* Display type: uppercase is presentation only; the HTML stays in sentence case for screen readers. */
+.wv-home-display {
+    margin: 0;
+    font-family: var(--wivor-font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    color: var(--wivor-ink);
 }
 
-@keyframes wv-hero-rule {
-    from { transform: scaleX(0); }
+.wv-home-h2 { font-size: clamp(2.35rem, 8.5vw, 3.2rem); line-height: 1; }
+
+.wv-home-h3 {
+    margin: 0 0 8px;
+    font-family: var(--wivor-font-display);
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--wivor-ink);
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .wv-hero__intro > *,
-    .wv-hero__title::after { animation: none; }
+.wv-home-lead { max-width: 40rem; margin: 14px 0 0; text-wrap: pretty; font-size: 17px; font-weight: 500; line-height: 1.55; }
+
+.wv-home-body { max-width: 40rem; margin: 0; text-wrap: pretty; font-size: 16px; font-weight: 500; line-height: 1.6; }
+
+/* Audience label: names who the section is for. */
+.wv-home-audience { margin: 0 0 12px; font-size: 14px; font-weight: 700; line-height: 1.4; color: var(--wivor-accent-hover); }
+
+/* Primary call to action. 20px bold counts as large text, so white on the brand orange meets WCAG AA (3.55:1). */
+.wv-home .wv-home-cta {
+    min-height: 54px;
+    padding: 12px 26px;
+    font-family: var(--wivor-font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: normal;
+    text-align: center;
+    transition: transform 0.18s var(--wivor-ease-out-expo), background-color 0.18s ease, border-color 0.18s ease;
 }
 
-.wv-hero .wv-search { margin-top: 24px; }
+.wv-home .wv-home-cta:hover { transform: translateY(-1px); }
 
-.wv-hero__media img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    object-position: 50% 30%;
-}
-
-.wv-split { display: grid; gap: 32px; align-items: center; }
-
-.wv-split__image {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    border-radius: var(--wivor-radius-panel);
-}
-
-.wv-steps {
-    margin: 24px 0;
-    padding: 0;
-    list-style: none;
-    counter-reset: wv-step;
-}
-
-.wv-steps li {
-    position: relative;
-    padding: 0 0 20px 48px;
-    counter-increment: wv-step;
-}
-
-.wv-steps li::before {
-    content: counter(wv-step);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--wivor-ink);
-    color: var(--wivor-on-dark);
-    font-family: var(--wivor-font-heading);
+.wv-home-text-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-size: 15px;
     font-weight: 700;
-    line-height: 32px;
-    text-align: center;
+    color: var(--wivor-ink);
+    text-decoration: underline !important;
+    text-decoration-color: var(--wivor-accent) !important;
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 6px;
+    transition: color 0.16s ease;
 }
 
-.wv-reassurance { display: grid; gap: 24px; margin-top: 32px; }
+.wv-home-text-link:hover { color: var(--wivor-accent-hover); }
 
-.wv-section.wv-band { padding: 32px 0; }
+.wv-home :is(.wv-home-text-link, .wv-home-cta):focus-visible {
+    outline: 3px solid var(--wivor-focus);
+    outline-offset: 3px;
+}
 
-.wv-band__row { display: flex; flex-direction: column; gap: 12px; }
+/* Hero: race photo with a dark field behind the copy. Mobile stacks photo over copy. */
+.wv-home-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--wivor-ink);
+    color: var(--wivor-on-dark-muted);
+}
 
-.wv-band__row p { margin: 0; }
+.wv-home-hero__media {
+    position: relative;
+    height: clamp(180px, 48vw, 420px);
+}
 
-.wv-section.wv-photographers { padding: 0; }
+.wv-home-hero__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 52% 18%;
+}
 
-.wv-photographers__image {
+.wv-home-hero__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 45%, var(--wivor-ink) 100%);
+}
+
+.wv-home-hero__inner {
+    position: relative;
+    margin-top: -48px;
+    padding-bottom: 48px;
+}
+
+.wv-home-hero__title {
+    font-size: clamp(2.5rem, 12.5vw, 4.65rem);
+    line-height: 0.9;
+    letter-spacing: -0.025em;
+    color: var(--wivor-surface);
+}
+
+.wv-home-hero__title span { display: block; }
+
+/* The last line carries the brand color: it names what WiVor delivers. */
+.wv-home-hero__title span:last-child { color: var(--wivor-accent); }
+
+.wv-home-hero__lead { max-width: 34rem; margin: 18px 0 0; font-size: 16px; font-weight: 500; line-height: 1.55; color: var(--wivor-on-dark-muted); }
+
+/* Search panel: the real event search form on a white surface. */
+.wv-home-hero .wv-search {
+    max-width: 640px;
+    margin-top: 24px;
+    padding: 14px;
+    gap: 10px;
+    background: var(--wivor-surface);
+    border-radius: var(--wivor-radius-card);
+    box-shadow: 0 12px 32px rgba(9, 20, 30, 0.10);
+}
+
+.wv-home-hero .wv-label { margin-bottom: 6px; font-size: 14px; font-weight: 700; color: var(--wivor-ink); }
+
+.wv-home-hero .wv-search__field {
+    min-height: 54px;
+    border-color: var(--wivor-border);
+    font-size: 16px;
+    transition: border-color 0.16s ease;
+}
+
+.wv-home-hero .wv-search__field:focus { border-color: var(--wivor-ink); box-shadow: none; }
+
+.wv-home-hero .wv-search__submit {
+    min-height: 54px;
+    padding: 12px 24px;
+    font-family: var(--wivor-font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.wv-home-hero__secondary { margin: 14px 0 0; }
+
+.wv-home-hero .wv-home-text-link { color: var(--wivor-surface); }
+.wv-home-hero .wv-home-text-link:hover { color: var(--wivor-on-dark-muted); }
+
+/* One entrance on page load. Backwards fill leaves no transform behind once it ends. */
+.wv-hero__intro > * { animation: wv-home-rise 600ms var(--wivor-ease-out-expo) backwards; }
+.wv-hero__intro > :nth-child(2) { animation-delay: 90ms; }
+.wv-hero__intro > :nth-child(3) { animation-delay: 200ms; animation-duration: 500ms; }
+.wv-hero__intro > :nth-child(4) { animation-delay: 280ms; }
+
+@keyframes wv-home-rise {
+    from { opacity: 0; transform: translateY(14px); }
+}
+
+/* Steps: numbers drawn as race bibs, because each one is a stage of the athlete's journey. */
+.wv-home-steps {
+    display: grid;
+    gap: 32px;
+    margin: 36px 0 28px;
+    padding: 0;
+    list-style: none;
+    counter-reset: wv-home-step;
+}
+
+.wv-home-steps li { counter-increment: wv-home-step; }
+
+.wv-home-steps li::before {
+    content: counter(wv-home-step, decimal-leading-zero);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 60px;
+    margin-bottom: 18px;
+    border: 2px solid var(--wivor-ink);
+    border-radius: 6px;
+    background:
+        radial-gradient(circle at 9px 9px, var(--wivor-ink) 2.5px, transparent 3px),
+        radial-gradient(circle at calc(100% - 9px) 9px, var(--wivor-ink) 2.5px, transparent 3px),
+        radial-gradient(circle at 9px calc(100% - 9px), var(--wivor-ink) 2.5px, transparent 3px),
+        radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), var(--wivor-ink) 2.5px, transparent 3px),
+        var(--wivor-surface);
+    font-family: var(--wivor-font-display);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--wivor-ink);
+}
+
+.wv-home-steps li:first-child::before { border-color: var(--wivor-accent); color: var(--wivor-accent-hover); }
+
+/* Event directory link. Stands in for event cards until the homepage receives event data. */
+.wv-home-events {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.wv-home-events .wv-home-lead { margin-top: 12px; }
+
+/* Story: an athlete celebrating, beside one line of copy. */
+.wv-home-story {
+    background: var(--wivor-ink);
+    color: var(--wivor-on-dark-muted);
+}
+
+.wv-home-story__grid { display: grid; }
+
+.wv-home-story__image {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
+    object-position: 40% 35%;
 }
 
-.wv-photographers__copy { padding-top: 40px; padding-bottom: 56px; }
+.wv-home-story__copy { padding-top: 40px; padding-bottom: 60px; }
+
+.wv-home-story .wv-home-display { color: var(--wivor-surface); }
+
+.wv-home-story .wv-home-body { margin-top: 16px; color: var(--wivor-on-dark-muted); }
+
+.wv-home-story .wv-home-text-link { margin-top: 20px; color: var(--wivor-surface); }
+.wv-home-story .wv-home-text-link:hover { color: var(--wivor-on-dark-muted); }
+
+/* Photographers: photo and copy side by side on desktop. */
+.wv-home-split { display: grid; gap: 32px; align-items: center; }
+
+.wv-home-split__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: 30% 50%;
+    border-radius: var(--wivor-radius-card);
+}
+
+.wv-home-split .wv-home-body { margin-top: 16px; }
+
+.wv-home-split .wv-button-row { margin-top: 28px; }
+
+/* Organizers: quieter panel inside the white section. */
+.wv-home-section--organizers { padding-top: 0; }
+
+.wv-home-panel {
+    display: grid;
+    overflow: hidden;
+    background: var(--wivor-surface-subtle);
+    border-radius: var(--wivor-radius-card);
+}
+
+.wv-home-panel__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 21 / 9;
+    object-fit: cover;
+    object-position: 40% 70%;
+}
+
+.wv-home-panel__copy { padding: 28px 20px 32px; }
+
+.wv-home-panel .wv-home-body { margin-top: 14px; }
+
+.wv-home-panel .wv-button-row { margin-top: 24px; }
+
+/* Purchase facts: three short statements under one rule each. */
+.wv-home-facts { display: grid; gap: 28px; margin-top: 32px; }
+
+.wv-home-facts > div { padding-top: 18px; border-top: 2px solid var(--wivor-ink); }
+
+.wv-home-facts a { color: var(--wivor-ink); font-weight: 700; text-decoration: underline !important; text-underline-offset: 3px; }
+
+.wv-home-facts a:hover { color: var(--wivor-accent-hover); }
+
+.wv-home-facts a:focus-visible { outline: 3px solid var(--wivor-focus); outline-offset: 2px; }
+
+/* Closing call to action on the brand orange. Ink text on #ff3d00 is 4.85:1. */
+.wv-home-closing {
+    padding: 64px 0;
+    background: var(--wivor-accent);
+    color: var(--wivor-ink);
+}
+
+.wv-home-closing .wv-home-display { font-size: clamp(2.6rem, 10vw, 5.5rem); line-height: 0.92; }
+
+.wv-home-closing .wv-home-lead { color: var(--wivor-ink); }
+
+.wv-home-closing .wv-button-row { margin-top: 28px; }
+
+.wv-home .wv-home-cta--ink { background: var(--wivor-ink); border-color: var(--wivor-ink); color: var(--wivor-surface); }
+
+.wv-home .wv-home-cta--ink:hover,
+.wv-home .wv-home-cta--ink:focus-visible { background: var(--wivor-ink-soft); border-color: var(--wivor-ink-soft); color: var(--wivor-surface); }
+
+/* The blue focus ring is hard to see on orange; ink is 4.85:1 against it. */
+.wv-home-closing .wv-home-cta:focus-visible { outline-color: var(--wivor-ink); }
+
+@media (min-width: 576px) {
+    .wv-home-panel__copy { padding: 36px 32px 40px; }
+}
 
 @media (min-width: 768px) {
-    .wv-reassurance { grid-template-columns: repeat(3, 1fr); }
+    .wv-home-section { padding: 72px 0; }
 
-    .wv-band__row { flex-direction: row; align-items: center; justify-content: space-between; gap: 32px; }
+    .wv-home-section--organizers { padding-top: 0; }
 
-    .wv-band__row > a { flex-shrink: 0; }
+    .wv-home-hero__lead { font-size: 17px; }
+
+    .wv-home-steps { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+    .wv-home-facts { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+    .wv-home-events { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 48px; }
+
+    .wv-home-events .wv-button-row { flex-shrink: 0; margin-top: 0; }
+
+    .wv-home-closing { padding: 88px 0; }
 }
 
 @media (min-width: 1024px) {
-    .wv-hero { padding: 0; }
+    .wv-home-section { padding: 96px 0; }
 
-    .wv-hero__grid {
-        grid-template-columns: 48fr 52fr;
+    .wv-home-section--organizers { padding-top: 0; }
+
+    .wv-home-h2 { font-size: clamp(2.9rem, 4.3vw, 4.75rem); }
+
+    .wv-home-h3 { font-size: 32px; }
+
+    .wv-home-lead { font-size: 20px; }
+
+    /*
+     * Desktop hero: photo fills the frame, anchored left so the runner lands right of the copy.
+     * The frame stops at 1600px so the 1200px source is not stretched further on wide screens.
+     */
+    .wv-home-hero {
+        display: flex;
         align-items: center;
-        gap: 56px;
-        max-width: none;
-        padding-right: 0;
-        padding-left: max(32px, calc((100% - var(--wivor-content-width)) / 2 + 32px));
+        min-height: 680px;
     }
 
-    .wv-hero__title { font-size: clamp(2.5rem, 3.7vw, 3.25rem); }
-
-    .wv-hero__media img { height: 600px; aspect-ratio: auto; }
-
-    .wv-split { grid-template-columns: 1fr 1fr; gap: 64px; }
-
-    .wv-photographers {
-        display: grid;
-        grid-template-columns: 52fr 48fr;
-        align-items: center;
-        gap: 56px;
+    .wv-home-hero__media {
+        position: absolute;
+        inset: 0;
+        max-width: 1600px;
+        height: auto;
+        margin: 0 auto;
     }
 
-    .wv-section.wv-photographers { padding-right: max(32px, calc((100% - var(--wivor-content-width)) / 2 + 32px)); }
+    .wv-home-hero__media img { object-position: 5% 30%; }
 
-    .wv-photographers__image { height: 100%; min-height: 480px; aspect-ratio: auto; }
+    .wv-home-hero__media::after {
+        background: linear-gradient(to right, var(--wivor-overlay-strong) 0%, var(--wivor-overlay-medium) 45%, var(--wivor-overlay-soft) 58%, transparent 70%);
+    }
 
-    .wv-photographers__copy { max-width: none; margin: 0; padding: 64px 0; }
+    .wv-home-hero__inner { margin-top: 0; padding-top: 72px; padding-bottom: 80px; }
+
+    .wv-home-hero__intro { max-width: 640px; }
+
+    .wv-home-hero__title { font-size: clamp(4.5rem, 7.7vw, 7rem); line-height: 0.9; }
+
+    .wv-home-hero__lead { max-width: 32rem; font-size: 18px; }
+
+    .wv-home-steps { margin-top: 48px; }
+
+    .wv-home-steps li { position: relative; }
+
+    /* Fine line linking the bibs, desktop only. */
+    .wv-home-steps li:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 30px;
+        left: 100px;
+        right: -8px;
+        border-top: 1px dashed var(--wivor-muted);
+    }
+
+    .wv-home-story__grid {
+        grid-template-columns: 7fr 5fr;
+        align-items: end;
+        gap: 64px;
+        padding-right: max(32px, calc((100% - var(--wivor-content-width)) / 2 + 32px));
+    }
+
+    .wv-home-story__image { aspect-ratio: auto; height: 640px; }
+
+    .wv-home-story__copy { padding: 0 0 96px; }
+
+    .wv-home-story .wv-home-display { font-size: clamp(3.5rem, 5.6vw, 5.5rem); line-height: 0.92; }
+
+    .wv-home-split { grid-template-columns: 1fr 1fr; gap: 72px; }
+
+    .wv-home-panel { grid-template-columns: 5fr 7fr; align-items: stretch; }
+
+    .wv-home-panel__copy { order: -1; padding: 48px; align-self: center; }
+
+    .wv-home-panel__image { height: 100%; min-height: 360px; aspect-ratio: auto; }
+
+    .wv-home-closing { padding: 112px 0; }
+}
+
+/* Past 1600px the hero photo stops growing; fade its right edge into the dark field. */
+@media (min-width: 1601px) {
+    .wv-home-hero__media::after {
+        background:
+            linear-gradient(to left, var(--wivor-ink) 0, transparent 5%),
+            linear-gradient(to right, var(--wivor-overlay-strong) 0%, var(--wivor-overlay-medium) 45%, var(--wivor-overlay-soft) 58%, transparent 70%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wv-hero__intro > * { animation: none; }
+
+    .wv-home .wv-home-cta,
+    .wv-home-text-link,
+    .wv-home-hero .wv-search__field { transition: none; }
+
+    .wv-home .wv-home-cta:hover { transform: none; }
 }

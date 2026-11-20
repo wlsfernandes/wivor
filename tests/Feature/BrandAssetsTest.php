@@ -107,8 +107,7 @@ class BrandAssetsTest extends TestCase
     {
         $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
 
-        $this->assertMatchesRegularExpression('/@keyframes wv-hero-rise \{[^}]*opacity: 0;[^}]*transform: translateY\(12px\);[^}]*\}/', $stylesheet);
-        $this->assertMatchesRegularExpression('/@keyframes wv-hero-rule \{[^}]*transform: scaleX\(0\);[^}]*\}/', $stylesheet);
+        $this->assertMatchesRegularExpression('/@keyframes wv-home-rise \{\s*from \{ opacity: 0; transform: translateY\(14px\); \}\s*\}/', $stylesheet);
     }
 
     public function test_hero_entrance_stops_for_visitors_who_prefer_reduced_motion(): void
@@ -116,7 +115,7 @@ class BrandAssetsTest extends TestCase
         $stylesheet = file_get_contents(public_path('assets/css/wivor-brand.css'));
 
         $this->assertMatchesRegularExpression(
-            '/@media \(prefers-reduced-motion: reduce\) \{\s*\.wv-hero__intro > \*,\s*\.wv-hero__title::after \{ animation: none; \}/',
+            '/@media \(prefers-reduced-motion: reduce\) \{\s*\.wv-hero__intro > \* \{ animation: none; \}/',
             $stylesheet
         );
     }
