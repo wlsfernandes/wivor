@@ -96,13 +96,13 @@ class FrontendTruthAlignmentTest extends TestCase
             ->assertSee('do not automatically send a transfer after each sale.');
     }
 
-    public function test_authenticated_legacy_view_does_not_advertise_video_services(): void
+    public function test_removed_legacy_view_advertising_video_services_is_not_reachable(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get('/apagar')
-            ->assertOk()
+            ->assertNotFound()
             ->assertDontSee('Video Editing');
     }
 }
