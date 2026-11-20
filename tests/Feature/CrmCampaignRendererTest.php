@@ -14,13 +14,6 @@ class CrmCampaignRendererTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        config(['crm.postal_address' => "WiVor Photos\n1 Finish Line Rd\nAtlanta, GA 30301"]);
-    }
-
     public function test_recipient_values_are_escaped_and_event_links_are_real_routes(): void
     {
         $event = $this->event();
@@ -48,7 +41,7 @@ class CrmCampaignRendererTest extends TestCase
         $this->assertSame('Hi Ana Bcc: victim@example.com', $email->subject);
     }
 
-    public function test_footer_has_postal_address_reason_and_unsubscribe_link(): void
+    public function test_footer_has_reason_and_unsubscribe_link_but_no_postal_address(): void
     {
         $email = app(CrmCampaignRenderer::class)->render(
             $this->campaign('Hello', '<p>Body</p>'),
@@ -56,20 +49,11 @@ class CrmCampaignRendererTest extends TestCase
             'https://wivorphotos.com/unsubscribe/token'
         );
 
-        $this->assertStringContainsString('1 Finish Line Rd', $email->html);
+        $this->assertStringNotContainsString('Scarlet Rose Way', $email->html);
         $this->assertStringContainsString('because you took part in River Run', $email->html);
         $this->assertStringContainsString('href="https://wivorphotos.com/unsubscribe/token"', $email->html);
         $this->assertStringContainsString('Unsubscribe: https://wivorphotos.com/unsubscribe/token', $email->text);
-        $this->assertStringContainsString('1 Finish Line Rd', $email->text);
-    }
-
-    public function test_missing_postal_address_is_flagged_in_the_email(): void
-    {
-        config(['crm.postal_address' => null]);
-
-        $email = app(CrmCampaignRenderer::class)->render($this->campaign('Hello', '<p>Body</p>'), CrmRecipientValues::forContact($this->contact(), null), null);
-
-        $this->assertStringContainsString('POSTAL ADDRESS NOT CONFIGURED', $email->html);
+        $this->assertStringNotContainsString('Scarlet Rose Way', $email->text);
     }
 
     public function test_html_injected_past_the_editor_is_removed_at_render(): void

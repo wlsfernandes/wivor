@@ -59,7 +59,6 @@ class CrmCampaignController extends Controller
                 ? $audienceBuilder->counts($campaign)
                 : ['candidates' => $campaign->intended_count + $campaign->ineligible_count, 'eligible' => $campaign->intended_count, 'ineligible' => $campaign->ineligible_count],
             'contentErrors' => $contentValidator->campaignErrors($campaign),
-            'hasPostalAddress' => filled(config('crm.postal_address')),
         ]);
     }
 

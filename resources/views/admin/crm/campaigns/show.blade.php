@@ -23,9 +23,6 @@
         @if ($errors->any())
             <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
         @endif
-        @if (! $hasPostalAddress)
-            <div class="alert alert-warning" role="alert">CRM_POSTAL_ADDRESS is not configured. Campaigns cannot be scheduled until it is set.</div>
-        @endif
         @foreach ($contentErrors as $contentError)
             <div class="alert alert-warning" role="alert">{{ $contentError }}</div>
         @endforeach
@@ -76,7 +73,7 @@
                         <label for="scheduled_at" class="form-label">Send at (Eastern time)</label>
                         <input type="datetime-local" id="scheduled_at" name="scheduled_at" class="form-control" required>
                     </div>
-                    <button class="btn btn-success" @disabled(! $hasPostalAddress || $counts['eligible'] === 0 || $contentErrors !== [])>Schedule</button>
+                    <button class="btn btn-success" @disabled($counts['eligible'] === 0 || $contentErrors !== [])>Schedule</button>
                 </form>
             @endif
 

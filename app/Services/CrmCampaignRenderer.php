@@ -12,8 +12,6 @@ use App\Models\CrmCampaign;
  */
 class CrmCampaignRenderer
 {
-    public const MISSING_POSTAL_ADDRESS = 'POSTAL ADDRESS NOT CONFIGURED';
-
     public function __construct(
         private readonly CrmPersonalizer $personalizer,
         private readonly CrmHtmlSanitizer $sanitizer,
@@ -28,7 +26,6 @@ class CrmCampaignRenderer
         $callToAction = $this->callToAction($campaign, $values);
         $footer = [
             'reason' => $this->reason($campaign, $values['event_name'] ?? null),
-            'postalAddress' => $this->postalAddress(),
             'unsubscribeUrl' => $unsubscribeUrl,
         ];
 
@@ -86,17 +83,10 @@ class CrmCampaignRenderer
         return trim(preg_replace('/\s*[\r\n]+\s*/', ' ', $value));
     }
 
-    private function postalAddress(): string
-    {
-        $postalAddress = trim((string) config('crm.postal_address'));
-
-        return $postalAddress === '' ? self::MISSING_POSTAL_ADDRESS : $postalAddress;
-    }
-
     /**
      * @param array<string, string|null> $values
      * @param array{label: string, url: string}|null $callToAction
-     * @param array{reason: string, postalAddress: string, unsubscribeUrl: string|null} $footer
+     * @param array{reason: string, unsubscribeUrl: string|null} $footer
      */
     private function text(CrmCampaign $campaign, array $values, string $bodyHtml, ?array $callToAction, array $footer): string
     {
@@ -110,7 +100,7 @@ class CrmCampaignRenderer
             $sections[] = $callToAction['label'].': '.$callToAction['url'];
         }
 
-        $sections[] = "--\n".$footer['reason']."\n".$footer['postalAddress'];
+        $sections[] = "--\n".$footer['reason'];
 
         if ($footer['unsubscribeUrl'] !== null) {
             $sections[] = 'Unsubscribe: '.$footer['unsubscribeUrl'];

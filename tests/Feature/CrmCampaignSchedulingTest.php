@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Exceptions\CrmCampaignStateException;
 use App\Models\CrmCampaign;
 use App\Models\CrmCampaignRecipient;
 use App\Models\CrmContact;
@@ -15,13 +14,6 @@ use Tests\TestCase;
 class CrmCampaignSchedulingTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        config(['crm.postal_address' => '1 Finish Line Rd, Atlanta, GA 30301']);
-    }
 
     public function test_scheduling_snapshots_eligible_recipients_with_their_event(): void
     {
@@ -55,18 +47,6 @@ class CrmCampaignSchedulingTest extends TestCase
 
         $this->assertSame(1, $campaign->recipients()->count());
         $this->assertNull($campaign->recipients()->value('event_id'));
-    }
-
-    public function test_scheduling_is_blocked_until_a_postal_address_is_configured(): void
-    {
-        config(['crm.postal_address' => '']);
-        $event = $this->event('River Run');
-        $this->participant('ana@example.com', $event);
-
-        $this->expectException(CrmCampaignStateException::class);
-        $this->expectExceptionMessage('Set CRM_POSTAL_ADDRESS');
-
-        app(CrmCampaignService::class)->schedule($this->campaign([$event]), now()->addHour());
     }
 
     public function test_scheduling_requires_a_future_time(): void

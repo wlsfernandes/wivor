@@ -110,10 +110,6 @@ class CrmCampaignService
     {
         $this->assertDraft($campaign, 'Only draft campaigns can be scheduled.');
 
-        if (blank(config('crm.postal_address'))) {
-            throw new CrmCampaignStateException('Set CRM_POSTAL_ADDRESS in the environment before scheduling campaigns.');
-        }
-
         if ($sendAt->isPast()) {
             throw new CrmCampaignStateException('Choose a send time in the future.');
         }

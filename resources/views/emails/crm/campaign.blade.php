@@ -1,5 +1,5 @@
 {{-- $bodyHtml is administrator content already personalized with escaped values and sanitized; it is data, not a template. --}}
-<x-email.layout :title="$subject" :postal-address="$footer['postalAddress']">
+<x-email.layout :title="$subject">
     @if ($previewText !== '')
         <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">{{ $previewText }}</div>
     @endif

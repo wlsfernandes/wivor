@@ -17,13 +17,6 @@ class CrmCampaignHttpTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        config(['crm.postal_address' => '1 Finish Line Rd, Atlanta, GA 30301']);
-    }
-
     public function test_admin_creates_an_event_notification_with_sanitized_body(): void
     {
         $event = $this->event();
@@ -146,18 +139,6 @@ class CrmCampaignHttpTest extends TestCase
             ->assertSee('9:00 AM EST');
     }
 
-    public function test_scheduling_without_postal_address_shows_the_reason(): void
-    {
-        config(['crm.postal_address' => null]);
-        $event = $this->event();
-        $this->participant('ana@example.com', $event);
-        $campaign = $this->draft($event);
-
-        $this->actingAs($this->admin())
-            ->post(route('admin.crm.campaigns.schedule', $campaign), ['scheduled_at' => now()->addDay()->format('Y-m-d\TH:i')])
-            ->assertSessionHasErrors(['campaign' => 'Set CRM_POSTAL_ADDRESS in the environment before scheduling campaigns.']);
-    }
-
     public function test_scheduled_campaign_cannot_be_edited(): void
     {
         $event = $this->event();
@@ -255,15 +236,12 @@ class CrmCampaignHttpTest extends TestCase
         $this->actingAs($admin)->get(route('admin.crm.templates.edit', $template))->assertOk();
     }
 
-    public function test_transactional_emails_use_the_configured_postal_address(): void
+    public function test_transactional_email_footer_has_no_postal_address(): void
     {
-        config(['crm.postal_address' => "382 Scarlet Rose Way\nHoschton, GA 30548"]);
-
         $html = view('emails.contact', ['data' => ['username' => 'Ana', 'email' => 'ana@example.com', 'phone' => '1', 'message' => 'Hi']])->render();
 
-        $this->assertStringContainsString('382 Scarlet Rose Way<br />', $html);
-        $this->assertStringContainsString('Hoschton, GA 30548', $html);
-        $this->assertStringNotContainsString('Decatur', $html);
+        $this->assertStringNotContainsString('Scarlet Rose Way', $html);
+        $this->assertStringNotContainsString('Hoschton', $html);
     }
 
 
