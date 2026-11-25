@@ -32,6 +32,19 @@ class PhotographerUploadTest extends TestCase
         $this->actingAs($user)->get(route('photographer.uploads.show', $event))->assertForbidden();
     }
 
+    public function test_uploader_shows_the_configured_sales_window_instead_of_a_fixed_number_of_days(): void
+    {
+        config(['photo_uploads.sales_window_days' => 180]);
+        [$user, , $event] = $this->approvedAssignment();
+
+        $response = $this->actingAs($user)->get(route('photographer.uploads.show', $event));
+
+        $response->assertOk()
+            ->assertSee('Unsold media is normally removed 180 days after gallery publication.')
+            ->assertSee('180 days after the first gallery publication.', false)
+            ->assertDontSee('60 days after');
+    }
+
     public function test_expired_uploader_keeps_upload_controls_visible_but_disabled(): void
     {
         [$user, , $event, $assignment] = $this->approvedAssignment();

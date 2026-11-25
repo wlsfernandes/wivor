@@ -80,7 +80,7 @@
                             <li>Upload only photographs you created or are legally authorized to sell.</li>
                             <li>Keep your own backup of every original.</li>
                             <li>WivorPhotos is a sales platform, not permanent backup storage.</li>
-                            <li>Unsold media is normally removed 60 days after gallery publication.</li>
+                            <li>Unsold media is normally removed {{ $rules['sales_window_days'] }} days after gallery publication.</li>
                             <li>WivorPhotos applies its own watermark to previews and thumbnails.</li>
                         </ul>
                         @if ($assignment->rights_confirmed_at)
@@ -186,7 +186,7 @@
                     <p class="mb-1"><strong>Photos scheduled for deletion:</strong> {{ $scheduledDeletionCount }}</p>
                     <p class="mb-0">Sold originals may remain longer for authorized customer downloads.</p>
                 @else
-                    <p class="mb-0"><strong>Expected expiration:</strong> 60 days after the first gallery publication. No
+                    <p class="mb-0"><strong>Expected expiration:</strong> {{ $rules['sales_window_days'] }} days after the first gallery publication. No
                         publication date has been set yet.</p>
                 @endif
             </div>
