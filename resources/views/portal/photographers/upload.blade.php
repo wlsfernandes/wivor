@@ -212,6 +212,9 @@
             const overall = document.getElementById('overall-progress');
             const overallLabel = document.getElementById('overall-label');
             const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            // Signed upload URLs expire (photo_uploads.upload_url_minutes), so files upload a few at a time
+            // and each one requests its URL right before its PUT instead of reusing the batch-creation URL.
+            const UPLOAD_CONCURRENCY = 4;
             let items = [];
 
             const showError = message => {
@@ -321,11 +324,27 @@
                     'Upload interrupted. Check your connection and retry.'));
                 xhr.send(item.file);
             });
-            const uploadOne = async (item, upload) => {
+            const runWithConcurrency = async (tasks, limit, task) => {
+                let nextIndex = 0;
+                const worker = async () => {
+                    while (nextIndex < tasks.length) await task(tasks[nextIndex++]);
+                };
+                await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, worker));
+            };
+            const requestFreshUploadUrl = photoId => jsonRequest(root.dataset.retryTemplate.replace('__PHOTO__',
+                photoId), {
+                method: 'POST',
+                body: '{}'
+            });
+            const uploadOne = async item => {
                 try {
-                    if (upload.error) throw new Error(upload.error);
-                    item.id = upload.id;
+                    if (!item.id) throw new Error(item.error || 'Upload permission could not be created. Retry in a moment.');
+                    item.error = null;
                     item.status = 'uploading';
+                    item.label = 'Starting';
+                    render();
+                    const upload = await requestFreshUploadUrl(item.id);
+                    if (upload.error) throw new Error(upload.error);
                     item.label = 'Uploading';
                     render();
                     await putFile(item, upload);
@@ -342,7 +361,7 @@
                     render();
                 } catch (error) {
                     item.status = 'failed';
-                    item.label = 'Queued';
+                    item.label = 'Failed';
                     item.error = error.message;
                     render();
                 }
@@ -385,8 +404,14 @@
                         body: JSON.stringify(body)
                     });
                     const queued = items.filter(i => i.status === 'queued');
-                    await Promise.all(queued.map((item, index) => uploadOne(item, batch.photos[
-                        index])));
+                    queued.forEach((item, index) => {
+                        item.id = batch.photos[index].id;
+                        item.error = batch.photos[index].error || null;
+                        item.status = 'waiting';
+                        item.label = 'Waiting';
+                    });
+                    render();
+                    await runWithConcurrency(queued, UPLOAD_CONCURRENCY, uploadOne);
                     await pollUntilSettled();
                     window.location.reload();
                 } catch (error) {
@@ -395,19 +420,14 @@
                 }
             });
             retryButton.addEventListener('click', async () => {
-                for (const item of items.filter(i => i.status === 'failed' && i.id)) {
-                    item.error = null;
+                const failed = items.filter(i => i.status === 'failed' && i.id);
+                failed.forEach(item => {
+                    item.status = 'waiting';
+                    item.label = 'Waiting';
                     item.progress = 0;
-                    try {
-                        await uploadOne(item, await jsonRequest(root.dataset.retryTemplate.replace(
-                            '__PHOTO__', item.id), {
-                            method: 'POST',
-                            body: '{}'
-                        }));
-                    } catch (error) {
-                        item.error = error.message;
-                    }
-                }
+                });
+                render();
+                await runWithConcurrency(failed, UPLOAD_CONCURRENCY, uploadOne);
             });
         });
     </script>

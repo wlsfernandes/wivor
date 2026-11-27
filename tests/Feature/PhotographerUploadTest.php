@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\UploadBatch;
 use App\Models\User;
 use App\Services\FaceRecognitionService;
+use App\Services\PhotoStorage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -113,6 +114,35 @@ class PhotographerUploadTest extends TestCase
         $this->assertSame(Photo::STATUS_PROCESSING, $photo->fresh()->status);
         $this->assertNotNull($photo->fresh()->uploaded_at);
         Queue::assertPushed(ProcessPhoto::class, fn ($job) => $job->photoId === $photo->id);
+    }
+
+    public function test_uploader_issues_a_fresh_upload_url_for_a_photo_still_waiting_for_upload(): void
+    {
+        $this->app->instance(PhotoStorage::class, new class extends PhotoStorage
+        {
+            public function uploadUrl(string $key): array
+            {
+                return ['url' => "https://uploads.test/{$key}", 'headers' => ['Content-Type' => 'image/jpeg']];
+            }
+        });
+        [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $photo = $this->reservedPhoto($photographer, $event, $assignment);
+
+        $this->actingAs($user)
+            ->postJson(route('photographer.uploads.retry-url', [$event, $photo]))
+            ->assertOk()
+            ->assertJson(['id' => $photo->uuid, 'url' => "https://uploads.test/{$photo->original_key}"]);
+    }
+
+    public function test_uploader_refuses_a_fresh_upload_url_once_the_photo_is_processing(): void
+    {
+        [$user, $photographer, $event, $assignment] = $this->approvedAssignment();
+        $photo = $this->reservedPhoto($photographer, $event, $assignment);
+        $photo->update(['status' => Photo::STATUS_PROCESSING]);
+
+        $this->actingAs($user)
+            ->postJson(route('photographer.uploads.retry-url', [$event, $photo]))
+            ->assertStatus(409);
     }
 
     public function test_ready_photos_can_be_published_incrementally(): void
@@ -242,5 +272,19 @@ class PhotographerUploadTest extends TestCase
         ]);
 
         return [$user, $photographer, $event, $assignment];
+    }
+
+    private function reservedPhoto(Photographer $photographer, Event $event, EventAssignment $assignment): Photo
+    {
+        $batch = UploadBatch::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id,
+            'assignment_id' => $assignment->id, 'selected_count' => 1,
+        ]);
+
+        return Photo::create([
+            'event_id' => $event->id, 'photographer_id' => $photographer->id,
+            'assignment_id' => $assignment->id, 'upload_batch_id' => $batch->id,
+            'original_filename' => 'finish.jpg', 'original_key' => 'events/test/finish/original.jpg',
+        ]);
     }
 }
