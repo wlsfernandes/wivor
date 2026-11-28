@@ -108,7 +108,8 @@ class AdminPhotoOrderTest extends TestCase
             ->assertDontSee('https://signed.example.test/events/1/thumb-start.jpg', false)
             ->assertSee($publishedPhoto->reference_number)
             ->assertSee($removedPhoto->reference_number)
-            ->assertSee('No preview');
+            ->assertSee('No preview')
+            ->assertSee('View 2 photos sold in order '.$order->order_number);
     }
 
     public function test_guest_cannot_open_the_photo_order_reconciliation_page(): void
