@@ -26,28 +26,49 @@
             <table class="table table-striped align-middle mb-0">
                 <thead>
                     <tr>
+                        <th scope="col">Photos sold</th>
                         <th scope="col">Order</th>
                         <th scope="col">Event</th>
                         <th scope="col">Customer</th>
                         <th scope="col">Photos</th>
                         <th scope="col">Total</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Stripe Session</th>
-                        <th scope="col">Payment Intent</th>
+                        <th scope="col">Stripe Session / Payment Intent</th>
                         <th scope="col">Created</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($orders as $order)
                         <tr>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @forelse ($order->soldPhotos as $soldPhoto)
+                                        <div class="text-center">
+                                            @if ($soldPhoto->thumbnailUrl)
+                                                <a href="{{ $soldPhoto->thumbnailUrl }}" target="_blank" rel="noopener">
+                                                    <img src="{{ $soldPhoto->thumbnailUrl }}" alt="Photo {{ $soldPhoto->referenceNumber }}" loading="lazy"
+                                                        style="width: 48px; height: 48px; object-fit: cover;" class="rounded">
+                                                </a>
+                                            @else
+                                                <span class="d-block text-muted small">No preview</span>
+                                            @endif
+                                            <code class="small">{{ $soldPhoto->referenceNumber }}</code>
+                                        </div>
+                                    @empty
+                                        <span class="text-muted small">No photos</span>
+                                    @endforelse
+                                </div>
+                            </td>
                             <td>{{ $order->orderNumber }}</td>
                             <td>{{ $order->eventTitle }}</td>
                             <td class="text-break">{{ $order->customerEmail }}</td>
                             <td>{{ $order->photoCount }}</td>
                             <td>{{ $order->totalLabel }}</td>
                             <td>{{ $order->paymentStatusLabel }}</td>
-                            <td class="text-break"><code>{{ $order->stripeSessionId }}</code></td>
-                            <td class="text-break"><code>{{ $order->stripePaymentIntentId }}</code></td>
+                            <td class="text-break">
+                                <code class="d-block">{{ $order->stripeSessionId }}</code>
+                                <code class="d-block">{{ $order->stripePaymentIntentId }}</code>
+                            </td>
                             <td>{{ $order->createdAtLabel }}</td>
                         </tr>
                     @empty
